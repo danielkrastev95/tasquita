@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Home, UtensilsCrossed, Users, Calendar, BookOpen, MapPin, Instagram } from "lucide-react";
+import { X, Home, UtensilsCrossed, Users, Calendar, MapPin, Instagram } from "lucide-react";
 
 interface MobileMenuProps {
   isOpen: boolean;
@@ -16,7 +16,6 @@ const menuItems = [
   { name: "Menu", href: "#menu", icon: UtensilsCrossed },
   { name: "Nosotros", href: "#nosotros", icon: Users },
   { name: "Eventos", href: "#eventos", icon: Calendar, conditional: true },
-  // { name: "Reservas", href: "#reservas", icon: BookOpen },
   { name: "Contacto", href: "#contacto", icon: MapPin },
 ];
 
@@ -60,7 +59,6 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
   }, [isOpen]);
 
   const handleItemClick = (href: string, name: string) => {
-    console.log(`Navegando a: ${name}`);
     onClose();
     // Smooth scroll to section after menu closes
     if (href !== "#") {

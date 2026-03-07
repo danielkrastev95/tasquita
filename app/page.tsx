@@ -3,7 +3,6 @@ import Hero from "@/components/Hero";
 import MenuSection from "@/components/MenuSection";
 import AboutSection from "@/components/AboutSection";
 import EventsSection from "@/components/EventsSection";
-// import ReservationSection from "@/components/ReservationSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
@@ -75,7 +74,6 @@ export default async function Home() {
       <MenuSection menuData={menuData} />
       <AboutSection settings={settings} />
       <EventsSection eventsData={eventsData} />
-      {/* <ReservationSection /> */}
       <ContactSection settings={settings} />
       <Footer settings={settings} />
     </main>
