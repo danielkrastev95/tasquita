@@ -39,7 +39,7 @@ Documentación del trabajo realizado en la sesión de desarrollo.
 - **Toggle Sección Eventos:** Mostrar/ocultar sección completa de eventos
 - Información del restaurante (título, descripción, dirección)
 - Redes sociales (Instagram, Facebook)
-- Horarios de apertura por día
+- **Editor de Horarios:** Sistema dinámico para añadir/eliminar días y horarios (useFieldArray)
 - Teléfono y email de contacto
 
 ---
@@ -48,8 +48,9 @@ Documentación del trabajo realizado en la sesión de desarrollo.
 
 ### Tecnología
 - **ORM:** Prisma
-- **Base de datos:** SQLite (local) - Migrable a PostgreSQL para producción
-- **Ubicación:** `prisma/dev.db`
+- **Base de datos:** Neon PostgreSQL (Producción y Desarrollo)
+- **Conexión:** Serverless PostgreSQL en AWS (us-west-2)
+- **Branch:** develop (para desarrollo local)
 
 ### Modelos
 
@@ -87,8 +88,11 @@ npm run db:seed
 - Configuración en `lib/auth.ts`
 - Estrategia: JWT con credentials provider
 - Contraseñas hasheadas con bcryptjs
-- Middleware protege rutas `/admin/*` (excepto `/admin/login`)
+- **Proxy integrado:** `proxy.ts` envuelve NextAuth para proteger rutas
+- Callback `authorized()` redirige a `/admin/login` si no hay sesión
 - Sesiones persistentes
+- Protección de rutas `/admin/*` (excepto `/admin/login`)
+- Protección de API routes `/api/admin/*`
 
 ---
 
@@ -208,6 +212,106 @@ Documentación completa en `GUIA_IMAGENES.md`
 - Modificada lógica en `app/page.tsx` para usar campo específico
 - Script para activar valor por defecto en base de datos
 
+### 6. Vercel Edge Function Size Limit (1.01 MB > 1 MB)
+**Problema:** Deployment fallaba porque middleware importaba Prisma y bcrypt
+
+**Solución:**
+- Movida autenticación de middleware a NextAuth callbacks
+- Middleware reducido de 1.01 MB a 26.5 KB (97.4% reducción)
+- Solo maneja headers, sin imports pesados
+
+### 7. Next.js 16 Breaking Changes - Params Promise
+**Problema:** TypeScript error después de upgrade - params no es objeto directo
+
+**Solución:**
+- Cambiar `{ params }: { params: { id: string } }` a `{ params: Promise<{ id: string }> }`
+- Añadir `const { id } = await params;` antes de usar
+- Aplicado en `app/api/admin/events/[id]/route.ts` y `app/api/admin/menu/items/[id]/route.ts`
+
+### 8. Next.js 16 Breaking Changes - Headers Promise
+**Problema:** TypeScript error - headers() retorna Promise
+
+**Solución:**
+- Cambiar `const headersList = headers();` a `const headersList = await headers();`
+- Aplicado en `app/admin/layout.tsx`
+
+### 9. Next.js Security Vulnerability (14.2.16)
+**Problema:** npm warn deprecated por vulnerabilidad de seguridad
+
+**Solución:**
+- Upgrade Next.js: 14.2.16 → 16.1.6
+- Upgrade React: 18.3.1 → 19.2.4
+- Upgrade React-dom: 18.3.1 → 19.2.4
+- 0 vulnerabilities después de upgrade
+
+### 10. Middleware Deprecation → Proxy Migration
+**Problema:** Next.js 16 deprecó middleware.ts en favor de proxy.ts
+
+**Solución:**
+- Renombrar `middleware.ts` → `proxy.ts`
+- Cambiar export `middleware` → export default con wrapper `auth()`
+- Integrar NextAuth en proxy para autenticación
+
+### 11. Admin Accesible Sin Login en Producción
+**Problema:** Dashboard visible sin autenticación en Vercel
+
+**Solución:**
+- Integrar NextAuth en `proxy.ts` con wrapper `auth()`
+- Callback `authorized()` redirige explícitamente con `Response.redirect()`
+- Protección completa de rutas `/admin/*` y `/api/admin/*`
+
+### 12. Badges de Eventos con Poca Visibilidad
+**Problema:** Texto verde en badges sobre imágenes tenía mal contraste
+
+**Solución:**
+- Cambiar `text-primary` a `text-white` en `components/EventsSection.tsx:180`
+
+### 13. Horarios en Móvil con Layout Roto
+**Problema:** Layout horizontal causaba overflow en móvil
+
+**Solución:**
+- Cambiar a `flex-col` en móvil, `flex-row` en desktop
+- Responsive text sizing en `components/ContactSection.tsx`
+
+### 14. Google Maps No Funciona / Borroso
+**Problema:** Coordenadas incorrectas y glass morphism causaba blur
+
+**Solución:**
+- Actualizar coordenadas a: 40.201998253991874, -3.6892787099523385
+- Remover overlay glass morphism del mapa
+- Zoom level 16 para mejor visualización
+
+### 15. Sección Reservas No Usada
+**Problema:** Funcionalidad de reservas no lista para producción
+
+**Solución:**
+- Comentar `<ReservationSection />` en `app/page.tsx`
+- Remover link "Reservas" de `Navbar.tsx` y `MobileMenu.tsx`
+- Cambiar CTA Hero de "Reservar mesa" a "Contacto"
+
+### 16. Input Validation en APIs
+**Problema:** APIs sin validación exponían riesgo de seguridad
+
+**Solución:**
+- Crear schemas Zod: `lib/validations/settings.ts`, `lib/validations/events.ts`, `lib/validations/menu.ts`
+- Añadir validación en todas las rutas API con manejo de ZodError
+- Retornar errores 400 con detalles de validación
+
+### 17. React Best Practices - useEffect Dependencies
+**Problema:** useEffect sin dependencias correctas causaba posibles loops
+
+**Solución:**
+- Wrap funciones fetch con `useCallback` en `app/admin/events/[id]/page.tsx`
+- Wrap funciones fetch con `useCallback` en `app/admin/menu/items/[id]/page.tsx`
+- Añadir todas las dependencias necesarias
+
+### 18. TypeScript 'as any' en Auth
+**Problema:** Adapter casteado como 'any' sin type safety
+
+**Solución:**
+- Crear `types/next-auth.d.ts` con type definitions
+- Cambiar `as any` a `as Adapter` en `lib/auth.ts`
+
 ---
 
 ## Estructura de Archivos Admin
@@ -266,21 +370,100 @@ components/admin/
 ├── CategoryForm.tsx            # Formulario categorías
 ├── MenuItemForm.tsx            # Formulario platos
 ├── EventForm.tsx               # Formulario eventos
-└── SettingsForm.tsx            # Formulario configuración
+├── SettingsForm.tsx            # Formulario configuración
+└── ImageUpload.tsx             # Componente Cloudinary upload
 ```
 
 ---
 
-## Variables de Entorno (.env)
+## Validaciones API (Zod Schemas)
+
+```
+lib/validations/
+├── settings.ts                 # Schema para configuración general
+├── events.ts                   # Schemas para crear/actualizar eventos
+└── menu.ts                     # Schemas para categorías y platos
+```
+
+**Características:**
+- Validación de tipos y formatos
+- Mensajes de error en español
+- Manejo de campos opcionales y nullable
+- Validación de URLs para imágenes
+- Validación de enums (categorías de eventos)
+
+---
+
+## Sistema de Autenticación
+
+### Flujo de Autenticación
+
+1. **Proxy (`proxy.ts`):**
+   - Wrapper de NextAuth integrado
+   - Primera capa de protección
+   - Añade pathname a headers para layout detection
+
+2. **NextAuth Config (`lib/auth.ts`):**
+   - Callback `authorized()` - Protege rutas
+   - Callback `jwt()` - Maneja tokens
+   - Callback `session()` - Popula datos de sesión
+   - Provider: Credentials con bcrypt
+
+3. **Layout Admin (`app/admin/layout.tsx`):**
+   - Lee pathname de headers
+   - Detecta si es página de login
+   - Aplica sidebar solo en páginas protegidas
+
+### Rutas Protegidas
+
+- ✅ `/admin/*` → Requiere login (excepto `/admin/login`)
+- ✅ `/api/admin/*` → Requiere login
+- ❌ `/` → Público
+- ❌ `/api/auth/*` → Público (NextAuth endpoints)
+
+---
+
+## Variables de Entorno
+
+### Desarrollo Local (.env)
 
 ```env
-# Database
-DATABASE_URL="file:./dev.db"
+# Database - Neon PostgreSQL develop branch
+DATABASE_URL="postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="tu-secret-key-aqui"
+NEXTAUTH_SECRET="2JtwwPhh3JeOlJO+YUOPoAufV3yp2pRtdyNcBWGtQiI="
+
+# Cloudinary
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="djfbyhzaw"
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="tasquita_uploads"
 ```
+
+### Producción Vercel
+
+**URL de producción:** https://tasquita.vercel.app
+
+**Variables requeridas en Vercel (Settings → Environment Variables):**
+
+| Variable | Valor | Entornos |
+|----------|-------|----------|
+| `DATABASE_URL` | `postgresql://neondb_owner:npg_CSAbBnZMV28a@...` | Production, Preview, Development |
+| `NEXTAUTH_URL` | `https://tasquita.vercel.app` | Production |
+| `NEXTAUTH_SECRET` | `2JtwwPhh3JeOlJO+YUOPoAufV3yp2pRtdyNcBWGtQiI=` | Production, Preview, Development |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | `djfbyhzaw` | Production, Preview, Development |
+| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | `tasquita_uploads` | Production, Preview, Development |
+
+**Scripts de configuración automática:**
+- `vercel-env-setup.ps1` (Windows PowerShell)
+- `vercel-env-setup.sh` (Linux/Mac)
+
+**Configurar manualmente:**
+1. Ve a https://vercel.com/dashboard
+2. Selecciona proyecto "tasquita"
+3. Settings → Environment Variables
+4. Añade las 5 variables de la tabla
+5. Redeploy el proyecto
 
 ---
 
@@ -307,23 +490,27 @@ npm start                        # Servidor producción
 ### Corto Plazo
 - [ ] Añadir imágenes reales a los platos del menú
 - [ ] Probar sistema completo en diferentes dispositivos
-- [ ] Configurar dominio de imagen adicional si se necesita
+- [x] ~~Configurar dominio de imagen adicional si se necesita~~ ✅ Cloudinary integrado
 - [ ] Revisar y ajustar textos del sitio
+- [ ] Configurar dominio personalizado en Vercel
 
 ### Medio Plazo
 - [ ] Implementar gestión de reservas (modelo ya creado)
-- [ ] Sistema de subida de imágenes directa en admin (sin URLs)
-- [ ] Integración con Cloudinary para gestión profesional de imágenes
+- [x] ~~Sistema de subida de imágenes directa en admin (sin URLs)~~ ✅ Cloudinary widget integrado
+- [x] ~~Integración con Cloudinary para gestión profesional de imágenes~~ ✅ Implementado
 - [ ] Añadir más estadísticas al dashboard admin
 - [ ] Sistema de notificaciones para nuevas reservas
+- [ ] Analytics y métricas (posición en búsquedas, visitas, conversiones)
 
 ### Largo Plazo (Producción)
-- [ ] Migrar a PostgreSQL en Vercel/Railway
-- [ ] Configurar dominio personalizado
+- [x] ~~Migrar a PostgreSQL en Vercel/Railway~~ ✅ Neon PostgreSQL en producción
+- [ ] Configurar dominio personalizado (actualmente: tasquita.vercel.app)
 - [ ] Añadir Google Analytics
 - [ ] Implementar sistema de emails (reservas, contacto)
 - [ ] Configurar backups automáticos de BD
 - [ ] Añadir más usuarios admin con roles
+- [ ] SEO: Meta tags, sitemap, robots.txt
+- [ ] PWA: Service worker, manifest.json
 
 ---
 
@@ -340,25 +527,103 @@ Para retomar el trabajo o resolver dudas:
 
 ## Notas Técnicas
 
+### Stack Tecnológico
+
+**Frontend:**
+- Next.js 16.1.6 (React 19.2.4)
+- TypeScript 5.6.3
+- Tailwind CSS 3.4.15
+- Framer Motion 11.11.11 (Animaciones)
+
+**Backend:**
+- Next.js API Routes
+- NextAuth.js v5 (Autenticación)
+- Prisma ORM 6.1.0
+- Neon PostgreSQL (Serverless)
+
+**Validación:**
+- Zod 3.25.76 (Schema validation)
+- React Hook Form 7.53.2
+
+**Imágenes:**
+- Cloudinary (CDN y upload)
+- next/image (Optimización)
+
+**Deployment:**
+- Vercel (Hosting)
+- GitHub (Version control)
+
 ### Performance
 - Server Components para SEO y velocidad
-- Imágenes optimizadas con next/image
+- Imágenes optimizadas con next/image (quality: 75)
 - Lazy loading automático
 - Dynamic rendering en páginas admin
+- Bundle size optimizado: proxy 26.5 KB (vs 1.01 MB antes)
+- Cloudinary CDN para imágenes rápidas
 
 ### Seguridad
 - Contraseñas hasheadas (bcryptjs)
-- Rutas admin protegidas (middleware)
+- Rutas admin protegidas (proxy + NextAuth)
 - CSRF protection (NextAuth)
 - SQL injection protected (Prisma)
+- **Input validation (Zod schemas)**
+- **API error handling con status codes apropiados**
+- Type safety completo (TypeScript)
+- Environment variables protegidas
 
 ### Mobile First
 - Diseño responsive en todos los componentes
 - Sidebar colapsable en admin
 - Formularios adaptados a móvil
 - Touch-friendly controls
+- Horarios optimizados para móvil (flex-col → flex-row)
+- MobileMenu separado con Portal pattern
+
+### Code Quality
+- TypeScript strict mode
+- Zod validation en todas las APIs
+- Error boundaries y manejo de errores
+- useCallback para optimizar re-renders
+- No console.log en producción
+- Código limpio sin comentarios muertos
 
 ---
 
-**Última actualización:** 28 de febrero de 2026
-**Estado del proyecto:** ✅ Funcional y listo para desarrollo continuo
+## Deployment a Producción
+
+### URLs
+
+- **Producción:** https://tasquita.vercel.app
+- **Admin:** https://tasquita.vercel.app/admin/login
+- **GitHub:** https://github.com/danielkrastev95/tasquita.git
+
+### Credenciales Admin
+
+- **Email:** admin@latasquitadesara.com
+- **Contraseña:** admin123
+
+### Comandos Git
+
+```bash
+# Push a develop
+git push origin develop
+
+# Push a main (producción)
+git checkout main
+git merge develop
+git push origin main
+
+# Vercel detecta push a main y redeploya automáticamente
+```
+
+### Verificar Deployment
+
+1. Vercel dashboard: https://vercel.com/dashboard
+2. Ver logs de deployment
+3. Confirmar variables de entorno configuradas
+4. Testear en incógnito: https://tasquita.vercel.app/admin
+
+---
+
+**Última actualización:** 7 de marzo de 2026
+**Estado del proyecto:** ✅ En producción en Vercel con autenticación completa
