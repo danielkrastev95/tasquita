@@ -1,0 +1,163 @@
+"use client";
+
+import { motion, AnimatePresence } from "framer-motion";
+import { X, Home, UtensilsCrossed, Users, Calendar, BookOpen, MapPin, Instagram } from "lucide-react";
+
+interface MobileMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+  eventsEnabled: boolean;
+}
+
+const menuItems = [
+  { name: "Inicio", href: "#", icon: Home },
+  { name: "Menú", href: "#menu", icon: UtensilsCrossed },
+  { name: "Nosotros", href: "#nosotros", icon: Users },
+  { name: "Eventos", href: "#eventos", icon: Calendar, conditional: true },
+  { name: "Reservas", href: "#reservas", icon: BookOpen },
+  { name: "Contacto", href: "#contacto", icon: MapPin },
+];
+
+export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMenuProps) {
+  const visibleItems = menuItems.filter(item => !item.conditional || eventsEnabled);
+
+  const handleItemClick = (href: string, name: string) => {
+    console.log(`Navegando a: ${name}`);
+    onClose();
+    // Smooth scroll to section
+    if (href !== "#") {
+      setTimeout(() => {
+        const element = document.querySelector(href);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 300);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
+            onClick={onClose}
+          />
+
+          {/* Menu Panel */}
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[390px] z-50"
+          >
+            {/* Glass morphism background with gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/95 to-gold/10 backdrop-blur-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30" />
+
+            {/* Content */}
+            <div className="relative h-full flex flex-col">
+              {/* Header */}
+              <div className="px-6 pt-8 pb-6">
+                <button
+                  onClick={onClose}
+                  className="p-2 -ml-2 rounded-full hover:bg-gray-900/5 transition-colors"
+                  aria-label="Cerrar menú"
+                >
+                  <X className="w-6 h-6 text-gray-900" />
+                </button>
+                <h2 className="text-2xl font-montserrat font-bold text-gray-900 mt-4">
+                  Menú
+                </h2>
+              </div>
+
+              {/* Menu Items */}
+              <nav className="flex-1 px-4 overflow-y-auto">
+                {visibleItems.map((item, index) => {
+                  const Icon = item.icon;
+                  return (
+                    <motion.button
+                      key={item.name}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05, duration: 0.3 }}
+                      onClick={() => handleItemClick(item.href, item.name)}
+                      className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-white/50 active:bg-white/70 transition-all duration-200 group"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <Icon className="w-5 h-5 text-primary" strokeWidth={2} />
+                      </div>
+                      <span className="text-base font-montserrat font-medium text-gray-900">
+                        {item.name}
+                      </span>
+                    </motion.button>
+                  );
+                })}
+              </nav>
+
+              {/* Bottom Section */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="px-6 pb-8 pt-4 border-t border-gray-200/50"
+              >
+                {/* Social Links */}
+                <div className="flex items-center gap-4 mb-4">
+                  <a
+                    href="https://instagram.com/latasquitadesara"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary transition-colors"
+                  >
+                    <Instagram className="w-4 h-4" />
+                    <span>@latasquitadesara</span>
+                  </a>
+                </div>
+
+                {/* Delivery Apps */}
+                <div className="space-y-2 mb-4">
+                  <p className="text-xs text-gray-500 font-medium mb-2">Pide a domicilio:</p>
+                  <div className="flex gap-2">
+                    <a
+                      href="https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 px-3 py-2 bg-[#FFC244] hover:bg-[#FFD166] rounded-lg text-xs font-bold text-gray-900 text-center transition-colors"
+                    >
+                      Glovo
+                    </a>
+                    <a
+                      href="https://www.ubereats.com/es/store/la-tasquita-de-sara/tWST6whgU2iUdY71PWw9jw"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 px-3 py-2 bg-[#06C167] hover:bg-[#06D170] rounded-lg text-xs font-bold text-white text-center transition-colors"
+                    >
+                      Uber Eats
+                    </a>
+                  </div>
+                </div>
+
+                {/* Footer Info */}
+                <div className="text-center space-y-1">
+                  <p className="text-xs text-gray-500">
+                    C. Lili Álvarez, 66 · Valdemoro
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    © 2025 La Tasquita de Sara
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}

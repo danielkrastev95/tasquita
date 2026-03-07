@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useScrollPosition } from "@/hooks/useScrollPosition";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import MobileMenu from "./MobileMenu";
 
 type NavLink = {
   name: string;
@@ -110,37 +111,11 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
       </div>
 
       {/* Mobile menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="md:hidden bg-white/90 backdrop-blur-xl shadow-lg overflow-hidden border-b border-white/20"
-          >
-            <div className="px-4 py-6 space-y-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="relative flex items-center text-gray-700 hover:text-primary font-medium transition-colors"
-                >
-                  {link.name}
-                  {link.badge && (
-                    <motion.span
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="ml-2 w-2 h-2 bg-red-500 rounded-full"
-                    />
-                  )}
-                </a>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <MobileMenu
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        eventsEnabled={eventsEnabled}
+      />
     </nav>
   );
 }
