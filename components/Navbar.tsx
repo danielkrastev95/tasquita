@@ -42,22 +42,36 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto pt-4">
-        <div
-          className={`flex justify-between items-center h-16 px-6 transition-all duration-500 ${
-            isScrolled
-              ? "bg-white/80 backdrop-blur-xl shadow-xl rounded-2xl border border-white/40"
-              : "bg-transparent"
-          }`}
+        <motion.div
+          initial={false}
+          animate={{
+            backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0)",
+            borderColor: isScrolled ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0)",
+            boxShadow: isScrolled
+              ? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+              : "0 0 0 0 rgba(0, 0, 0, 0)",
+          }}
+          transition={{
+            duration: 0.8,
+            ease: [0.25, 0.1, 0.25, 1]
+          }}
+          className="flex justify-between items-center h-16 px-6 backdrop-blur-xl rounded-2xl border"
         >
           {/* Logo */}
           <a href="#" className="flex items-center">
-            <span
-              className={`text-2xl font-montserrat font-bold transition-colors ${
-                isScrolled ? "text-primary" : "text-white"
-              }`}
+            <motion.span
+              initial={false}
+              animate={{
+                color: isScrolled ? "rgb(83, 166, 153)" : "rgb(255, 255, 255)"
+              }}
+              transition={{
+                duration: 0.8,
+                ease: [0.25, 0.1, 0.25, 1]
+              }}
+              className="text-2xl font-montserrat font-bold"
             >
               La Tasquita de Sara
-            </span>
+            </motion.span>
           </a>
 
           {/* Desktop Navigation */}
@@ -106,7 +120,7 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
               />
             </div>
           </button>
-        </div>
+        </motion.div>
       </div>
 
       {/* Mobile menu */}
