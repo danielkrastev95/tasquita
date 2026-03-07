@@ -16,7 +16,7 @@ const menuItems = [
   { name: "Menu", href: "#menu", icon: UtensilsCrossed },
   { name: "Nosotros", href: "#nosotros", icon: Users },
   { name: "Eventos", href: "#eventos", icon: Calendar, conditional: true },
-  { name: "Reservas", href: "#reservas", icon: BookOpen },
+  // { name: "Reservas", href: "#reservas", icon: BookOpen },
   { name: "Contacto", href: "#contacto", icon: MapPin },
 ];
 

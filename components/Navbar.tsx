@@ -20,7 +20,7 @@ const baseNavLinks: NavLink[] = [
 const eventLink: NavLink = { name: "Eventos", href: "#eventos", badge: true };
 
 const endNavLinks: NavLink[] = [
-  { name: "Reservas", href: "#reservas" },
+  // { name: "Reservas", href: "#reservas" },
   { name: "Contacto", href: "#contacto" },
 ];
 

@@ -160,10 +160,10 @@ export default function Hero({ featuredEvent }: HeroProps) {
               Ver menú
             </a>
             <a
-              href="#reservas"
+              href="#contacto"
               className="px-8 py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white hover:text-primary transition-all duration-300 hover:scale-105"
             >
-              Reservar mesa
+              Contacto
             </a>
           </motion.div>
         </div>
