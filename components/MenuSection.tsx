@@ -138,7 +138,7 @@ export default function MenuSection({ menuData }: MenuSectionProps) {
                 <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30" />
 
                 {/* Border */}
-                <div className="absolute inset-0 rounded-3xl border border-white/40 group-hover:border-primary/30 transition-colors duration-500" />
+                <div className="absolute inset-0 rounded-3xl border-2 border-gray-200 group-hover:border-primary/50 transition-colors duration-500" />
 
                 {/* Card content */}
                 <div className="relative h-full">
