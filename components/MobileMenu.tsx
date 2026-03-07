@@ -32,70 +32,72 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
   // Lock body scroll when menu is open
   useEffect(() => {
     if (isOpen) {
-      // Store current scroll position
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
     } else {
-      // Restore scroll position
-      const scrollY = document.body.style.top;
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
       document.body.style.overflow = '';
-      if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
-      }
     }
 
     return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
       document.body.style.overflow = '';
     };
   }, [isOpen]);
 
-  const handleItemClick = (href: string, name: string) => {
+  const handleItemClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault();
+
+    // Close menu first
     onClose();
-    // Smooth scroll to section after menu closes
-    if (href !== "#") {
-      setTimeout(() => {
+
+    // Wait for menu close animation to complete before scrolling
+    setTimeout(() => {
+      if (href === "#") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
         const element = document.querySelector(href);
         if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
+          const offset = 80; // Offset for navbar
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth"
+          });
         }
-      }, 300);
-    }
+      }
+    }, 400); // Increased delay to let animation finish
   };
 
-  // Don't render anything on server side
+  // Don't render anything on server side or if not mounted
   if (!mounted) return null;
 
   const menuContent = (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
         <>
-          {/* Backdrop - rendered at document root level */}
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
             style={{ zIndex: 9998 }}
             onClick={onClose}
             aria-hidden="true"
           />
 
-          {/* Menu Panel - rendered at document root level */}
+          {/* Menu Panel */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            transition={{
+              type: "spring",
+              damping: 30,
+              stiffness: 250,
+              mass: 0.8
+            }}
             className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[390px] overflow-hidden"
             style={{ zIndex: 9999 }}
             role="dialog"
@@ -103,22 +105,22 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
             aria-label="Menu de navegacion"
           >
             {/* Glass morphism background with gradient */}
-            <div className="absolute inset-0 bg-white/40 backdrop-blur-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-white/30 to-gold/15" />
+            <div className="absolute inset-0 bg-white/90 backdrop-blur-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/20 to-gold/10" />
 
             {/* Border */}
-            <div className="absolute inset-0 border-l-2 border-gray-200/50" />
+            <div className="absolute inset-0 border-l border-gray-200/60" />
 
             {/* Content */}
             <div className="relative h-full flex flex-col">
               {/* Header */}
-              <div className="px-6 pt-8 pb-6">
+              <div className="px-6 pt-8 pb-6 border-b border-gray-200/30">
                 <button
                   onClick={onClose}
-                  className="p-2 -ml-2 rounded-full hover:bg-gray-900/5 transition-colors"
+                  className="p-2 -ml-2 rounded-full hover:bg-gray-900/5 active:bg-gray-900/10 transition-colors"
                   aria-label="Cerrar menu"
                 >
-                  <X className="w-6 h-6 text-gray-900" />
+                  <X className="w-6 h-6 text-gray-900" strokeWidth={2.5} />
                 </button>
                 <h2 className="text-2xl font-montserrat font-bold text-gray-900 mt-4">
                   Menu
@@ -126,61 +128,65 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
               </div>
 
               {/* Menu Items */}
-              <nav className="flex-1 px-4 overflow-y-auto">
-                {visibleItems.map((item, index) => {
-                  const Icon = item.icon;
-                  return (
-                    <motion.button
-                      key={item.name}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.05, duration: 0.3 }}
-                      onClick={() => handleItemClick(item.href, item.name)}
-                      className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-white/60 active:bg-white/80 transition-all duration-200 group backdrop-blur-sm"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-white/70 backdrop-blur-sm border border-primary/20 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/30 transition-all">
-                        <Icon className="w-5 h-5 text-primary" strokeWidth={2} />
-                      </div>
-                      <span className="text-base font-montserrat font-medium text-gray-900">
-                        {item.name}
-                      </span>
-                    </motion.button>
-                  );
-                })}
+              <nav className="flex-1 px-4 py-6 overflow-y-auto">
+                <div className="space-y-1">
+                  {visibleItems.map((item, index) => {
+                    const Icon = item.icon;
+                    return (
+                      <motion.a
+                        key={item.name}
+                        href={item.href}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          delay: index * 0.08,
+                          duration: 0.4,
+                          ease: "easeOut"
+                        }}
+                        onClick={(e) => handleItemClick(e, item.href)}
+                        className="flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-white/80 active:bg-white/95 active:scale-[0.98] transition-all duration-200 group"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-white/90 border border-primary/20 flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/40 group-active:bg-primary/20 transition-all duration-200">
+                          <Icon className="w-5 h-5 text-primary" strokeWidth={2.5} />
+                        </div>
+                        <span className="text-base font-montserrat font-semibold text-gray-900 group-hover:text-primary transition-colors duration-200">
+                          {item.name}
+                        </span>
+                      </motion.a>
+                    );
+                  })}
+                </div>
               </nav>
 
               {/* Bottom Section */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="relative px-6 pb-8 pt-4"
+                transition={{ delay: 0.5, duration: 0.4 }}
+                className="relative px-6 pb-8 pt-4 border-t border-gray-200/40"
               >
-                {/* Glass background for footer */}
-                <div className="absolute inset-0 bg-white/50 backdrop-blur-xl border-t border-gray-200/50" />
-
                 {/* Social Links */}
-                <div className="relative flex items-center gap-4 mb-4">
+                <div className="mb-4">
                   <a
                     href="https://instagram.com/latasquitadesara"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 text-sm text-gray-600 hover:text-primary transition-colors"
+                    className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-primary active:text-primary/80 transition-colors"
                   >
-                    <Instagram className="w-4 h-4" />
-                    <span>@latasquitadesara</span>
+                    <Instagram className="w-4 h-4" strokeWidth={2.5} />
+                    <span className="font-medium">@latasquitadesara</span>
                   </a>
                 </div>
 
                 {/* Delivery Apps */}
-                <div className="relative space-y-2 mb-4">
-                  <p className="text-xs text-gray-500 font-medium mb-2">Pide a domicilio:</p>
+                <div className="mb-4">
+                  <p className="text-xs text-gray-500 font-semibold mb-2 uppercase tracking-wide">Pide a domicilio</p>
                   <div className="flex gap-2">
                     <a
                       href="https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 px-3 py-2 bg-[#FFC244] hover:bg-[#FFD166] rounded-lg text-xs font-bold text-gray-900 text-center transition-colors"
+                      className="flex-1 px-4 py-2.5 bg-[#FFC244] hover:bg-[#FFD166] active:bg-[#FFB822] rounded-xl text-sm font-bold text-gray-900 text-center transition-all duration-200 active:scale-95 shadow-sm"
                     >
                       Glovo
                     </a>
@@ -188,7 +194,7 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                       href="https://www.ubereats.com/es/store/la-tasquita-de-sara/tWST6whgU2iUdY71PWw9jw"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 px-3 py-2 bg-[#06C167] hover:bg-[#06D170] rounded-lg text-xs font-bold text-white text-center transition-colors"
+                      className="flex-1 px-4 py-2.5 bg-[#06C167] hover:bg-[#06D170] active:bg-[#05AB5A] rounded-xl text-sm font-bold text-white text-center transition-all duration-200 active:scale-95 shadow-sm"
                     >
                       Uber Eats
                     </a>
@@ -196,8 +202,8 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                 </div>
 
                 {/* Footer Info */}
-                <div className="relative text-center space-y-1">
-                  <p className="text-xs text-gray-500">
+                <div className="text-center space-y-1">
+                  <p className="text-xs text-gray-500 font-medium">
                     C. Lili Alvarez, 66 - Valdemoro
                   </p>
                   <p className="text-xs text-gray-400">
@@ -213,6 +219,5 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
   );
 
   // Use React Portal to render menu at document body level
-  // This escapes the stacking context of the Navbar
   return createPortal(menuContent, document.body);
 }
