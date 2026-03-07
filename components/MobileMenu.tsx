@@ -114,7 +114,7 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
             {/* Content */}
             <div className="relative h-full flex flex-col">
               {/* Header */}
-              <div className="px-6 pt-8 pb-6 border-b border-gray-200/30">
+              <div className="px-6 pt-8 pb-6">
                 <button
                   onClick={onClose}
                   className="p-2 -ml-2 rounded-full hover:bg-gray-900/5 active:bg-gray-900/10 transition-colors"
@@ -122,9 +122,6 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                 >
                   <X className="w-6 h-6 text-gray-900" strokeWidth={2.5} />
                 </button>
-                <h2 className="text-2xl font-montserrat font-bold text-gray-900 mt-4">
-                  Menu
-                </h2>
               </div>
 
               {/* Menu Items */}
