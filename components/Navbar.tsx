@@ -41,7 +41,8 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto pt-4">
+      {/* Desktop navbar */}
+      <div className="hidden md:block max-w-7xl mx-auto pt-4">
         <motion.div
           initial={false}
           animate={{
@@ -76,7 +77,7 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
           </a>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8 items-center">
+          <div className="flex space-x-8 items-center">
             {navLinks.map((link) => (
               <a
                 key={link.name}
@@ -96,32 +97,43 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
               </a>
             ))}
           </div>
-
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2"
-            aria-label="Toggle menu"
-          >
-            <div className="w-6 h-5 flex flex-col justify-between">
-              <span
-                className={`block h-0.5 w-6 transition-all duration-300 ${
-                  isScrolled ? "bg-gray-700" : "bg-white"
-                } ${isOpen ? "rotate-45 translate-y-2" : ""}`}
-              />
-              <span
-                className={`block h-0.5 w-6 transition-all duration-300 ${
-                  isScrolled ? "bg-gray-700" : "bg-white"
-                } ${isOpen ? "opacity-0" : ""}`}
-              />
-              <span
-                className={`block h-0.5 w-6 transition-all duration-300 ${
-                  isScrolled ? "bg-gray-700" : "bg-white"
-                } ${isOpen ? "-rotate-45 -translate-y-2" : ""}`}
-              />
-            </div>
-          </button>
         </motion.div>
+      </div>
+
+      {/* Mobile navbar - Only hamburger button */}
+      <div className="md:hidden pt-4 pr-4 flex justify-end">
+        <motion.button
+          onClick={() => setIsOpen(!isOpen)}
+          initial={false}
+          animate={{
+            backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0)",
+            backdropFilter: isScrolled ? "blur(16px)" : "blur(0px)",
+          }}
+          transition={{
+            duration: 0.8,
+            ease: [0.25, 0.1, 0.25, 1]
+          }}
+          className="p-3 rounded-xl"
+          aria-label="Toggle menu"
+        >
+          <div className="w-6 h-5 flex flex-col justify-between">
+            <span
+              className={`block h-0.5 w-6 transition-all duration-300 ${
+                isScrolled ? "bg-gray-700" : "bg-white"
+              } ${isOpen ? "rotate-45 translate-y-2" : ""}`}
+            />
+            <span
+              className={`block h-0.5 w-6 transition-all duration-300 ${
+                isScrolled ? "bg-gray-700" : "bg-white"
+              } ${isOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`block h-0.5 w-6 transition-all duration-300 ${
+                isScrolled ? "bg-gray-700" : "bg-white"
+              } ${isOpen ? "-rotate-45 -translate-y-2" : ""}`}
+            />
+          </div>
+        </motion.button>
       </div>
 
       {/* Mobile menu */}

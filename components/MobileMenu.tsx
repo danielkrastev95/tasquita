@@ -127,19 +127,12 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
               {/* Menu Items */}
               <nav className="flex-1 px-4 py-6 overflow-y-auto">
                 <div className="space-y-1">
-                  {visibleItems.map((item, index) => {
+                  {visibleItems.map((item) => {
                     const Icon = item.icon;
                     return (
-                      <motion.a
+                      <a
                         key={item.name}
                         href={item.href}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{
-                          delay: index * 0.08,
-                          duration: 0.4,
-                          ease: "easeOut"
-                        }}
                         onClick={(e) => handleItemClick(e, item.href)}
                         className="flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-white/80 active:bg-white/95 active:scale-[0.98] transition-all duration-200 group"
                       >
@@ -149,19 +142,14 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                         <span className="text-base font-montserrat font-semibold text-gray-900 group-hover:text-primary transition-colors duration-200">
                           {item.name}
                         </span>
-                      </motion.a>
+                      </a>
                     );
                   })}
                 </div>
               </nav>
 
               {/* Bottom Section */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.4 }}
-                className="relative px-6 pb-8 pt-4 border-t border-gray-200/40"
-              >
+              <div className="relative px-6 pb-8 pt-4 border-t border-gray-200/40">
                 {/* Social Links */}
                 <div className="mb-4">
                   <a
@@ -207,7 +195,7 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                     2025 La Tasquita de Sara
                   </p>
                 </div>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         </>
