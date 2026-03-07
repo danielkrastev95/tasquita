@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(curl:*)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma db push:*)",
+      "Bash(npm run db:seed:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout /t 10 /nobreak)",
+      "Bash(dir:*)",
+      "Bash(netstat:*)",
+      "Bash(taskkill //F //PID 25916)",
+      "Bash(taskkill //F //PID 37160)",
+      "Bash(npx prisma generate)",
+      "Bash(sqlite3:*)",
+      "Bash(node update-settings.js:*)",
+      "Bash(taskkill //F //PID 28312)",
+      "Bash(node add-complete-menu.js:*)",
+      "Bash(node fix-image-urls.js:*)",
+      "Bash(git add:*)",
+      "Bash(findstr:*)"
+    ]
+  }
+}

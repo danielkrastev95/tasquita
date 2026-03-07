@@ -1,0 +1,131 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ============ AUTHENTICATION ============
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String
+  role          Role      @default(ADMIN)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  ADMIN
+  OWNER
+}
+
+// ============ MENU ============
+
+model MenuCategory {
+  id        String     @id @default(cuid())
+  slug      String     @unique
+  name      String
+  sortOrder Int        @default(0)
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  items     MenuItem[]
+}
+
+model MenuItem {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  price       String?
+  image       String?
+  isPopular   Boolean      @default(false)
+  isHomemade  Boolean      @default(false)
+  award       String?
+  sortOrder   Int          @default(0)
+  isActive    Boolean      @default(true)
+  categoryId  String
+  category    MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// ============ EVENTS ============
+
+model Event {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  date        DateTime
+  time        String
+  image       String?
+  category    EventCategory
+  isFeatured  Boolean       @default(false)
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum EventCategory {
+  musica
+  gastronomia
+  especial
+}
+
+// ============ SITE SETTINGS ============
+
+model SiteSettings {
+  id                String   @id @default("main")
+  eventsEnabled     Boolean  @default(true)
+  heroEventEnabled  Boolean  @default(true)
+  aboutTitle        String   @default("Nuestra Historia")
+  aboutSubtitle     String   @default("Somos un bar de barrio que cocina en serio")
+  aboutParagraph1   String
+  aboutParagraph2   String
+  aboutQuote        String
+  aboutQuoteAuthor  String   @default("El equipo de La Tasquita")
+  yearFounded       Int      @default(2018)
+  addressStreet     String   @default("C. Lili Álvarez, 66")
+  addressCity       String   @default("Valdemoro, Madrid")
+  addressPostalCode String   @default("28342")
+  instagramHandle   String   @default("latasquitadesara")
+  schedule          String   @default("[]")
+  heroTitle         String   @default("La Tasquita de Sara")
+  heroSubtitle      String   @default("Bar de tapas moderno con hamburguesas gourmet y cocina de mercado")
+  heroImage         String?
+  updatedAt         DateTime @updatedAt
+}
+
+// ============ RESERVATIONS ============
+
+model Reservation {
+  id        String            @id @default(cuid())
+  name      String
+  phone     String
+  date      DateTime
+  time      String
+  guests    Int
+  message   String?
+  status    ReservationStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
