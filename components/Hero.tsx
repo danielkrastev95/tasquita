@@ -174,7 +174,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.8 }}
-        className="absolute bottom-32 sm:bottom-24 left-0 right-0 z-20 flex justify-center"
+        className="absolute bottom-12 sm:bottom-24 left-0 right-0 z-20 flex justify-center"
       >
         <div className="flex flex-col items-center gap-3">
           <span className="text-white/90 text-sm font-medium text-center">
@@ -216,7 +216,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 1 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        className="hidden md:flex absolute bottom-8 left-1/2 transform -translate-x-1/2"
       >
         <motion.div
           animate={{ y: [0, 10, 0] }}
