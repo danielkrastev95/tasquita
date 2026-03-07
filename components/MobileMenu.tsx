@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Home, UtensilsCrossed, Users, Calendar, BookOpen, MapPin, Instagram } from "lucide-react";
 
@@ -11,7 +13,7 @@ interface MobileMenuProps {
 
 const menuItems = [
   { name: "Inicio", href: "#", icon: Home },
-  { name: "Menú", href: "#menu", icon: UtensilsCrossed },
+  { name: "Menu", href: "#menu", icon: UtensilsCrossed },
   { name: "Nosotros", href: "#nosotros", icon: Users },
   { name: "Eventos", href: "#eventos", icon: Calendar, conditional: true },
   { name: "Reservas", href: "#reservas", icon: BookOpen },
@@ -19,12 +21,48 @@ const menuItems = [
 ];
 
 export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMenuProps) {
+  const [mounted, setMounted] = useState(false);
   const visibleItems = menuItems.filter(item => !item.conditional || eventsEnabled);
+
+  // Ensure we only render portal on client side
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  // Lock body scroll when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      // Store current scroll position
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Restore scroll position
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    }
+
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
 
   const handleItemClick = (href: string, name: string) => {
     console.log(`Navegando a: ${name}`);
     onClose();
-    // Smooth scroll to section
+    // Smooth scroll to section after menu closes
     if (href !== "#") {
       setTimeout(() => {
         const element = document.querySelector(href);
@@ -35,27 +73,36 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
     }
   };
 
-  return (
+  // Don't render anything on server side
+  if (!mounted) return null;
+
+  const menuContent = (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop - rendered at document root level */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9998]"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+            style={{ zIndex: 9998 }}
             onClick={onClose}
+            aria-hidden="true"
           />
 
-          {/* Menu Panel */}
+          {/* Menu Panel - rendered at document root level */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[390px] z-[9999] overflow-hidden"
+            className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[390px] overflow-hidden"
+            style={{ zIndex: 9999 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu de navegacion"
           >
             {/* Glass morphism background with gradient */}
             <div className="absolute inset-0 bg-white/40 backdrop-blur-2xl" />
@@ -71,12 +118,12 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                 <button
                   onClick={onClose}
                   className="p-2 -ml-2 rounded-full hover:bg-gray-900/5 transition-colors"
-                  aria-label="Cerrar menú"
+                  aria-label="Cerrar menu"
                 >
                   <X className="w-6 h-6 text-gray-900" />
                 </button>
                 <h2 className="text-2xl font-montserrat font-bold text-gray-900 mt-4">
-                  Menú
+                  Menu
                 </h2>
               </div>
 
@@ -153,10 +200,10 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                 {/* Footer Info */}
                 <div className="relative text-center space-y-1">
                   <p className="text-xs text-gray-500">
-                    C. Lili Álvarez, 66 · Valdemoro
+                    C. Lili Alvarez, 66 - Valdemoro
                   </p>
                   <p className="text-xs text-gray-400">
-                    © 2025 La Tasquita de Sara
+                    2025 La Tasquita de Sara
                   </p>
                 </div>
               </motion.div>
@@ -166,4 +213,8 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
       )}
     </AnimatePresence>
   );
+
+  // Use React Portal to render menu at document body level
+  // This escapes the stacking context of the Navbar
+  return createPortal(menuContent, document.body);
 }

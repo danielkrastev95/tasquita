@@ -62,10 +62,6 @@ export default function EditEventPage() {
         isFeatured: data.isFeatured,
         isActive: data.isActive,
       });
-
-      if (data.image) {
-        setImagePreview(data.image);
-      }
     } catch (error) {
       toast.error("Error al cargar el evento");
       console.error(error);

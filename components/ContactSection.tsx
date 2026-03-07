@@ -2,6 +2,11 @@
 
 import { motion } from "framer-motion";
 
+interface ScheduleItem {
+  day: string;
+  hours: string;
+}
+
 interface SiteSettings {
   addressStreet: string;
   addressCity: string;
@@ -15,7 +20,7 @@ interface ContactSectionProps {
 }
 
 export default function ContactSection({ settings }: ContactSectionProps) {
-  const schedule = settings?.schedule
+  const schedule: ScheduleItem[] = settings?.schedule
     ? JSON.parse(settings.schedule)
     : [
         { day: "Lunes", hours: "Cerrado" },
