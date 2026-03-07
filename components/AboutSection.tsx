@@ -10,29 +10,17 @@ interface SiteSettings {
   aboutParagraph2: string;
   aboutQuote: string;
   aboutQuoteAuthor: string;
+  value1Title: string;
+  value1Description: string;
+  value2Title: string;
+  value2Description: string;
+  value3Title: string;
+  value3Description: string;
 }
 
 interface AboutSectionProps {
   settings: SiteSettings | null;
 }
-
-const values = [
-  {
-    title: "Producto de Calidad",
-    description: "Seleccionamos los mejores ingredientes de proveedores locales",
-    icon: "quality",
-  },
-  {
-    title: "Trae a tu Peludito",
-    description: "Espacio pet-friendly donde tu mascota es bienvenida",
-    icon: "pet",
-  },
-  {
-    title: "Ambiente Familiar",
-    description: "Un espacio acogedor donde todos son bienvenidos",
-    icon: "family",
-  },
-];
 
 export default function AboutSection({ settings }: AboutSectionProps) {
   return (
@@ -189,7 +177,23 @@ export default function AboutSection({ settings }: AboutSectionProps) {
           </motion.h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {values.map((value, index) => (
+            {[
+              {
+                title: settings?.value1Title || "Producto de Calidad",
+                description: settings?.value1Description || "Seleccionamos los mejores ingredientes de proveedores locales",
+                icon: "quality",
+              },
+              {
+                title: settings?.value2Title || "Trae a tu Peludito",
+                description: settings?.value2Description || "Espacio pet-friendly donde tu mascota es bienvenida",
+                icon: "pet",
+              },
+              {
+                title: settings?.value3Title || "Ambiente Familiar",
+                description: settings?.value3Description || "Un espacio acogedor donde todos son bienvenidos",
+                icon: "family",
+              },
+            ].map((value, index) => (
               <motion.div
                 key={value.title}
                 initial={{ opacity: 0, y: 40 }}

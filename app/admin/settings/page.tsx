@@ -19,6 +19,12 @@ interface FormData {
   aboutQuote: string;
   aboutQuoteAuthor: string;
   yearFounded: number;
+  value1Title: string;
+  value1Description: string;
+  value2Title: string;
+  value2Description: string;
+  value3Title: string;
+  value3Description: string;
   addressStreet: string;
   addressCity: string;
   addressPostalCode: string;
@@ -406,6 +412,138 @@ export default function SettingsPage() {
                   {errors.aboutQuoteAuthor.message}
                 </p>
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* Our Values Section */}
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">
+            Nuestros Valores
+          </h2>
+
+          <div className="space-y-6">
+            {/* Value 1 */}
+            <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+              <h3 className="font-semibold text-gray-900">Valor 1</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Título
+                </label>
+                <input
+                  type="text"
+                  {...register("value1Title", {
+                    required: "El título es requerido",
+                  })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="Producto de Calidad"
+                />
+                {errors.value1Title && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.value1Title.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Descripción
+                </label>
+                <textarea
+                  {...register("value1Description", {
+                    required: "La descripción es requerida",
+                  })}
+                  rows={2}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                  placeholder="Seleccionamos los mejores ingredientes..."
+                />
+                {errors.value1Description && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.value1Description.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Value 2 */}
+            <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+              <h3 className="font-semibold text-gray-900">Valor 2</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Título
+                </label>
+                <input
+                  type="text"
+                  {...register("value2Title", {
+                    required: "El título es requerido",
+                  })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="Trae a tu Peludito"
+                />
+                {errors.value2Title && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.value2Title.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Descripción
+                </label>
+                <textarea
+                  {...register("value2Description", {
+                    required: "La descripción es requerida",
+                  })}
+                  rows={2}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                  placeholder="Espacio pet-friendly..."
+                />
+                {errors.value2Description && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.value2Description.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Value 3 */}
+            <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+              <h3 className="font-semibold text-gray-900">Valor 3</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Título
+                </label>
+                <input
+                  type="text"
+                  {...register("value3Title", {
+                    required: "El título es requerido",
+                  })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                  placeholder="Ambiente Familiar"
+                />
+                {errors.value3Title && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.value3Title.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Descripción
+                </label>
+                <textarea
+                  {...register("value3Description", {
+                    required: "La descripción es requerida",
+                  })}
+                  rows={2}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                  placeholder="Un espacio acogedor..."
+                />
+                {errors.value3Description && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.value3Description.message}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -79,6 +79,12 @@ model SiteSettings {
   aboutQuote        String
   aboutQuoteAuthor  String   @default("El equipo de La Tasquita")
   yearFounded       Int      @default(2018)
+  value1Title       String   @default("Producto de Calidad")
+  value1Description String   @default("Seleccionamos los mejores ingredientes de proveedores locales")
+  value2Title       String   @default("Trae a tu Peludito")
+  value2Description String   @default("Espacio pet-friendly donde tu mascota es bienvenida")
+  value3Title       String   @default("Ambiente Familiar")
+  value3Description String   @default("Un espacio acogedor donde todos son bienvenidos")
   addressStreet     String   @default("C. Lili Álvarez, 66")
   addressCity       String   @default("Valdemoro, Madrid")
   addressPostalCode String   @default("28342")
