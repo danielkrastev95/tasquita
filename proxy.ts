@@ -1,15 +1,15 @@
+import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
-export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+export default auth((req) => {
+  const { pathname } = req.nextUrl;
 
   // Add pathname to headers for layout detection
   const response = NextResponse.next();
   response.headers.set("x-pathname", pathname);
 
   return response;
-}
+});
 
 export const config = {
   matcher: [
