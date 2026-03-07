@@ -205,7 +205,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-gold/5" />
 
                   {/* Border with gradient */}
-                  <div className="absolute inset-0 rounded-3xl border border-white/20" />
+                  <div className="absolute inset-0 rounded-3xl border-2 border-gray-200 group-hover:border-primary/50 transition-colors duration-500" />
 
                   {/* Animated gradient on hover */}
                   <motion.div
