@@ -40,15 +40,15 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
   ];
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-white/70 backdrop-blur-xl shadow-lg border-b border-white/20"
-          : "bg-transparent"
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+    <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto pt-4">
+        <div
+          className={`flex justify-between items-center h-16 px-6 transition-all duration-500 ${
+            isScrolled
+              ? "bg-white/80 backdrop-blur-xl shadow-xl rounded-2xl border border-white/40"
+              : "bg-transparent"
+          }`}
+        >
           {/* Logo */}
           <a href="#" className="flex items-center">
             <span
