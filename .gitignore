@@ -26,6 +26,8 @@ yarn-error.log*
 
 # local env files
 .env
+.env.develop
+.env.production
 .env*.local
 
 # vercel
@@ -41,3 +43,11 @@ prisma/dev.db-journal
 
 # Windows reserved names
 nul
+
+# Neon CLI
+.neon
+
+# Claude settings
+.claude/settings.local.json
+.agents/
+skills-lock.json
