@@ -44,7 +44,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -100, opacity: 0 }}
             transition={{ duration: 0.8, delay: 1.2, type: "spring" }}
-            className="absolute top-24 left-4 right-4 sm:left-1/2 sm:-translate-x-1/2 z-30 sm:w-full sm:max-w-2xl"
+            className="absolute top-28 left-1/2 -translate-x-1/2 z-30 w-full max-w-2xl px-4"
           >
             <motion.a
               href="#eventos"
@@ -79,7 +79,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
 
                 <div className="relative p-4 sm:p-6">
                   {/* Badge and Live indicator */}
-                  <div className="flex items-center justify-center sm:justify-start gap-2 mb-3">
+                  <div className="flex items-center justify-center gap-2 mb-3">
                     <span className="inline-block px-3 py-1 bg-gradient-to-r from-gold/90 to-amber-500/90 backdrop-blur-sm rounded-full text-xs font-bold text-white uppercase tracking-wide shadow-lg">
                       Evento Destacado
                     </span>
@@ -94,11 +94,11 @@ export default function Hero({ featuredEvent }: HeroProps) {
                   </div>
 
                   {/* Content - Centered layout */}
-                  <div className="text-center sm:text-left">
+                  <div className="text-center">
                     <h3 className="text-white font-bold text-base sm:text-xl mb-2 drop-shadow-lg">
                       {featuredEvent.title}
                     </h3>
-                    <div className="flex flex-row items-center justify-center sm:justify-start gap-2 text-white/95 text-xs sm:text-sm font-medium">
+                    <div className="flex flex-row items-center justify-center gap-2 text-white/95 text-xs sm:text-sm font-medium">
                       <span className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-2 py-1 rounded-lg">
                         <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
