@@ -144,7 +144,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
 
             <div className="h-[500px] rounded-3xl overflow-hidden shadow-2xl">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3046.0862877447324!2d-3.6892787099523385!3d40.201998253991874!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDEyJzA3LjIiTiAzwrA0MScyMS40Ilc!5e0!3m2!1ses!2ses!4v1234567890"
+                src="https://www.google.com/maps?q=40.201998253991874,-3.6892787099523385&hl=es&z=16&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
