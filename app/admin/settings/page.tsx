@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
+
+interface ScheduleItem {
+  day: string;
+  hours: string;
+}
 
 interface FormData {
   eventsEnabled: boolean;
@@ -20,6 +25,7 @@ interface FormData {
   instagramHandle: string;
   heroTitle: string;
   heroSubtitle: string;
+  schedule: ScheduleItem[];
 }
 
 export default function SettingsPage() {
@@ -30,8 +36,25 @@ export default function SettingsPage() {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<FormData>({
+    defaultValues: {
+      schedule: [
+        { day: "Lunes", hours: "Cerrado" },
+        { day: "Martes - Miércoles", hours: "9:00 - 15:45" },
+        { day: "Jueves", hours: "9:00 - 15:45 y 20:00 - 23:00" },
+        { day: "Viernes", hours: "9:00 - 15:45 y 20:00 - 23:20" },
+        { day: "Sábado", hours: "10:00 - 15:45 y 20:00 - 23:20" },
+        { day: "Domingo", hours: "10:00 - 15:45" },
+      ],
+    },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "schedule",
+  });
 
   useEffect(() => {
     fetchSettings();
@@ -43,6 +66,10 @@ export default function SettingsPage() {
       if (!response.ok) throw new Error("Failed to fetch settings");
 
       const data = await response.json();
+      // Parse schedule JSON if it exists
+      if (data.schedule && typeof data.schedule === "string") {
+        data.schedule = JSON.parse(data.schedule);
+      }
       reset(data);
     } catch (error) {
       toast.error("Error al cargar la configuración");
@@ -55,10 +82,16 @@ export default function SettingsPage() {
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
+      // Convert schedule array to JSON string
+      const submitData = {
+        ...data,
+        schedule: JSON.stringify(data.schedule),
+      };
+
       const response = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(submitData),
       });
 
       if (!response.ok) {
@@ -450,6 +483,96 @@ export default function SettingsPage() {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Schedule Section */}
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Horario</h2>
+              <p className="text-sm text-gray-600">
+                Configura el horario de apertura del restaurante
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => append({ day: "", hours: "" })}
+              className="px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-medium transition-colors text-sm flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Añadir Día
+            </button>
+          </div>
+
+          <div className="space-y-3">
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex gap-3 items-start">
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {/* Day */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Día
+                    </label>
+                    <input
+                      type="text"
+                      {...register(`schedule.${index}.day`, {
+                        required: "El día es requerido",
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                      placeholder="Ej: Lunes, Martes - Miércoles"
+                    />
+                    {errors.schedule?.[index]?.day && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.schedule[index]?.day?.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Hours */}
+                  <div>
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Horario
+                    </label>
+                    <input
+                      type="text"
+                      {...register(`schedule.${index}.hours`, {
+                        required: "El horario es requerido",
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                      placeholder="Ej: 9:00 - 15:45 o Cerrado"
+                    />
+                    {errors.schedule?.[index]?.hours && (
+                      <p className="mt-1 text-xs text-red-600">
+                        {errors.schedule[index]?.hours?.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Remove button */}
+                {fields.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => remove(index)}
+                    className="mt-6 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Eliminar"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {fields.length === 0 && (
+            <div className="text-center py-8 text-gray-500 text-sm">
+              No hay días configurados. Haz clic en "Añadir Día" para empezar.
+            </div>
+          )}
         </div>
 
         {/* Save Button */}
