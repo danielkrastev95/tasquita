@@ -44,12 +44,12 @@ export default function Hero({ featuredEvent }: HeroProps) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -100, opacity: 0 }}
             transition={{ duration: 0.8, delay: 1.2, type: "spring" }}
-            className="absolute top-28 left-1/2 -translate-x-1/2 z-30 w-full max-w-2xl px-4"
+            className="absolute top-28 left-0 right-0 z-30 flex justify-center px-4"
           >
             <motion.a
               href="#eventos"
               whileHover={{ scale: 1.02, y: -3 }}
-              className="block mx-auto"
+              className="block w-full max-w-2xl"
             >
               {/* Glass Morphism Card */}
               <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20">
