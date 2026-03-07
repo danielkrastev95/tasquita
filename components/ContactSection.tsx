@@ -91,14 +91,14 @@ export default function ContactSection({ settings }: ContactSectionProps) {
               <h3 className="text-2xl font-montserrat font-bold text-gray-900 mb-4">
                 Horario
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {schedule.map((item) => (
                   <div
                     key={item.day}
-                    className="flex justify-between py-2 border-b border-gray-200"
+                    className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 py-2 border-b border-gray-200"
                   >
-                    <span className="font-medium text-gray-700">{item.day}</span>
-                    <span className={item.hours === "Cerrado" ? "text-red-600" : "text-gray-600"}>
+                    <span className="font-semibold text-gray-900 text-sm sm:text-base">{item.day}</span>
+                    <span className={`text-sm sm:text-base ${item.hours === "Cerrado" ? "text-red-600 font-semibold" : "text-gray-600"}`}>
                       {item.hours}
                     </span>
                   </div>
