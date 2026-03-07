@@ -50,12 +50,13 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
             boxShadow: isScrolled
               ? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
               : "0 0 0 0 rgba(0, 0, 0, 0)",
+            backdropFilter: isScrolled ? "blur(16px)" : "blur(0px)",
           }}
           transition={{
             duration: 0.8,
             ease: [0.25, 0.1, 0.25, 1]
           }}
-          className="flex justify-between items-center h-16 px-6 backdrop-blur-xl rounded-2xl border"
+          className="flex justify-between items-center h-16 px-6 rounded-2xl border"
         >
           {/* Logo */}
           <a href="#" className="flex items-center">
