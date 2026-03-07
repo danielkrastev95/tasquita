@@ -43,7 +43,7 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-white shadow-lg"
+          ? "bg-white/70 backdrop-blur-xl shadow-lg border-b border-white/20"
           : "bg-transparent"
       }`}
     >
@@ -117,7 +117,7 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="md:hidden bg-white shadow-lg overflow-hidden"
+            className="md:hidden bg-white/90 backdrop-blur-xl shadow-lg overflow-hidden border-b border-white/20"
           >
             <div className="px-4 py-6 space-y-4">
               {navLinks.map((link) => (

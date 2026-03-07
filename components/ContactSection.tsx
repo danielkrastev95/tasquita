@@ -26,8 +26,15 @@ export default function ContactSection({ settings }: ContactSectionProps) {
         { day: "Domingo", hours: "10:00 - 15:45" },
       ];
   return (
-    <section id="contacto" className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="contacto" className="py-20 relative overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white via-gray-50 to-white" />
+
+      {/* Blur orbs */}
+      <div className="absolute top-20 left-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -38,7 +45,13 @@ export default function ContactSection({ settings }: ContactSectionProps) {
           <h2 className="text-4xl sm:text-5xl font-playfair font-bold text-gray-900 mb-4">
             Visítanos
           </h2>
-          <div className="w-24 h-1 bg-primary mx-auto" />
+          <motion.div
+            initial={{ width: 0 }}
+            whileInView={{ width: 100 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50 mx-auto rounded-full"
+          />
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -48,8 +61,14 @@ export default function ContactSection({ settings }: ContactSectionProps) {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="space-y-8"
+            className="relative"
           >
+            {/* Glass background */}
+            <div className="absolute inset-0 bg-white/70 backdrop-blur-xl rounded-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30 rounded-3xl" />
+            <div className="absolute inset-0 rounded-3xl border border-white/40" />
+
+            <div className="relative p-8 space-y-8">
             {/* Address */}
             <div>
               <h3 className="text-2xl font-playfair font-bold text-gray-900 mb-4">
@@ -104,6 +123,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
                 @{settings?.instagramHandle || "latasquitadesara"}
               </a>
             </div>
+            </div>
           </motion.div>
 
           {/* Map */}
@@ -112,18 +132,23 @@ export default function ContactSection({ settings }: ContactSectionProps) {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="h-[500px] rounded-lg overflow-hidden shadow-lg"
+            className="relative"
           >
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3050.4!2d-3.674!3d40.189!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDExJzIwLjQiTiAzwrA0MCcyNi40Ilc!5e0!3m2!1ses!2ses!4v1234567890"
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Mapa de La Tasquita de Sara en Valdemoro"
-            />
+            {/* Glass border around map */}
+            <div className="absolute inset-0 rounded-3xl border-4 border-white/40 backdrop-blur-sm pointer-events-none z-10" />
+
+            <div className="h-[500px] rounded-3xl overflow-hidden shadow-2xl">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3050.4!2d-3.674!3d40.189!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDExJzIwLjQiTiAzwrA0MCcyNi40Ilc!5e0!3m2!1ses!2ses!4v1234567890"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Mapa de La Tasquita de Sara en Valdemoro"
+              />
+            </div>
           </motion.div>
         </div>
       </div>
