@@ -139,9 +139,6 @@ export default function ContactSection({ settings }: ContactSectionProps) {
             viewport={{ once: true }}
             className="relative"
           >
-            {/* Glass border around map */}
-            <div className="absolute inset-0 rounded-3xl border-4 border-white/40 backdrop-blur-sm pointer-events-none z-10" />
-
             <div className="h-[500px] rounded-3xl overflow-hidden shadow-2xl">
               <iframe
                 src="https://www.google.com/maps?q=40.201998253991874,-3.6892787099523385&hl=es&z=16&output=embed"
