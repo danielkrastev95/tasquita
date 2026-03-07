@@ -174,14 +174,14 @@ export default function Hero({ featuredEvent }: HeroProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.8 }}
-        className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-20"
+        className="absolute bottom-24 left-0 right-0 z-20 flex justify-center"
       >
         <div className="flex flex-col items-center gap-3">
-          <span className="text-white/90 text-sm font-medium">
+          <span className="text-white/90 text-sm font-medium text-center">
             Pide a domicilio
           </span>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center gap-3">
             {/* Glovo */}
             <motion.a
               href="https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro"
@@ -189,10 +189,10 @@ export default function Hero({ featuredEvent }: HeroProps) {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.08, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-[#FFC244] hover:bg-[#FFD166] transition-all duration-300 rounded-xl px-6 py-3 shadow-lg hover:shadow-xl w-28 text-center"
+              className="bg-[#FFC244] hover:bg-[#FFD166] transition-all duration-300 rounded-xl px-6 py-3 shadow-lg hover:shadow-xl w-32 text-center flex items-center justify-center"
               aria-label="Pedir en Glovo"
             >
-              <span className="font-bold text-gray-900 text-sm">Glovo</span>
+              <span className="font-bold text-gray-900 text-sm whitespace-nowrap">Glovo</span>
             </motion.a>
 
             {/* Uber Eats */}
@@ -202,10 +202,10 @@ export default function Hero({ featuredEvent }: HeroProps) {
               rel="noopener noreferrer"
               whileHover={{ scale: 1.08, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-[#06C167] hover:bg-[#06D170] transition-all duration-300 rounded-xl px-6 py-3 shadow-lg hover:shadow-xl w-28 text-center"
+              className="bg-[#06C167] hover:bg-[#06D170] transition-all duration-300 rounded-xl px-6 py-3 shadow-lg hover:shadow-xl w-32 text-center flex items-center justify-center"
               aria-label="Pedir en Uber Eats"
             >
-              <span className="font-bold text-white text-sm">Uber Eats</span>
+              <span className="font-bold text-white text-sm whitespace-nowrap">Uber Eats</span>
             </motion.a>
           </div>
         </div>
