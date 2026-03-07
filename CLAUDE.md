@@ -37,6 +37,7 @@ Documentación del trabajo realizado en la sesión de desarrollo.
 - **Ubicación:** `/admin/settings`
 - **Toggle Hero Eventos:** Mostrar/ocultar banner de evento destacado en Hero
 - **Toggle Sección Eventos:** Mostrar/ocultar sección completa de eventos
+- **Nuestros Valores:** Editor de 3 valores (título + descripción cada uno)
 - Información del restaurante (título, descripción, dirección)
 - Redes sociales (Instagram, Facebook)
 - **Editor de Horarios:** Sistema dinámico para añadir/eliminar días y horarios (useFieldArray)
@@ -625,5 +626,122 @@ git push origin main
 
 ---
 
+## Sesión de Mejoras UI/UX - 7 de Marzo 2026
+
+### Cambios Implementados
+
+#### 1. Nuestros Valores - Editable desde Admin
+- ✅ Añadidos 6 campos al schema de SiteSettings:
+  - `value1Title`, `value1Description`
+  - `value2Title`, `value2Description`
+  - `value3Title`, `value3Description`
+- ✅ Formulario en `/admin/settings` con 3 bloques para editar valores
+- ✅ Componente `AboutSection.tsx` actualizado para usar valores de BD
+- ✅ Validación Zod para los nuevos campos
+
+#### 2. Navbar Mejorado con Animaciones Suaves
+- ✅ **Animaciones Framer Motion:**
+  - Transición suave de transparente a fondo blanco (0.8s)
+  - Custom easing: `[0.25, 0.1, 0.25, 1]`
+  - Backdrop-blur animado (0px → 16px)
+  - Color de logo animado (blanco → verde primary)
+- ✅ **Diseño flotante:**
+  - Container redondeado (rounded-2xl) en lugar de full-width
+  - Padding horizontal para efecto flotante
+  - Altura reducida de h-20 a h-16
+- ✅ **Versión móvil minimalista:**
+  - Solo botón hamburguesa (sin logo ni texto)
+  - Mínimo espacio ocupado
+  - Fondo sutil con blur al hacer scroll
+  - Desktop mantiene diseño completo
+
+#### 3. Hero - Ajustes Móviles
+- ✅ Botones de delivery bajados (bottom-12 en móvil)
+- ✅ Indicador de scroll (ratón) oculto en móvil (`hidden md:flex`)
+- ✅ Mejor spacing para evitar solapamiento con contacto
+
+#### 4. Menú Móvil - Experiencia Mejorada
+- ✅ **Eliminadas animaciones problemáticas:**
+  - Sin delay en aparición de items
+  - Sin animación de "cascada" que causaba parpadeo
+  - Carga instantánea y fluida
+- ✅ **Scroll mejorado:**
+  - Offset de 80px para navbar
+  - Delay de 400ms para animación de cierre
+  - Transición suave con `scrollTo({ behavior: "smooth" })`
+- ✅ **Diseño limpio:**
+  - Removido título redundante "Menu"
+  - Header más compacto
+  - Mejor estructura visual
+
+#### 5. Cards del Menú
+- ✅ Eliminado botón "+" sin funcionalidad
+- ✅ Solo precio mostrado sin elementos interactivos innecesarios
+
+#### 6. Footer Rediseñado - Minimalista con Estilo
+- ✅ **Diseño horizontal moderno:**
+  - 4 secciones en grid: Logo, Teléfono, Instagram, Dirección
+  - **Teléfono añadido:** 624 43 45 93 con enlace `tel:`
+  - Iconos con Lucide React (Phone, Instagram, MapPin)
+  - Cards con hover effects sutiles
+- ✅ **Barra inferior:**
+  - Copyright + enlaces rápidos (Menú, Nosotros, Contacto)
+  - Responsive flex layout
+- ✅ **Animaciones Framer Motion:**
+  - Entrada suave con delays escalonados
+  - Decoración de fondo sutil con orbes de color
+- ✅ **Colores y glassmorphism:**
+  - Background oscuro (gray-900)
+  - Cards con bg-white/5 y hover effects
+  - Transiciones suaves en todos los elementos
+
+#### 7. Iconografía
+- ✅ Icono de "Trae tu Peludito" cambiado de huella a perro
+- ✅ Viewbox actualizado a 512x512 para mejor rendering
+
+### Archivos Modificados
+
+```
+components/
+├── Navbar.tsx           # Animaciones Framer Motion + mobile minimalista
+├── MobileMenu.tsx       # Sin animaciones, scroll mejorado, sin título
+├── Hero.tsx             # Ajustes posición móvil, scroll indicator hidden
+├── AboutSection.tsx     # Icono perro, valores desde BD
+├── MenuSection.tsx      # Eliminado botón +
+└── Footer.tsx           # Rediseño completo minimalista
+
+prisma/schema.prisma     # Campos value1-3 Title/Description
+lib/validations/settings.ts  # Validación Zod para valores
+app/admin/settings/page.tsx  # Formulario valores editables
+package.json             # postinstall: prisma generate
+```
+
+### Decisiones Técnicas
+
+#### Intentos Rechazados
+- ❌ **liquid-glass-react:** Biblioteca externa rechazada por errores de tipos y mal rendering
+- **Decisión:** Mantener glassmorphism custom con Tailwind CSS
+
+#### Mejoras de Performance
+- Animaciones optimizadas con Framer Motion (GPU accelerated)
+- `initial={false}` en navbar para evitar flash al cargar
+- Portal pattern en MobileMenu para mejor z-index management
+
+#### Mobile-First Approach
+- Navbar completamente diferente entre mobile/desktop
+- Mobile: solo hamburguesa, mínimo espacio
+- Desktop: logo + links + efectos
+- Sin compromisos en experiencia de usuario
+
+### Testing Realizado
+- ✅ Build exitoso en local
+- ✅ Deploy a Vercel main y develop
+- ✅ Verificación en móvil y desktop
+- ✅ Scroll suave en menú móvil
+- ✅ Animaciones del navbar fluidas
+- ✅ Footer responsive en todas las resoluciones
+
+---
+
 **Última actualización:** 7 de marzo de 2026
-**Estado del proyecto:** ✅ En producción en Vercel con autenticación completa
+**Estado del proyecto:** ✅ En producción en Vercel - UI/UX optimizada para móvil y desktop
