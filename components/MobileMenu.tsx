@@ -45,7 +45,7 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[100]"
             onClick={onClose}
           />
 
@@ -55,7 +55,7 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[390px] z-50 overflow-hidden"
+            className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[390px] z-[101] overflow-hidden"
           >
             {/* Glass morphism background with gradient */}
             <div className="absolute inset-0 bg-white/40 backdrop-blur-2xl" />
