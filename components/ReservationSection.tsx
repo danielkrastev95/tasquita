@@ -33,8 +33,15 @@ export default function ReservationSection() {
   };
 
   return (
-    <section id="reservas" className="py-20 bg-gray-50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="reservas" className="py-20 relative overflow-hidden">
+      {/* Background with gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-primary/5" />
+
+      {/* Blur orbs */}
+      <div className="absolute top-20 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 left-0 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
+
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -45,7 +52,13 @@ export default function ReservationSection() {
           <h2 className="text-4xl sm:text-5xl font-playfair font-bold text-gray-900 mb-4">
             Reserva tu mesa
           </h2>
-          <div className="w-24 h-1 bg-primary mx-auto mb-6" />
+          <motion.div
+            initial={{ width: 0 }}
+            whileInView={{ width: 100 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50 mx-auto rounded-full mb-6"
+          />
           <p className="text-lg text-gray-600">
             Completa el formulario y nos pondremos en contacto contigo para confirmar tu reserva
           </p>
@@ -55,9 +68,18 @@ export default function ReservationSection() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg text-center"
+            className="relative mb-6 rounded-2xl overflow-hidden"
           >
-            ¡Reserva recibida! Nos pondremos en contacto contigo pronto.
+            {/* Glass background */}
+            <div className="absolute inset-0 bg-primary/10 backdrop-blur-xl" />
+            <div className="absolute inset-0 border border-primary/20 rounded-2xl" />
+
+            <div className="relative p-4 text-primary text-center font-semibold flex items-center justify-center gap-2">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              ¡Reserva recibida! Nos pondremos en contacto contigo pronto.
+            </div>
           </motion.div>
         )}
 
@@ -67,8 +89,17 @@ export default function ReservationSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           viewport={{ once: true }}
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-white p-8 rounded-lg shadow-lg space-y-6"
+          className="relative rounded-3xl overflow-hidden p-8 space-y-6"
         >
+          {/* Glass background */}
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-xl" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30" />
+
+          {/* Border */}
+          <div className="absolute inset-0 rounded-3xl border border-white/40" />
+
+          {/* Form content */}
+          <div className="relative space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
@@ -173,12 +204,13 @@ export default function ReservationSection() {
             />
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-primary text-white py-4 rounded-lg font-medium hover:bg-primary/90 transition-all duration-300 hover:scale-105"
-          >
-            Enviar reserva
-          </button>
+            <button
+              type="submit"
+              className="w-full bg-primary text-white py-4 rounded-lg font-medium hover:bg-primary/90 transition-all duration-300 hover:scale-105 shadow-md"
+            >
+              Enviar reserva
+            </button>
+          </div>
         </motion.form>
       </div>
     </section>

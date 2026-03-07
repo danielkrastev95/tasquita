@@ -25,18 +25,27 @@ interface EventsSectionProps {
 
 const categoryConfig = {
   musica: {
-    color: "from-purple-500 to-pink-500",
-    icon: "🎵",
+    icon: (
+      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+      </svg>
+    ),
     label: "Música en Vivo",
   },
   gastronomia: {
-    color: "from-amber-500 to-orange-500",
-    icon: "🍷",
+    icon: (
+      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z" />
+      </svg>
+    ),
     label: "Gastronomía",
   },
   especial: {
-    color: "from-primary to-emerald-500",
-    icon: "✨",
+    icon: (
+      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+      </svg>
+    ),
     label: "Evento Especial",
   },
 };
@@ -80,28 +89,22 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
         <div className="text-center mb-16">
-          <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            transition={{ duration: 0.6, type: "spring" }}
-            viewport={{ once: true }}
-            className="inline-block mb-4"
-          >
-            <div className="bg-gradient-to-r from-primary to-gold text-white px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider shadow-lg">
-              Próximos Eventos
-            </div>
-          </motion.div>
-
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.6 }}
             viewport={{ once: true }}
             className="text-4xl sm:text-5xl font-playfair font-bold text-gray-900 mb-4"
           >
             Eventos
           </motion.h2>
-
+          <motion.div
+            initial={{ width: 0 }}
+            whileInView={{ width: 100 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50 mx-auto rounded-full mb-6"
+          />
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -135,65 +138,98 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
                 {/* Featured badge */}
                 {event.featured && (
                   <motion.div
-                    animate={{ rotate: [0, 5, -5, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute -top-3 -right-3 z-20 bg-gradient-to-r from-gold to-amber-400 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl"
+                    animate={{ y: [0, -3, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    className="absolute -top-3 -right-3 z-20 bg-gradient-to-r from-primary/10 to-gold/10 border border-gold/20 backdrop-blur-xl text-gold px-4 py-2 rounded-full text-xs font-bold shadow-xl"
                   >
-                    ⭐ DESTACADO
+                    <span className="inline-flex items-center gap-1.5">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      DESTACADO
+                    </span>
                   </motion.div>
                 )}
 
-                {/* Card */}
-                <div className="relative bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 h-full">
-                  {/* Image */}
-                  {event.image && (
-                    <div className="relative h-56 overflow-hidden">
-                      <Image
-                        src={event.image}
-                        alt={event.title}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-700"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
+                {/* Glass Card */}
+                <div className="relative h-full rounded-3xl overflow-hidden">
+                  {/* Glass background */}
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-xl" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30" />
 
-                      {/* Category badge on image */}
-                      <div className={`absolute top-4 left-4 bg-gradient-to-r ${config.color} text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm`}>
-                        {config.icon} {config.label}
+                  {/* Border */}
+                  <div className="absolute inset-0 rounded-3xl border border-white/40 group-hover:border-primary/30 transition-colors duration-500" />
+
+                  {/* Card content */}
+                  <div className="relative h-full">
+                    {/* Image */}
+                    {event.image && (
+                      <div className="relative h-56 overflow-hidden rounded-t-3xl">
+                        <Image
+                          src={event.image}
+                          alt={event.title}
+                          fill
+                          className="object-cover group-hover:scale-110 transition-transform duration-700"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+
+                        {/* Image overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+
+                        {/* Category badge on image */}
+                        <div className="absolute top-4 left-4 inline-flex items-center gap-2 bg-primary/10 backdrop-blur-xl border border-primary/20 text-primary px-4 py-2 rounded-full text-sm font-semibold">
+                          {config.icon}
+                          {config.label}
+                        </div>
                       </div>
+                    )}
+
+                    {/* Content */}
+                    <div className="p-6">
+                      {/* Date & Time */}
+                      <div className="flex items-center gap-4 mb-4 text-sm">
+                        <div className="flex items-center gap-2 text-primary font-semibold">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {formattedDate}
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-600">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {event.time}
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-2xl font-playfair font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">
+                        {event.title}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-gray-600 leading-relaxed">
+                        {event.description}
+                      </p>
                     </div>
-                  )}
-
-                  {/* Content */}
-                  <div className="p-6">
-                    {/* Date & Time */}
-                    <div className="flex items-center gap-4 mb-4 text-sm">
-                      <div className="flex items-center gap-2 text-primary font-semibold">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        {formattedDate}
-                      </div>
-                      <div className="flex items-center gap-2 text-gray-600">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {event.time}
-                      </div>
-                    </div>
-
-                    {/* Title */}
-                    <h3 className="text-2xl font-playfair font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">
-                      {event.title}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-gray-600 leading-relaxed">
-                      {event.description}
-                    </p>
                   </div>
 
-                  {/* Decorative corner */}
-                  <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/20 to-transparent rounded-bl-full" />
+                  {/* Hover shine effect */}
+                  <motion.div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none"
+                    animate={{
+                      backgroundPosition: ["200% 0%", "-200% 0%"],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                    style={{
+                      background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
+                      backgroundSize: '200% 100%',
+                    }}
+                  />
                 </div>
               </motion.div>
             );
@@ -211,12 +247,14 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
           <p className="text-gray-600 mb-6">
             ¿Quieres organizar tu evento con nosotros?
           </p>
-          <a
+          <motion.a
             href="#contacto"
-            className="inline-block bg-gradient-to-r from-primary to-gold text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl hover:scale-105 transition-all duration-300"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="inline-block bg-primary text-white px-8 py-4 rounded-full font-semibold hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300"
           >
             Contáctanos
-          </a>
+          </motion.a>
         </motion.div>
       </div>
     </section>
