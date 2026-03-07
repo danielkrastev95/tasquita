@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
@@ -44,11 +44,7 @@ export default function EditMenuItemPage() {
 
   const imageUrl = watch("image");
 
-  useEffect(() => {
-    fetchData();
-  }, [itemId]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [itemRes, categoriesRes] = await Promise.all([
         fetch(`/api/admin/menu/items/${itemId}`),
@@ -76,11 +72,14 @@ export default function EditMenuItemPage() {
       });
     } catch (error) {
       toast.error("Error al cargar los datos");
-      console.error(error);
     } finally {
       setFetching(false);
     }
-  };
+  }, [itemId, reset]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);

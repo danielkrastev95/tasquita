@@ -25,7 +25,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
         fill
         priority
         className="object-cover"
-        quality={90}
+        quality={75}
       />
 
       {/* Gradient Overlay */}

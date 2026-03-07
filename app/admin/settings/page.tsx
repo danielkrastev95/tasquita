@@ -96,7 +96,6 @@ export default function SettingsPage() {
       reset(data);
     } catch (error) {
       toast.error("Error al cargar la configuración");
-      console.error(error);
     } finally {
       setFetching(false);
     }
@@ -129,7 +128,6 @@ export default function SettingsPage() {
           ? error.message
           : "Error al actualizar la configuración"
       );
-      console.error(error);
     } finally {
       setLoading(false);
     }

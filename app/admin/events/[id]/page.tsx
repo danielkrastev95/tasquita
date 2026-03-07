@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
@@ -37,11 +37,7 @@ export default function EditEventPage() {
 
   const imageUrl = watch("image");
 
-  useEffect(() => {
-    fetchEvent();
-  }, [eventId]);
-
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/events/${eventId}`);
       if (!response.ok) throw new Error("Failed to fetch event");
@@ -64,11 +60,14 @@ export default function EditEventPage() {
       });
     } catch (error) {
       toast.error("Error al cargar el evento");
-      console.error(error);
     } finally {
       setFetching(false);
     }
-  };
+  }, [eventId, reset]);
+
+  useEffect(() => {
+    fetchEvent();
+  }, [fetchEvent]);
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
