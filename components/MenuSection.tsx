@@ -47,7 +47,7 @@ export default function MenuSection({ menuData }: MenuSectionProps) {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl sm:text-5xl font-playfair font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-montserrat font-bold text-gray-900 mb-4">
             Nuestra Carta
           </h2>
           <div className="w-24 h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50 mx-auto rounded-full" />
@@ -188,7 +188,7 @@ export default function MenuSection({ menuData }: MenuSectionProps) {
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-xl font-playfair font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors duration-300">
+                    <h3 className="text-xl font-montserrat font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors duration-300">
                       {item.name}
                     </h3>
 

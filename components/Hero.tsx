@@ -133,7 +133,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-playfair font-bold text-white mb-6 leading-tight"
+            className="text-5xl sm:text-6xl lg:text-7xl font-montserrat font-bold text-white mb-6 leading-tight"
           >
             La Tasquita de Sara
           </motion.h1>

@@ -52,7 +52,7 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
           {/* Logo */}
           <a href="#" className="flex items-center">
             <span
-              className={`text-2xl font-playfair font-bold transition-colors ${
+              className={`text-2xl font-montserrat font-bold transition-colors ${
                 isScrolled ? "text-primary" : "text-white"
               }`}
             >

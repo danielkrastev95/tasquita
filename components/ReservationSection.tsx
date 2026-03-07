@@ -49,7 +49,7 @@ export default function ReservationSection() {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl sm:text-5xl font-playfair font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-montserrat font-bold text-gray-900 mb-4">
             Reserva tu mesa
           </h2>
           <motion.div

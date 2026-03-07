@@ -100,7 +100,7 @@ export default function AdminSidebar() {
     <aside className="w-64 bg-gray-900 text-white min-h-screen flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-gray-800">
-        <h1 className="text-xl font-playfair font-bold">La Tasquita</h1>
+        <h1 className="text-xl font-montserrat font-bold">La Tasquita</h1>
         <p className="text-sm text-gray-400 mt-1">Panel Admin</p>
       </div>
 

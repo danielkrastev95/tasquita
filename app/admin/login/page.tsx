@@ -46,7 +46,7 @@ export default function LoginPage() {
       >
         {/* Logo/Title */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-playfair font-bold text-gray-900 mb-2">
+          <h1 className="text-4xl font-montserrat font-bold text-gray-900 mb-2">
             La Tasquita de Sara
           </h1>
           <p className="text-gray-600">Panel de Administración</p>

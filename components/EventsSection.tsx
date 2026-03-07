@@ -94,7 +94,7 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-4xl sm:text-5xl font-playfair font-bold text-gray-900 mb-4"
+            className="text-4xl sm:text-5xl font-montserrat font-bold text-gray-900 mb-4"
           >
             Eventos
           </motion.h2>
@@ -203,7 +203,7 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
                       </div>
 
                       {/* Title */}
-                      <h3 className="text-2xl font-playfair font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">
+                      <h3 className="text-2xl font-montserrat font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">
                         {event.title}
                       </h3>
 

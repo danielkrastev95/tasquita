@@ -13,8 +13,8 @@ const config: Config = {
         gold: '#C7AF65',
       },
       fontFamily: {
-        playfair: ['var(--font-playfair)'],
-        inter: ['var(--font-inter)'],
+        montserrat: ['var(--font-montserrat)'],
+        sans: ['var(--font-montserrat)', 'system-ui', 'sans-serif'],
       },
     },
   },

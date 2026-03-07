@@ -42,7 +42,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl sm:text-5xl font-playfair font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-montserrat font-bold text-gray-900 mb-4">
             Visítanos
           </h2>
           <motion.div
@@ -71,7 +71,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
             <div className="relative p-8 space-y-8">
             {/* Address */}
             <div>
-              <h3 className="text-2xl font-playfair font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl font-montserrat font-bold text-gray-900 mb-4">
                 Dirección
               </h3>
               <p className="text-gray-700 text-lg">
@@ -83,7 +83,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
 
             {/* Hours */}
             <div>
-              <h3 className="text-2xl font-playfair font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl font-montserrat font-bold text-gray-900 mb-4">
                 Horario
               </h3>
               <div className="space-y-2">
@@ -103,7 +103,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
 
             {/* Social */}
             <div>
-              <h3 className="text-2xl font-playfair font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl font-montserrat font-bold text-gray-900 mb-4">
                 Síguenos
               </h3>
               <a

@@ -52,7 +52,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="text-5xl sm:text-6xl font-playfair font-bold text-gray-900 mb-4"
+            className="text-5xl sm:text-6xl font-montserrat font-bold text-gray-900 mb-4"
           >
             {settings?.aboutTitle || "Nuestra Historia"}
           </motion.h2>
@@ -92,7 +92,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
                 {/* Glass overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                 <div className="absolute bottom-6 left-6 text-white">
-                  <p className="text-3xl font-playfair font-bold">Desde 2018</p>
+                  <p className="text-3xl font-montserrat font-bold">Desde 2018</p>
                   <p className="text-sm opacity-90">Cocinando con pasión</p>
                 </div>
               </motion.div>
@@ -136,7 +136,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <h3 className="text-3xl font-playfair font-bold text-primary mb-4">
+            <h3 className="text-3xl font-montserrat font-bold text-primary mb-4">
               {settings?.aboutSubtitle || "Somos un bar de barrio que cocina en serio"}
             </h3>
             <p className="text-lg text-gray-700 leading-relaxed mb-4">
@@ -164,7 +164,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
                     <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
                   </svg>
                   <div>
-                    <p className="text-xl font-playfair italic text-gray-800 leading-relaxed">
+                    <p className="text-xl font-montserrat italic text-gray-800 leading-relaxed">
                       {settings?.aboutQuote || "La cocina es amor hecho visible, y aquí lo sentimos en cada plato"}
                     </p>
                     <p className="text-sm text-primary font-semibold mt-3">
@@ -183,7 +183,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl sm:text-5xl font-playfair font-bold text-center text-gray-900 mb-20"
+            className="text-4xl sm:text-5xl font-montserrat font-bold text-center text-gray-900 mb-20"
           >
             Nuestros Valores
           </motion.h3>
@@ -273,7 +273,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
                     </motion.div>
 
                     {/* Text content */}
-                    <h4 className="text-2xl font-playfair font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">
+                    <h4 className="text-2xl font-montserrat font-bold text-gray-900 mb-3 group-hover:text-primary transition-colors duration-300">
                       {value.title}
                     </h4>
                     <p className="text-gray-600 leading-relaxed flex-grow">
