@@ -177,7 +177,7 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
 
                         {/* Category badge on image */}
-                        <div className="absolute top-4 left-4 inline-flex items-center gap-2 bg-primary/10 backdrop-blur-xl border border-primary/20 text-primary px-4 py-2 rounded-full text-sm font-semibold">
+                        <div className="absolute top-4 left-4 inline-flex items-center gap-2 bg-primary/10 backdrop-blur-xl border border-primary/20 text-white px-4 py-2 rounded-full text-sm font-semibold">
                           {config.icon}
                           {config.label}
                         </div>
