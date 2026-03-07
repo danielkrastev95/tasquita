@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import toast, { Toaster } from "react-hot-toast";
-import Image from "next/image";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface Category {
   id: string;
@@ -32,12 +32,12 @@ export default function EditMenuItemPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     reset,
     formState: { errors },
   } = useForm<FormData>();
@@ -47,12 +47,6 @@ export default function EditMenuItemPage() {
   useEffect(() => {
     fetchData();
   }, [itemId]);
-
-  useEffect(() => {
-    if (imageUrl) {
-      setImagePreview(imageUrl);
-    }
-  }, [imageUrl]);
 
   const fetchData = async () => {
     try {
@@ -80,10 +74,6 @@ export default function EditMenuItemPage() {
         award: itemData.award || "",
         isActive: itemData.isActive,
       });
-
-      if (itemData.image) {
-        setImagePreview(itemData.image);
-      }
     } catch (error) {
       toast.error("Error al cargar los datos");
       console.error(error);
@@ -249,37 +239,11 @@ export default function EditMenuItemPage() {
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Imagen</h2>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                URL de la Imagen
-              </label>
-              <input
-                type="url"
-                {...register("image")}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="https://example.com/imagen.jpg"
-              />
-            </div>
-
-            {/* Image Preview */}
-            {imagePreview && (
-              <div>
-                <p className="text-sm font-medium text-gray-700 mb-2">
-                  Vista Previa
-                </p>
-                <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100">
-                  <Image
-                    src={imagePreview}
-                    alt="Preview"
-                    fill
-                    className="object-cover"
-                    onError={() => setImagePreview(null)}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
+          <ImageUpload
+            value={imageUrl}
+            onChange={(url) => setValue("image", url)}
+            onRemove={() => setValue("image", "")}
+          />
         </div>
 
         {/* Tags & Status Card */}
