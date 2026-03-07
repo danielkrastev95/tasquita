@@ -18,12 +18,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const isOnAdminLogin = nextUrl.pathname.startsWith("/admin/login");
       const isOnApiAdmin = nextUrl.pathname.startsWith("/api/admin");
 
-      if (isOnApiAdmin) {
-        return isLoggedIn; // API routes need auth
+      // Block API routes without auth
+      if (isOnApiAdmin && !isLoggedIn) {
+        return false;
       }
 
-      if (isOnAdmin && !isOnAdminLogin) {
-        return isLoggedIn; // Admin pages (except login) need auth
+      // Redirect admin pages to login if not authenticated
+      if (isOnAdmin && !isOnAdminLogin && !isLoggedIn) {
+        return Response.redirect(new URL("/admin/login", nextUrl));
+      }
+
+      // Redirect to dashboard if already logged in and trying to access login
+      if (isOnAdminLogin && isLoggedIn) {
+        return Response.redirect(new URL("/admin", nextUrl));
       }
 
       return true; // Allow all other routes
