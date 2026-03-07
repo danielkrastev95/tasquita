@@ -68,7 +68,30 @@ export default function SettingsPage() {
       const data = await response.json();
       // Parse schedule JSON if it exists
       if (data.schedule && typeof data.schedule === "string") {
-        data.schedule = JSON.parse(data.schedule);
+        try {
+          data.schedule = JSON.parse(data.schedule);
+          // If schedule is empty array, use default values
+          if (data.schedule.length === 0) {
+            data.schedule = [
+              { day: "Lunes", hours: "Cerrado" },
+              { day: "Martes - Miércoles", hours: "9:00 - 15:45" },
+              { day: "Jueves", hours: "9:00 - 15:45 y 20:00 - 23:00" },
+              { day: "Viernes", hours: "9:00 - 15:45 y 20:00 - 23:20" },
+              { day: "Sábado", hours: "10:00 - 15:45 y 20:00 - 23:20" },
+              { day: "Domingo", hours: "10:00 - 15:45" },
+            ];
+          }
+        } catch {
+          // If JSON parse fails, use default values
+          data.schedule = [
+            { day: "Lunes", hours: "Cerrado" },
+            { day: "Martes - Miércoles", hours: "9:00 - 15:45" },
+            { day: "Jueves", hours: "9:00 - 15:45 y 20:00 - 23:00" },
+            { day: "Viernes", hours: "9:00 - 15:45 y 20:00 - 23:20" },
+            { day: "Sábado", hours: "10:00 - 15:45 y 20:00 - 23:20" },
+            { day: "Domingo", hours: "10:00 - 15:45" },
+          ];
+        }
       }
       reset(data);
     } catch (error) {
