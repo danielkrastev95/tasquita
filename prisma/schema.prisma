@@ -7,17 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ============ AUTHENTICATION ============
-
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  name          String?
-  passwordHash  String
-  role          Role      @default(ADMIN)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String?
+  passwordHash String
+  role         Role      @default(ADMIN)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  sessions     Session[]
 }
 
 model Session {
@@ -27,13 +25,6 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
-enum Role {
-  ADMIN
-  OWNER
-}
-
-// ============ MENU ============
 
 model MenuCategory {
   id        String     @id @default(cuid())
@@ -58,12 +49,10 @@ model MenuItem {
   sortOrder   Int          @default(0)
   isActive    Boolean      @default(true)
   categoryId  String
-  category    MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  category    MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 }
-
-// ============ EVENTS ============
 
 model Event {
   id          String        @id @default(cuid())
@@ -78,14 +67,6 @@ model Event {
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
-
-enum EventCategory {
-  musica
-  gastronomia
-  especial
-}
-
-// ============ SITE SETTINGS ============
 
 model SiteSettings {
   id                String   @id @default("main")
@@ -109,8 +90,6 @@ model SiteSettings {
   updatedAt         DateTime @updatedAt
 }
 
-// ============ RESERVATIONS ============
-
 model Reservation {
   id        String            @id @default(cuid())
   name      String
@@ -122,6 +101,17 @@ model Reservation {
   status    ReservationStatus @default(PENDING)
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
+}
+
+enum Role {
+  ADMIN
+  OWNER
+}
+
+enum EventCategory {
+  musica
+  gastronomia
+  especial
 }
 
 enum ReservationStatus {

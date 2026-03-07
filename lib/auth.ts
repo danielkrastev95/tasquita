@@ -11,6 +11,37 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/admin/login",
   },
+  callbacks: {
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user;
+      const isOnAdmin = nextUrl.pathname.startsWith("/admin");
+      const isOnAdminLogin = nextUrl.pathname.startsWith("/admin/login");
+      const isOnApiAdmin = nextUrl.pathname.startsWith("/api/admin");
+
+      if (isOnApiAdmin) {
+        return isLoggedIn; // API routes need auth
+      }
+
+      if (isOnAdmin && !isOnAdminLogin) {
+        return isLoggedIn; // Admin pages (except login) need auth
+      }
+
+      return true; // Allow all other routes
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.role = token.role as string;
+        session.user.id = token.sub as string;
+      }
+      return session;
+    },
+  },
   providers: [
     Credentials({
       credentials: {
@@ -48,19 +79,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.role = token.role as string;
-        session.user.id = token.sub as string;
-      }
-      return session;
-    },
-  },
 });

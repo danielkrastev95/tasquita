@@ -20,7 +20,22 @@
       "Bash(node add-complete-menu.js:*)",
       "Bash(node fix-image-urls.js:*)",
       "Bash(git add:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(git commit:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)",
+      "Bash(npx neonctl@latest:*)",
+      "Bash(npx neonctl:*)",
+      "Bash(echo:*)",
+      "Bash(node -e:*)",
+      "Bash(powershell -Command \"\\(Get-Content ''components\\\\EventsSection.tsx''\\) -replace ''font-playfair'', ''font-montserrat'' | Set-Content ''components\\\\EventsSection.tsx''\")",
+      "Bash(powershell -Command \"\\(Get-Content ''components\\\\MenuSection.tsx''\\) -replace ''font-playfair'', ''font-montserrat'' | Set-Content ''components\\\\MenuSection.tsx''\")",
+      "Bash(powershell -Command \"\\(Get-Content ''components\\\\AboutSection.tsx''\\) -replace ''font-playfair'', ''font-montserrat'' | Set-Content ''components\\\\AboutSection.tsx''\")",
+      "Bash(powershell -Command \"\\(Get-Content ''components\\\\Hero.tsx''\\) -replace ''font-playfair'', ''font-montserrat'' | Set-Content ''components\\\\Hero.tsx''\")",
+      "Bash(powershell -Command \"\\(Get-Content ''components\\\\Footer.tsx''\\) -replace ''font-playfair'', ''font-montserrat'' | Set-Content ''components\\\\Footer.tsx''\")",
+      "Bash(powershell -Command:*)",
+      "Bash(git reset:*)"
     ]
   }
 }
