@@ -55,11 +55,14 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[390px] z-50"
+            className="fixed top-0 right-0 bottom-0 w-[85%] max-w-[390px] z-50 overflow-hidden"
           >
             {/* Glass morphism background with gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-white/95 to-gold/10 backdrop-blur-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30" />
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-white/30 to-gold/15" />
+
+            {/* Border */}
+            <div className="absolute inset-0 border-l-2 border-gray-200/50" />
 
             {/* Content */}
             <div className="relative h-full flex flex-col">
@@ -88,9 +91,9 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05, duration: 0.3 }}
                       onClick={() => handleItemClick(item.href, item.name)}
-                      className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-white/50 active:bg-white/70 transition-all duration-200 group"
+                      className="w-full flex items-center gap-4 px-4 py-4 rounded-2xl hover:bg-white/60 active:bg-white/80 transition-all duration-200 group backdrop-blur-sm"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <div className="w-10 h-10 rounded-xl bg-white/70 backdrop-blur-sm border border-primary/20 flex items-center justify-center group-hover:bg-primary/20 group-hover:border-primary/30 transition-all">
                         <Icon className="w-5 h-5 text-primary" strokeWidth={2} />
                       </div>
                       <span className="text-base font-montserrat font-medium text-gray-900">
@@ -106,10 +109,13 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="px-6 pb-8 pt-4 border-t border-gray-200/50"
+                className="relative px-6 pb-8 pt-4"
               >
+                {/* Glass background for footer */}
+                <div className="absolute inset-0 bg-white/50 backdrop-blur-xl border-t border-gray-200/50" />
+
                 {/* Social Links */}
-                <div className="flex items-center gap-4 mb-4">
+                <div className="relative flex items-center gap-4 mb-4">
                   <a
                     href="https://instagram.com/latasquitadesara"
                     target="_blank"
@@ -122,7 +128,7 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                 </div>
 
                 {/* Delivery Apps */}
-                <div className="space-y-2 mb-4">
+                <div className="relative space-y-2 mb-4">
                   <p className="text-xs text-gray-500 font-medium mb-2">Pide a domicilio:</p>
                   <div className="flex gap-2">
                     <a
@@ -145,7 +151,7 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                 </div>
 
                 {/* Footer Info */}
-                <div className="text-center space-y-1">
+                <div className="relative text-center space-y-1">
                   <p className="text-xs text-gray-500">
                     C. Lili Álvarez, 66 · Valdemoro
                   </p>
