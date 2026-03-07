@@ -6,7 +6,7 @@ import { ZodError } from "zod";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -14,8 +14,9 @@ export async function GET(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
+    const { id } = await params;
     const event = await prisma.event.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!event) {
@@ -33,7 +34,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -41,13 +42,14 @@ export async function PUT(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await req.json();
 
     // Validate input
     const validatedData = updateEventSchema.parse(body);
 
     const event = await prisma.event.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...validatedData,
         date: validatedData.date ? new Date(validatedData.date) : undefined,
@@ -75,7 +77,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -83,8 +85,9 @@ export async function DELETE(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
+    const { id } = await params;
     await prisma.event.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });

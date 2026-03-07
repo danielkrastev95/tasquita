@@ -6,7 +6,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = headers();
+  const headersList = await headers();
   const pathname = headersList.get("x-pathname") || "";
 
   // Don't apply admin layout to login page
