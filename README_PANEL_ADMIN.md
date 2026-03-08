@@ -8,9 +8,6 @@ Tu panel de administración está completamente configurado y funcional. Ahora p
 
 **URL:** http://localhost:3000/admin/login
 
-**Credenciales:**
-- **Email:** `admin@latasquitadesara.com`
-- **Password:** `admin123`
 
 ⚠️ **IMPORTANTE:** Cambia la contraseña después del primer login (esta funcionalidad la puedes añadir después).
 
