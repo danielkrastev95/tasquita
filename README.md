@@ -55,18 +55,7 @@ npm install
 
 Crea un archivo `.env` en la raíz del proyecto:
 
-```env
-# Database - Neon PostgreSQL
-DATABASE_URL="postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require"
 
-# NextAuth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="2JtwwPhh3JeOlJO+YUOPoAufV3yp2pRtdyNcBWGtQiI="
-
-# Cloudinary
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="djfbyhzaw"
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="tasquita_uploads"
-```
 
 ### 4. Ejecutar el servidor de desarrollo
 
@@ -79,8 +68,6 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 ### 5. Acceder al panel de administración
 
 - **URL:** http://localhost:3000/admin/login
-- **Email:** admin@latasquitadesara.com
-- **Contraseña:** admin123
 
 ---
 
@@ -326,16 +313,7 @@ Ver guía completa en [DEPLOYMENT.md](DEPLOYMENT.md)
 **Instagram:** [@latasquitadesara](https://instagram.com/latasquitadesara)
 **Tipo:** Bar de tapas moderno con hamburguesas gourmet, raciones y cocina de mercado
 
-### Horarios
 
-- **Lunes:** Cerrado
-- **Martes y Miércoles:** 9:00 - 15:45
-- **Jueves:** 9:00 - 15:45 y 20:00 - 23:00
-- **Viernes:** 9:00 - 15:45 y 20:00 - 23:20
-- **Sábado:** 10:00 - 15:45 y 20:00 - 23:20
-- **Domingo:** 10:00 - 15:45
-
----
 
 ## 🔧 Troubleshooting
 
