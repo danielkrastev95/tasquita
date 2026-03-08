@@ -110,12 +110,7 @@ El proyecto incluye los siguientes modelos:
 - **SiteSettings** - Configuración general
 - **Reservation** - Reservas (preparado para futuro)
 
-## Credenciales de Admin
 
-**Email:** admin@latasquitadesara.com  
-**Password:** admin123
-
-⚠️ **IMPORTANTE:** Cambia la contraseña después del primer login en producción.
 
 ## Migraciones vs Push
 
