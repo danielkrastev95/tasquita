@@ -42,7 +42,6 @@ Guía rápida para deployar y mantener el proyecto en producción.
 
 #### 3. NEXTAUTH_SECRET
 ```
-2JtwwPhh3JeOlJO+YUOPoAufV3yp2pRtdyNcBWGtQiI=
 ```
 **Entornos:** Production, Preview, Development
 
