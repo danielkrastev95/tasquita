@@ -13,11 +13,7 @@ Guía rápida para deployar y mantener el proyecto en producción.
 
 ---
 
-## 🔑 Credenciales
 
-### Admin Panel
-- **Email:** admin@latasquitadesara.com
-- **Password:** admin123
 
 ### Base de Datos (Neon)
 - **URL:** `postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require`
@@ -36,13 +32,11 @@ Guía rápida para deployar y mantener el proyecto en producción.
 
 #### 1. DATABASE_URL
 ```
-postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require
 ```
 **Entornos:** Production, Preview, Development
 
 #### 2. NEXTAUTH_URL
 ```
-https://tasquita.vercel.app
 ```
 **Entornos:** Production
 
@@ -54,13 +48,13 @@ https://tasquita.vercel.app
 
 #### 4. NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 ```
-djfbyhzaw
+
 ```
 **Entornos:** Production, Preview, Development
 
 #### 5. NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 ```
-tasquita_uploads
+
 ```
 **Entornos:** Production, Preview, Development
 
