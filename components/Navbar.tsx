@@ -146,7 +146,7 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
       </div>
 
       {/* Mobile Menu */}
-      <MobileMenu isOpen={isOpen} onClose={() => setIsOpen(false)} navLinks={navLinks} />
+      <MobileMenu isOpen={isOpen} onClose={() => setIsOpen(false)} eventsEnabled={eventsEnabled} />
     </nav>
   );
 }

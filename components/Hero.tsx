@@ -90,6 +90,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
     };
 
     function drawGrid() {
+      if (!ctx) return;
       ctx.clearRect(0, 0, width, height);
       const now = Date.now();
 
