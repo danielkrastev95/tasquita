@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 interface MenuItem {
@@ -26,218 +26,244 @@ interface MenuSectionProps {
 
 export default function MenuSection({ menuData }: MenuSectionProps) {
   const [activeTab, setActiveTab] = useState(menuData[0]?.id || "");
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const activeCategory = menuData.find((cat) => cat.id === activeTab);
 
-  return (
-    <section id="menu" className="py-20 relative overflow-hidden">
-      {/* Background with subtle gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-white to-gray-50/50" />
+  // Block body scroll when modal is open and handle ESC key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selectedImage) {
+        setSelectedImage(null);
+      }
+    };
 
-      {/* Blur orbs */}
-      <div className="absolute top-40 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-40 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
+    if (selectedImage) {
+      document.body.style.overflow = "hidden";
+      document.addEventListener("keydown", handleEscape);
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [selectedImage]);
+
+  return (
+    <section id="menu" className="py-12 relative overflow-hidden bg-white">
+      {/* Geometric Background */}
+      <div className="absolute inset-0">
+        <div className="absolute top-0 left-0 w-1/2 h-full bg-primary/5" />
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-gold/5" />
+        <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-primary/10 rotate-45" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gold/10 rounded-full" />
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* Section Header */}
+
+        {/* Bold Title */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-12"
         >
-          <h2 className="text-4xl sm:text-5xl font-montserrat font-bold text-gray-900 mb-4">
-            Nuestra Carta
-          </h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50 mx-auto rounded-full" />
+          <motion.h2
+            animate={{
+              textShadow: [
+                "4px 4px 0px rgba(83, 166, 153, 0.3)",
+                "8px 8px 0px rgba(83, 166, 153, 0.3)",
+                "4px 4px 0px rgba(83, 166, 153, 0.3)",
+              ]
+            }}
+            transition={{ duration: 3, repeat: Infinity }}
+            className="text-6xl sm:text-8xl font-black text-gray-900 uppercase tracking-tighter mb-4"
+          >
+            MENÚ
+          </motion.h2>
+          <div className="h-2 w-32 bg-gradient-to-r from-primary to-gold mx-auto" />
         </motion.div>
 
-        {/* Glass Morphism Tabs */}
-        <div className="mb-12 -mx-4 sm:mx-0">
-          <div className="flex items-center justify-center gap-2 mb-3 md:hidden">
-            <svg
-              className="w-4 h-4 text-gray-400 animate-pulse"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
-              />
-            </svg>
-            <p className="text-xs text-gray-500 font-medium">
-              Desliza para ver más categorías
-            </p>
-          </div>
-
-          <div className="relative px-4 sm:px-0">
-            <div className="absolute right-0 top-0 bottom-3 w-12 bg-gradient-to-l from-gray-50 to-transparent pointer-events-none md:hidden z-10" />
-
-            <div className="flex gap-3 overflow-x-auto md:overflow-visible pb-3 scrollbar-hide snap-x snap-mandatory md:snap-none md:flex-wrap md:justify-center">
-              {menuData.map((category) => (
+        {/* Category Tabs - Bold Pills */}
+        <div className="mb-16">
+          <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory md:snap-none md:flex-wrap md:justify-center scrollbar-hide">
+            {menuData.map((category, index) => {
+              const isActive = activeTab === category.id;
+              return (
                 <motion.button
                   key={category.id}
                   onClick={() => setActiveTab(category.id)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`relative flex-shrink-0 snap-start px-8 py-3.5 rounded-2xl font-medium transition-all duration-300 whitespace-nowrap min-w-[160px] overflow-hidden ${
-                    activeTab === category.id ? "text-white" : "text-gray-700"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  aria-label={`Ver categoría ${category.name}`}
+                  aria-pressed={isActive}
+                  className={`flex-shrink-0 snap-start px-8 py-4 font-black text-lg uppercase tracking-wider transition-all duration-300 min-w-[180px] ${
+                    isActive
+                      ? 'bg-gradient-to-r from-primary to-gold text-white shadow-2xl'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  {/* Glass background */}
-                  <div className={`absolute inset-0 ${
-                    activeTab === category.id
-                      ? "bg-primary"
-                      : "bg-white/60 backdrop-blur-xl hover:bg-white/80"
-                  } transition-all duration-300`} />
-
-                  {/* Border */}
-                  <div className="absolute inset-0 rounded-2xl border border-white/20" />
-
-                  {/* Active indicator */}
-                  {activeTab === category.id && (
-                    <motion.div
-                      layoutId="activeTab"
-                      className="absolute inset-0 rounded-2xl shadow-lg"
-                      transition={{ type: "spring", duration: 0.5 }}
-                    />
-                  )}
-
-                  <span className="relative z-10">{category.name}</span>
+                  {category.name}
                 </motion.button>
-              ))}
-              <div className="w-4 flex-shrink-0 md:hidden" />
-            </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Menu Items with Glass Morphism Cards */}
+        {/* Menu Items - Compact List Style */}
         <motion.div
           key={activeTab}
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          transition={{ duration: 0.5 }}
+          className="max-w-4xl mx-auto space-y-4"
         >
           {activeCategory?.items.map((item, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="group relative"
+              className="group relative bg-white border-4 border-black hover:border-primary transition-all duration-300 overflow-hidden"
             >
-              {/* Glass Card */}
-              <div className="relative h-full rounded-3xl overflow-hidden">
-                {/* Glass background */}
-                <div className="absolute inset-0 bg-white/70 backdrop-blur-xl" />
-                <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30" />
+              <div className="p-6">
+                <div className="flex items-start justify-between gap-4">
 
-                {/* Border */}
-                <div className="absolute inset-0 rounded-3xl border-2 border-gray-200 group-hover:border-primary/50 transition-colors duration-500" />
+                  {/* Left: Content */}
+                  <div className="flex-1 min-w-0">
 
-                {/* Card content */}
-                <div className="relative h-full">
-                  {/* Image */}
-                  {item.image && (
-                    <div className="relative h-48 w-full overflow-hidden rounded-t-3xl">
-                      <Image
-                        src={item.image}
-                        alt={item.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                      />
-                      {/* Image overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                    </div>
-                  )}
-
-                  {/* Content */}
-                  <div className="p-6">
-                    {/* Elegant Badges - Single Unified Style */}
+                    {/* Badges */}
                     <div className="flex flex-wrap gap-2 mb-3">
                       {item.award && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-gold/10 border border-gold/20 text-gold text-xs font-semibold backdrop-blur-xl">
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                          Premio
+                        <span className="inline-block px-2 py-1 bg-gold text-white text-xs font-black uppercase">
+                          ★ Premio
                         </span>
                       )}
                       {item.popular && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold backdrop-blur-xl">
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
-                          </svg>
-                          Popular
+                        <span className="inline-block px-2 py-1 bg-primary text-white text-xs font-black uppercase">
+                          ♥ Popular
                         </span>
                       )}
                       {item.homemade && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold backdrop-blur-xl">
-                          <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                          </svg>
-                          Casera
+                        <span className="inline-block px-2 py-1 bg-gray-900 text-white text-xs font-black uppercase">
+                          ⌂ Casera
                         </span>
                       )}
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-xl font-montserrat font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors duration-300">
+                    <h3 className="text-2xl sm:text-3xl font-black text-gray-900 uppercase tracking-tight mb-2">
                       {item.name}
                     </h3>
 
                     {/* Award text */}
                     {item.award && (
-                      <p className="text-gold/80 text-xs font-medium mb-2 italic">
+                      <p className="text-gold text-sm font-bold mb-2 italic">
                         {item.award}
                       </p>
                     )}
 
                     {/* Description */}
                     {item.description && (
-                      <p className="text-gray-600 text-sm mb-4 leading-relaxed line-clamp-2">
+                      <p className="text-gray-600 text-sm sm:text-base leading-relaxed mb-3">
                         {item.description}
                       </p>
                     )}
 
-                    {/* Price */}
-                    {item.price && (
-                      <div className="mt-auto pt-4 border-t border-gray-200/50">
-                        <span className="text-primary font-bold text-xl">
+                    {/* Bottom Row: Price + View Image Button */}
+                    <div className="flex items-center gap-4 mt-4">
+                      {/* Price */}
+                      {item.price && (
+                        <span className="text-3xl sm:text-4xl font-black text-primary">
                           {item.price}
                         </span>
-                      </div>
-                    )}
+                      )}
+
+                      {/* View Image Button */}
+                      {item.image && (
+                        <motion.button
+                          onClick={() => setSelectedImage(item.image!)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          aria-label={`Ver foto de ${item.name}`}
+                          className="flex items-center gap-2 px-4 py-2 bg-black text-white font-bold text-sm uppercase tracking-wide hover:bg-primary transition-colors"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          <span className="hidden sm:inline">Ver foto</span>
+                        </motion.button>
+                      )}
+                    </div>
                   </div>
                 </div>
-
-                {/* Hover shine effect */}
-                <motion.div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none"
-                  animate={{
-                    backgroundPosition: ["200% 0%", "-200% 0%"],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                  style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)',
-                    backgroundSize: '200% 100%',
-                  }}
-                />
               </div>
+
+              {/* Corner Accent on Hover */}
+              <div className="absolute top-0 right-0 w-0 h-0 border-l-[30px] border-l-transparent border-t-[30px] border-t-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </motion.div>
           ))}
         </motion.div>
       </div>
+
+      {/* Image Modal */}
+      <AnimatePresence>
+        {selectedImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedImage(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Vista de imagen del plato"
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 cursor-pointer"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-4xl w-full aspect-[4/3] cursor-default"
+            >
+              {/* Close Button */}
+              <motion.button
+                onClick={() => setSelectedImage(null)}
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                whileTap={{ scale: 0.9 }}
+                aria-label="Cerrar imagen"
+                className="absolute -top-4 -right-4 z-10 w-12 h-12 bg-white text-black font-black text-2xl flex items-center justify-center border-4 border-black hover:bg-primary hover:text-white transition-colors"
+              >
+                ×
+              </motion.button>
+
+              {/* Image */}
+              <div className="relative w-full h-full border-8 border-white overflow-hidden">
+                <Image
+                  src={selectedImage}
+                  alt="Plato"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 1024px"
+                />
+              </div>
+
+              {/* Hint */}
+              <p className="text-white text-center mt-4 font-bold uppercase tracking-wide">
+                Toca fuera para cerrar
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
