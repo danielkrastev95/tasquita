@@ -57,15 +57,15 @@ Crea un archivo `.env` en la raíz del proyecto:
 
 ```env
 # Database - Neon PostgreSQL
-DATABASE_URL="postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="2JtwwPhh3JeOlJO+YUOPoAufV3yp2pRtdyNcBWGtQiI="
+NEXTAUTH_SECRET="your-secret-here-generate-with-openssl-rand-base64-32"
 
 # Cloudinary
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="djfbyhzaw"
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="tasquita_uploads"
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your-cloudinary-cloud-name"
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="your-upload-preset"
 ```
 
 ### 4. Ejecutar el servidor de desarrollo
@@ -79,8 +79,7 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 ### 5. Acceder al panel de administración
 
 - **URL:** http://localhost:3000/admin/login
-- **Email:** admin@latasquitadesara.com
-- **Contraseña:** admin123
+- **Credenciales:** Configuradas en la base de datos inicial
 
 ---
 

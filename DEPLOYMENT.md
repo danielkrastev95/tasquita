@@ -16,11 +16,10 @@ Guía rápida para deployar y mantener el proyecto en producción.
 ## 🔑 Credenciales
 
 ### Admin Panel
-- **Email:** admin@latasquitadesara.com
-- **Password:** admin123
+- **Credenciales:** Configuradas en la base de datos
 
 ### Base de Datos (Neon)
-- **URL:** `postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require`
+- **URL:** Ver variables de entorno
 - **Branch:** develop (local) / main (producción)
 
 ---
@@ -36,9 +35,10 @@ Guía rápida para deployar y mantener el proyecto en producción.
 
 #### 1. DATABASE_URL
 ```
-postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require
+postgresql://user:password@host/database?sslmode=require
 ```
 **Entornos:** Production, Preview, Development
+**Obtener de:** Neon Console
 
 #### 2. NEXTAUTH_URL
 ```
@@ -48,21 +48,23 @@ https://tasquita.vercel.app
 
 #### 3. NEXTAUTH_SECRET
 ```
-2JtwwPhh3JeOlJO+YUOPoAufV3yp2pRtdyNcBWGtQiI=
+Generar con: openssl rand -base64 32
 ```
 **Entornos:** Production, Preview, Development
 
 #### 4. NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
 ```
-djfbyhzaw
+Tu cloud name de Cloudinary
 ```
 **Entornos:** Production, Preview, Development
+**Obtener de:** Cloudinary Dashboard
 
 #### 5. NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 ```
-tasquita_uploads
+Tu upload preset de Cloudinary
 ```
 **Entornos:** Production, Preview, Development
+**Obtener de:** Cloudinary Dashboard
 
 5. **Redeploy:** Deployments → "..." → Redeploy
 
@@ -222,8 +224,8 @@ vercel logs
 **Problema:** Error 400 en imágenes de Cloudinary
 
 **Solución:**
-1. Verificar `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` = `djfbyhzaw`
-2. Verificar `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` = `tasquita_uploads`
+1. Verificar `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` está configurado correctamente
+2. Verificar `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` está configurado correctamente
 3. Redeploy el proyecto
 
 ### Error de Base de Datos

@@ -276,10 +276,7 @@ const { fields, append, remove } = useFieldArray({
 **Antes:** SQLite local (`prisma/dev.db`)
 **Ahora:** Neon PostgreSQL serverless
 
-**DATABASE_URL:**
-```
-postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require
-```
+**DATABASE_URL:** Configurado desde Neon Console
 
 **Branch:** develop (para desarrollo local)
 **Región:** AWS us-west-2
@@ -292,11 +289,11 @@ postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west
 
 | Variable | Valor | Entornos |
 |----------|-------|----------|
-| `DATABASE_URL` | `postgresql://neondb_owner:...` | Production, Preview, Development |
+| `DATABASE_URL` | Tu conexión de Neon PostgreSQL | Production, Preview, Development |
 | `NEXTAUTH_URL` | `https://tasquita.vercel.app` | Production |
-| `NEXTAUTH_SECRET` | `2JtwwPhh3JeOlJO+YUOPoAufV3yp2pRtdyNcBWGtQiI=` | Production, Preview, Development |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | `djfbyhzaw` | Production, Preview, Development |
-| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | `tasquita_uploads` | Production, Preview, Development |
+| `NEXTAUTH_SECRET` | Generar con `openssl rand -base64 32` | Production, Preview, Development |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Tu cloud name de Cloudinary | Production, Preview, Development |
+| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Tu upload preset de Cloudinary | Production, Preview, Development |
 
 ### Scripts de Configuración Creados
 

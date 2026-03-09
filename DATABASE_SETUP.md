@@ -6,12 +6,12 @@ Este proyecto utiliza **Neon PostgreSQL** con dos ramas separadas para desarroll
 
 ### Desarrollo (Rama `develop`)
 - **Base de datos:** Neon PostgreSQL - Rama `develop`
-- **Endpoint:** `ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech`
+- **Endpoint:** Ver Neon Console
 - **Archivo de configuración:** `.env.develop`
 
 ### Producción (Rama `main`)
 - **Base de datos:** Neon PostgreSQL - Rama `main`
-- **Endpoint:** `ep-wispy-mode-akv7j874.c-3.us-west-2.aws.neon.tech`
+- **Endpoint:** Ver Neon Console
 - **Archivo de configuración:** `.env.production`
 
 ## Configuración Inicial
@@ -22,16 +22,16 @@ Crea los archivos `.env.develop` y `.env.production` basándote en `.env.example
 
 ```bash
 # .env.develop (para rama develop)
-DATABASE_URL="postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://user:password@host-develop/database?sslmode=require"
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="tu-secret-key-aqui"
+NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
 ```
 
 ```bash
 # .env.production (para rama main)
-DATABASE_URL="postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-wispy-mode-akv7j874.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://user:password@host-production/database?sslmode=require"
 NEXTAUTH_URL="https://tu-dominio-produccion.com"
-NEXTAUTH_SECRET="tu-secret-key-aqui"
+NEXTAUTH_SECRET="generate-with-openssl-rand-base64-32"
 ```
 
 ### 2. Cambiar entre Entornos
@@ -112,8 +112,7 @@ El proyecto incluye los siguientes modelos:
 
 ## Credenciales de Admin
 
-**Email:** admin@latasquitadesara.com  
-**Password:** admin123
+Ver script de seed (`prisma/seed.ts`) para credenciales iniciales.
 
 ⚠️ **IMPORTANTE:** Cambia la contraseña después del primer login en producción.
 

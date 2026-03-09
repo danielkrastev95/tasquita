@@ -9,8 +9,7 @@ Documentación del trabajo realizado en la sesión de desarrollo.
 ### Acceso
 
 - **URL:** http://localhost:3000/admin/login
-- **Email:** admin@latasquitadesara.com
-- **Contraseña:** admin123
+- **Credenciales:** Ver archivo `.env` local
 
 ### Funcionalidades Implementadas
 
@@ -430,15 +429,15 @@ lib/validations/
 
 ```env
 # Database - Neon PostgreSQL develop branch
-DATABASE_URL="postgresql://neondb_owner:npg_CSAbBnZMV28a@ep-gentle-violet-aki4hqth.c-3.us-west-2.aws.neon.tech/neondb?sslmode=require"
+DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
 
 # NextAuth
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="2JtwwPhh3JeOlJO+YUOPoAufV3yp2pRtdyNcBWGtQiI="
+NEXTAUTH_SECRET="your-secret-here-generate-with-openssl-rand-base64-32"
 
 # Cloudinary
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="djfbyhzaw"
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="tasquita_uploads"
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your-cloudinary-cloud-name"
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="your-upload-preset"
 ```
 
 ### Producción Vercel
@@ -449,11 +448,11 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="tasquita_uploads"
 
 | Variable | Valor | Entornos |
 |----------|-------|----------|
-| `DATABASE_URL` | `postgresql://neondb_owner:npg_CSAbBnZMV28a@...` | Production, Preview, Development |
+| `DATABASE_URL` | Tu conexión de Neon PostgreSQL | Production, Preview, Development |
 | `NEXTAUTH_URL` | `https://tasquita.vercel.app` | Production |
-| `NEXTAUTH_SECRET` | `2JtwwPhh3JeOlJO+YUOPoAufV3yp2pRtdyNcBWGtQiI=` | Production, Preview, Development |
-| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | `djfbyhzaw` | Production, Preview, Development |
-| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | `tasquita_uploads` | Production, Preview, Development |
+| `NEXTAUTH_SECRET` | Generar con `openssl rand -base64 32` | Production, Preview, Development |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Tu cloud name de Cloudinary | Production, Preview, Development |
+| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Tu upload preset de Cloudinary | Production, Preview, Development |
 
 **Scripts de configuración automática:**
 - `vercel-env-setup.ps1` (Windows PowerShell)
@@ -600,8 +599,7 @@ Para retomar el trabajo o resolver dudas:
 
 ### Credenciales Admin
 
-- **Email:** admin@latasquitadesara.com
-- **Contraseña:** admin123
+- Ver archivo `.env` local o base de datos
 
 ### Comandos Git
 

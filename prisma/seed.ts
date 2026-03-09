@@ -211,18 +211,20 @@ async function main() {
 
   // Create admin user
   console.log("👤 Creating admin user...");
-  const passwordHash = await bcrypt.hash("admin123", 12);
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@latasquitadesara.com";
+  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const passwordHash = await bcrypt.hash(adminPassword, 12);
   await prisma.user.upsert({
-    where: { email: "admin@latasquitadesara.com" },
+    where: { email: adminEmail },
     update: {},
     create: {
-      email: "admin@latasquitadesara.com",
+      email: adminEmail,
       name: "Administrador",
       passwordHash,
       role: "OWNER",
     },
   });
-  console.log("✅ Admin user created: admin@latasquitadesara.com / admin123");
+  console.log(`✅ Admin user created: ${adminEmail}`);
 
   // Seed menu categories and items
   console.log("🍽️  Seeding menu data...");
@@ -295,10 +297,7 @@ async function main() {
   console.log("✅ Settings created");
 
   console.log("\n🎉 Database seeded successfully!");
-  console.log("\n📝 Login credentials:");
-  console.log("   Email: admin@latasquitadesara.com");
-  console.log("   Password: admin123");
-  console.log("\n⚠️  IMPORTANT: Change the password after first login!\n");
+  console.log("\n⚠️  IMPORTANT: Change the admin password after first login!\n");
 }
 
 main()

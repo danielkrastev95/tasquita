@@ -51,8 +51,8 @@ El componente ImageUpload está integrado en:
 ### Variables de Entorno
 
 ```env
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="djfbyhzaw"
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="tasquita_uploads"
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your-cloudinary-cloud-name"
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="your-upload-preset"
 ```
 
 Estas variables están configuradas en:
@@ -95,7 +95,7 @@ app/admin/
 Las imágenes subidas a Cloudinary tendrán URLs como:
 
 ```
-https://res.cloudinary.com/djfbyhzaw/image/upload/v1234567890/tasquita/nombre-imagen.jpg
+https://res.cloudinary.com/YOUR_CLOUD_NAME/image/upload/v1234567890/tasquita/nombre-imagen.jpg
 ```
 
 Estas URLs son:
@@ -114,7 +114,7 @@ Puedes añadir transformaciones a las URLs para:
 
 Ejemplo:
 ```
-https://res.cloudinary.com/djfbyhzaw/image/upload/w_400,h_300,c_fill,q_auto/tasquita/imagen.jpg
+https://res.cloudinary.com/YOUR_CLOUD_NAME/image/upload/w_400,h_300,c_fill,q_auto/tasquita/imagen.jpg
 ```
 
 ## 🔒 Seguridad
