@@ -40,108 +40,113 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8">
+    <nav className="fixed top-0 left-0 right-0 z-50">
       {/* Desktop navbar */}
-      <div className="hidden md:block max-w-7xl mx-auto pt-4">
+      <div className="hidden md:block">
         <motion.div
           initial={false}
           animate={{
-            backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0)",
-            borderColor: isScrolled ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0)",
-            boxShadow: isScrolled
-              ? "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
-              : "0 0 0 0 rgba(0, 0, 0, 0)",
-            backdropFilter: isScrolled ? "blur(16px)" : "blur(0px)",
+            backgroundColor: isScrolled ? "#ffffff" : "rgba(255, 255, 255, 0.95)",
+            borderBottom: isScrolled ? "4px solid #000000" : "4px solid transparent",
           }}
-          transition={{
-            duration: 0.8,
-            ease: [0.25, 0.1, 0.25, 1]
-          }}
-          className="flex justify-between items-center h-16 px-6 rounded-2xl border"
+          transition={{ duration: 0.2 }}
+          className="w-full shadow-lg"
         >
-          {/* Logo */}
-          <a href="#" className="flex items-center">
-            <motion.span
-              initial={false}
-              animate={{
-                color: isScrolled ? "rgb(83, 166, 153)" : "rgb(255, 255, 255)"
-              }}
-              transition={{
-                duration: 0.8,
-                ease: [0.25, 0.1, 0.25, 1]
-              }}
-              className="text-2xl font-montserrat font-bold"
+          <div className="max-w-7xl mx-auto px-8 flex justify-between items-center h-16">
+            {/* Logo */}
+            <motion.a
+              href="#"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative group"
             >
-              La Tasquita de Sara
-            </motion.span>
-          </a>
+              <span className="text-2xl font-black uppercase tracking-tighter text-gray-900">
+                La Tasquita
+              </span>
+            </motion.a>
 
-          {/* Desktop Navigation */}
-          <div className="flex space-x-8 items-center">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                className={`relative text-sm font-medium transition-colors hover:text-primary ${
-                  isScrolled ? "text-gray-700" : "text-white"
-                }`}
-              >
-                {link.name}
-                {link.badge && (
-                  <motion.span
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                    className="absolute -top-1 -right-3 w-2 h-2 bg-red-500 rounded-full"
-                  />
-                )}
-              </a>
-            ))}
+            {/* Desktop Navigation */}
+            <div className="flex items-center gap-2">
+              {navLinks.map((link, index) => (
+                <motion.a
+                  key={link.name}
+                  href={link.href}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative px-4 py-2 font-black uppercase text-sm tracking-wide text-gray-900 hover:text-primary transition-colors"
+                >
+                  {link.name}
+
+                  {/* Badge */}
+                  {link.badge && (
+                    <motion.span
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute -top-1 -right-1 w-2 h-2 bg-gold rounded-full"
+                    />
+                  )}
+                </motion.a>
+              ))}
+            </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Mobile navbar - Only hamburger button */}
-      <div className="md:hidden pt-4 pr-4 flex justify-end">
+      {/* Mobile navbar */}
+      <div className="md:hidden flex justify-between items-center p-4">
+        {/* Mobile Logo */}
+        <motion.a
+          href="#"
+          className="text-xl font-black uppercase tracking-tighter"
+          style={{
+            color: isScrolled ? "#000000" : "#ffffff",
+            textShadow: isScrolled ? "none" : "2px 2px 4px rgba(0,0,0,0.5)",
+          }}
+        >
+          TASQUITA
+        </motion.a>
+
+        {/* Hamburger */}
         <motion.button
           onClick={() => setIsOpen(!isOpen)}
-          initial={false}
+          whileTap={{ scale: 0.9 }}
           animate={{
-            backgroundColor: isScrolled ? "rgba(255, 255, 255, 0.8)" : "rgba(255, 255, 255, 0)",
-            backdropFilter: isScrolled ? "blur(16px)" : "blur(0px)",
+            backgroundColor: isScrolled ? "#ffffff" : "rgba(0, 0, 0, 0.5)",
+            borderColor: "#000000",
           }}
-          transition={{
-            duration: 0.8,
-            ease: [0.25, 0.1, 0.25, 1]
-          }}
-          className="p-3 rounded-xl"
-          aria-label="Toggle menu"
+          className="w-12 h-12 border-4 flex flex-col items-center justify-center gap-1"
         >
-          <div className="w-6 h-5 flex flex-col justify-between">
-            <span
-              className={`block h-0.5 w-6 transition-all duration-300 ${
-                isScrolled ? "bg-gray-700" : "bg-white"
-              } ${isOpen ? "rotate-45 translate-y-2" : ""}`}
-            />
-            <span
-              className={`block h-0.5 w-6 transition-all duration-300 ${
-                isScrolled ? "bg-gray-700" : "bg-white"
-              } ${isOpen ? "opacity-0" : ""}`}
-            />
-            <span
-              className={`block h-0.5 w-6 transition-all duration-300 ${
-                isScrolled ? "bg-gray-700" : "bg-white"
-              } ${isOpen ? "-rotate-45 -translate-y-2" : ""}`}
-            />
-          </div>
+          <motion.div
+            animate={{
+              rotate: isOpen ? 45 : 0,
+              y: isOpen ? 6 : 0,
+              backgroundColor: isScrolled ? "#000000" : "#ffffff",
+            }}
+            className="w-6 h-1"
+          />
+          <motion.div
+            animate={{
+              opacity: isOpen ? 0 : 1,
+              backgroundColor: isScrolled ? "#000000" : "#ffffff",
+            }}
+            className="w-6 h-1"
+          />
+          <motion.div
+            animate={{
+              rotate: isOpen ? -45 : 0,
+              y: isOpen ? -6 : 0,
+              backgroundColor: isScrolled ? "#000000" : "#ffffff",
+            }}
+            className="w-6 h-1"
+          />
         </motion.button>
       </div>
 
-      {/* Mobile menu */}
-      <MobileMenu
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        eventsEnabled={eventsEnabled}
-      />
+      {/* Mobile Menu */}
+      <MobileMenu isOpen={isOpen} onClose={() => setIsOpen(false)} eventsEnabled={eventsEnabled} />
     </nav>
   );
 }

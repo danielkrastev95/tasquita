@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef, useEffect } from "react";
 
 interface FeaturedEvent {
   id: string;
@@ -15,217 +15,377 @@ interface HeroProps {
 }
 
 export default function Hero({ featuredEvent }: HeroProps) {
+  const containerRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+
+  // Parallax effects
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [0, 10]);
+
+  // Interactive Grid Effect
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    let mouse = { x: -9999, y: -9999 };
+    const squareSize = 80;
+    const grid: Array<{
+      x: number;
+      y: number;
+      alpha: number;
+      fading: boolean;
+      lastTouched: number;
+    }> = [];
+
+    function initGrid() {
+      grid.length = 0;
+      for (let x = 0; x < width; x += squareSize) {
+        for (let y = 0; y < height; y += squareSize) {
+          grid.push({
+            x,
+            y,
+            alpha: 0,
+            fading: false,
+            lastTouched: 0,
+          });
+        }
+      }
+    }
+
+    function getCellAt(x: number, y: number) {
+      return grid.find(cell =>
+        x >= cell.x && x < cell.x + squareSize &&
+        y >= cell.y && y < cell.y + squareSize
+      );
+    }
+
+    const handleResize = () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      initGrid();
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+
+      const cell = getCellAt(mouse.x, mouse.y);
+      if (cell && cell.alpha === 0) {
+        cell.alpha = 1;
+        cell.lastTouched = Date.now();
+        cell.fading = false;
+      }
+    };
+
+    function drawGrid() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, width, height);
+      const now = Date.now();
+
+      for (let i = 0; i < grid.length; i++) {
+        const cell = grid[i];
+
+        // Start fading after 500ms
+        if (cell.alpha > 0 && !cell.fading && now - cell.lastTouched > 500) {
+          cell.fading = true;
+        }
+
+        if (cell.fading) {
+          cell.alpha -= 0.02;
+          if (cell.alpha <= 0) {
+            cell.alpha = 0;
+            cell.fading = false;
+          }
+        }
+
+        if (cell.alpha > 0) {
+          const centerX = cell.x + squareSize / 2;
+          const centerY = cell.y + squareSize / 2;
+
+          // Verde primary: #53A699 = rgb(83, 166, 153)
+          const gradient = ctx.createRadialGradient(
+            centerX, centerY, 5,
+            centerX, centerY, squareSize
+          );
+          gradient.addColorStop(0, `rgba(83, 166, 153, ${cell.alpha})`);
+          gradient.addColorStop(1, `rgba(83, 166, 153, 0)`);
+
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(cell.x + 0.5, cell.y + 0.5, squareSize - 1, squareSize - 1);
+        }
+      }
+
+      requestAnimationFrame(drawGrid);
+    }
+
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("mousemove", handleMouseMove);
+
+    initGrid();
+    drawGrid();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
-      {/* Background Image */}
-      <Image
-        src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600"
-        alt="La Tasquita de Sara - Restaurante en Valdemoro"
-        fill
-        priority
-        className="object-cover"
-        quality={75}
+    <section
+      ref={containerRef}
+      className="relative h-screen w-full overflow-hidden bg-white"
+    >
+      {/* Interactive Canvas Grid */}
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
+        style={{ display: "block" }}
+        aria-hidden="true"
       />
 
-      {/* Gradient Overlay */}
-      <div
-        className="absolute inset-0 bg-gradient-to-br from-primary/40 via-primary/30 to-transparent"
-        style={{
-          background: `linear-gradient(135deg, rgba(83, 166, 153, 0.5) 0%, rgba(83, 166, 153, 0.3) 50%, rgba(0, 0, 0, 0.4) 100%)`,
-        }}
-      />
+      {/* Featured Event - Floating Badge */}
+      {featuredEvent && (
+        <motion.div
+          initial={{ x: -100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.8, delay: 1 }}
+          className="absolute top-32 left-8 z-30"
+        >
+          <motion.a
+            href="#eventos"
+            whileHover={{ scale: 1.05, rotate: -2 }}
+            className="block"
+          >
+            <div className="bg-primary text-white px-6 py-4 border-4 border-black shadow-2xl max-w-xs">
+              <div className="flex items-center gap-2 mb-2">
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="w-3 h-3 bg-gold rounded-full"
+                />
+                <span className="text-xs font-bold uppercase tracking-wider">Evento</span>
+              </div>
+              <h3 className="font-bold text-lg mb-1">{featuredEvent.title}</h3>
+              <p className="text-sm opacity-90">
+                {new Date(featuredEvent.date).toLocaleDateString("es-ES")} • {featuredEvent.time}
+              </p>
+            </div>
+          </motion.a>
+        </motion.div>
+      )}
 
-      {/* Featured Event Banner - Floating */}
-      <AnimatePresence>
-        {featuredEvent && (
+      {/* Main Content - Kinetic Typography */}
+      <div className="relative h-full flex items-center justify-center px-4 z-10">
+        <div className="max-w-7xl w-full">
+
+          {/* LA TASQUITA - Animated */}
+          <div className="mb-4 overflow-hidden">
+            <motion.div
+              style={{ y: y1 }}
+              className="relative"
+            >
+              <motion.h1
+                animate={{
+                  x: [0, 10, 0],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="text-[16vw] sm:text-[10vw] font-black leading-none text-gray-900 uppercase tracking-tighter"
+                style={{
+                  textShadow: "8px 8px 0px rgba(83, 166, 153, 0.3)",
+                  WebkitTextStroke: "2px rgba(83, 166, 153, 0.1)"
+                }}
+              >
+                LA TASQUITA
+              </motion.h1>
+            </motion.div>
+          </div>
+
+          {/* DE SARA - Counter animated */}
+          <div className="mb-8 overflow-hidden flex justify-end">
+            <motion.div
+              style={{ y: y2, rotate }}
+              className="relative"
+            >
+              <motion.h2
+                animate={{
+                  x: [0, -10, 0],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.5
+                }}
+                className="text-[13vw] sm:text-[8vw] font-black leading-none text-gray-900 uppercase tracking-tighter"
+                style={{
+                  textShadow: "-8px 8px 0px rgba(199, 175, 101, 0.3)",
+                  WebkitTextStroke: "2px rgba(199, 175, 101, 0.1)"
+                }}
+              >
+                DE SARA
+              </motion.h2>
+            </motion.div>
+          </div>
+
+          {/* Subtitle */}
           <motion.div
-            initial={{ y: -100, opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="relative mb-12"
+          >
+            <motion.p
+              animate={{
+                opacity: [1, 0.7, 1],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="text-base sm:text-3xl font-bold text-gray-700 uppercase tracking-wider text-center px-2"
+            >
+              Bar de tapas · Hamburguesas · Cocina de mercado
+            </motion.p>
+          </motion.div>
+
+          {/* CTA Buttons - Bold */}
+          <motion.div
+            initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -100, opacity: 0 }}
-            transition={{ duration: 0.8, delay: 1.2, type: "spring" }}
-            className="absolute top-28 left-0 right-0 z-30 flex justify-center px-4"
+            transition={{ delay: 1, duration: 0.8 }}
+            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
           >
             <motion.a
-              href="#eventos"
-              whileHover={{ scale: 1.02, y: -3 }}
-              className="block w-full max-w-2xl"
-            >
-              {/* Glass Morphism Card */}
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/20">
-                {/* Glass background with blur */}
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-xl" />
-
-                {/* Gradient overlay for depth */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-white/10 to-transparent" />
-
-                {/* Animated light reflection */}
-                <motion.div
-                  animate={{
-                    backgroundPosition: ["0% 0%", "100% 100%"],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                    ease: "easeInOut",
-                  }}
-                  className="absolute inset-0 opacity-20"
-                  style={{
-                    background: "linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)",
-                    backgroundSize: "200% 200%",
-                  }}
-                />
-
-                <div className="relative p-4 sm:p-6">
-                  {/* Badge and Live indicator */}
-                  <div className="flex items-center justify-center gap-2 mb-3">
-                    <span className="inline-block px-3 py-1 bg-gradient-to-r from-gold/90 to-amber-500/90 backdrop-blur-sm rounded-full text-xs font-bold text-white uppercase tracking-wide shadow-lg">
-                      Evento Destacado
-                    </span>
-                    <motion.span
-                      animate={{ opacity: [1, 0.4, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="flex items-center gap-1 text-white/90 text-xs font-medium"
-                    >
-                      <span className="w-2 h-2 bg-red-400 rounded-full" />
-                      En vivo
-                    </motion.span>
-                  </div>
-
-                  {/* Content - Centered layout */}
-                  <div className="text-center">
-                    <h3 className="text-white font-bold text-base sm:text-xl mb-2 drop-shadow-lg">
-                      {featuredEvent.title}
-                    </h3>
-                    <div className="flex flex-row items-center justify-center gap-2 text-white/95 text-xs sm:text-sm font-medium">
-                      <span className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-2 py-1 rounded-lg">
-                        <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        {new Date(featuredEvent.date).toLocaleDateString("es-ES", {
-                          day: "numeric",
-                          month: "short",
-                        })}
-                      </span>
-                      <span className="flex items-center gap-1 bg-white/10 backdrop-blur-sm px-2 py-1 rounded-lg">
-                        <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {featuredEvent.time}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bottom glow effect */}
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-              </div>
-            </motion.a>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Content */}
-      <div className="relative h-full flex items-center justify-center">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-montserrat font-bold text-white mb-6 leading-tight"
-          >
-            La Tasquita de Sara
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl sm:text-2xl text-white/90 mb-12 font-light"
-          >
-            Bar de tapas moderno con hamburguesas gourmet y cocina de mercado
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <a
               href="#menu"
-              className="px-8 py-4 bg-primary text-white font-medium rounded-lg hover:bg-primary/90 transition-all duration-300 hover:scale-105"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative group px-12 py-5 bg-primary text-white text-xl font-black uppercase tracking-wider overflow-hidden border-4 border-black shadow-lg"
             >
-              Ver menú
-            </a>
-            <a
+              <motion.div
+                className="absolute inset-0 bg-black"
+                initial={{ x: "-100%" }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <span className="relative z-10 group-hover:text-white transition-colors">
+                Ver Menú
+              </span>
+            </motion.a>
+
+            <motion.a
               href="#contacto"
-              className="px-8 py-4 border-2 border-white text-white font-medium rounded-lg hover:bg-white hover:text-primary transition-all duration-300 hover:scale-105"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="relative group px-12 py-5 border-4 border-black bg-white text-black text-xl font-black uppercase tracking-wider overflow-hidden shadow-lg"
             >
-              Contacto
-            </a>
+              <motion.div
+                className="absolute inset-0 bg-gold"
+                initial={{ x: "-100%" }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+              <span className="relative z-10 group-hover:text-white transition-colors">
+                Contacto
+              </span>
+            </motion.a>
           </motion.div>
         </div>
       </div>
 
-      {/* Delivery Apps */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.8 }}
-        className="absolute bottom-12 sm:bottom-24 left-0 right-0 z-20 flex justify-center"
-      >
-        <div className="flex flex-col items-center gap-3">
-          <span className="text-white/90 text-sm font-medium text-center">
-            Pide a domicilio
-          </span>
-
-          <div className="flex items-center justify-center gap-3">
-            {/* Glovo */}
-            <motion.a
-              href="https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.08, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-[#FFC244] hover:bg-[#FFD166] transition-all duration-300 rounded-xl px-6 py-3 shadow-lg hover:shadow-xl w-32 text-center flex items-center justify-center"
-              aria-label="Pedir en Glovo"
-            >
-              <span className="font-bold text-gray-900 text-sm whitespace-nowrap">Glovo</span>
-            </motion.a>
-
-            {/* Uber Eats */}
-            <motion.a
-              href="https://www.ubereats.com/es/store/la-tasquita-de-sara/tWST6whgU2iUdY71PWw9jw?srsltid=AfmBOoqpmxu_smOZ74LF4eBhWqkldFrlinhkREF6JiLZPipn20vP-BqJ"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.08, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-[#06C167] hover:bg-[#06D170] transition-all duration-300 rounded-xl px-6 py-3 shadow-lg hover:shadow-xl w-32 text-center flex items-center justify-center"
-              aria-label="Pedir en Uber Eats"
-            >
-              <span className="font-bold text-white text-sm whitespace-nowrap">Uber Eats</span>
-            </motion.a>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Scroll indicator */}
+      {/* Delivery Apps - Minimal Badges */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1 }}
-        className="hidden md:flex absolute bottom-8 left-1/2 transform -translate-x-1/2"
+        transition={{ delay: 1.5 }}
+        className="absolute bottom-12 left-0 right-0 z-20"
+      >
+        <div className="flex justify-center gap-6">
+          <motion.a
+            href="https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ y: -5, scale: 1.05 }}
+            aria-label="Pedir a domicilio en Glovo"
+            className="bg-[#FFC244] text-black font-black px-8 py-3 text-lg uppercase tracking-wider border-4 border-black shadow-lg"
+          >
+            Glovo
+          </motion.a>
+
+          <motion.a
+            href="https://www.ubereats.com/es/store/la-tasquita-de-sara/tWST6whgU2iUdY71PWw9jw"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ y: -5, scale: 1.05 }}
+            aria-label="Pedir a domicilio en Uber Eats"
+            className="bg-[#06C167] text-white font-black px-8 py-3 text-lg uppercase tracking-wider border-4 border-black shadow-lg"
+          >
+            Uber Eats
+          </motion.a>
+        </div>
+      </motion.div>
+
+      {/* Scroll Indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2 }}
+        className="hidden md:block absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
       >
         <motion.div
-          animate={{ y: [0, 10, 0] }}
+          animate={{ y: [0, 15, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="w-6 h-10 border-2 border-white rounded-full flex items-start justify-center p-2"
         >
-          <div className="w-1 h-3 bg-white rounded-full" />
+          <svg className="w-8 h-8 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
         </motion.div>
       </motion.div>
+
+      {/* Floating Geometric Elements */}
+      <motion.div
+        animate={{
+          y: [0, -20, 0],
+          rotate: [0, 5, 0]
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut"
+        }}
+        className="absolute top-1/4 right-12 w-24 h-24 border-8 border-primary/20 rounded-full z-0"
+      />
+
+      <motion.div
+        animate={{
+          y: [0, 20, 0],
+          rotate: [0, -5, 0]
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1
+        }}
+        className="absolute bottom-1/4 left-12 w-32 h-32 border-8 border-gold/20 z-0"
+      />
     </section>
   );
 }
