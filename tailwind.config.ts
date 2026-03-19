@@ -9,12 +9,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: '#53A699',
+        primary: '#2f7780',
+        secondary: '#1f5f67',
+        terracotta: '#2f7780',
         gold: '#C7AF65',
+        cream: '#fcf9f3',
+        'cream-dark': '#f0ebe1',
+        'on-primary': '#ffffff',
       },
       fontFamily: {
         montserrat: ['var(--font-montserrat)'],
-        sans: ['var(--font-montserrat)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-space-grotesk)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-newsreader)', 'Georgia', 'serif'],
+        display: ['var(--font-newsreader)', 'Georgia', 'serif'],
+        mono: ['var(--font-space-grotesk)', 'monospace'],
       },
     },
   },

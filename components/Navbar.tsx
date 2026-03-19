@@ -9,19 +9,17 @@ type NavLink = {
   name: string;
   href: string;
   badge?: boolean;
+  active?: boolean;
 };
 
 const baseNavLinks: NavLink[] = [
-  { name: "Inicio", href: "#" },
-  { name: "Menú", href: "#menu" },
+  { name: "Menú", href: "#menu", active: true },
   { name: "Nosotros", href: "#nosotros" },
 ];
 
 const eventLink: NavLink = { name: "Eventos", href: "#eventos", badge: true };
 
-const endNavLinks: NavLink[] = [
-  { name: "Contacto", href: "#contacto" },
-];
+const endNavLinks: NavLink[] = [{ name: "Contacto", href: "#contacto" }];
 
 interface NavbarProps {
   eventsEnabled: boolean;
@@ -32,7 +30,6 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
   const scrollPosition = useScrollPosition();
   const isScrolled = scrollPosition > 50;
 
-  // Build nav links dynamically
   const navLinks = [
     ...baseNavLinks,
     ...(eventsEnabled ? [eventLink] : []),
@@ -41,51 +38,67 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
-      {/* Desktop navbar */}
+      {/* Desktop navbar — matches reference HTML: px-6 md:px-12, items-end, Newsreader */}
       <div className="hidden md:block">
         <motion.div
           initial={false}
           animate={{
-            backgroundColor: isScrolled ? "#ffffff" : "rgba(255, 255, 255, 0.95)",
-            borderBottom: isScrolled ? "4px solid #000000" : "4px solid transparent",
+            backgroundColor: isScrolled
+              ? "#fcf9f3"
+              : "rgba(252, 249, 243, 0.95)",
+            borderBottom: isScrolled
+              ? "1px solid #e0d5c7"
+              : "1px solid transparent",
           }}
-          transition={{ duration: 0.2 }}
-          className="w-full shadow-lg"
+          transition={{ duration: 0.25 }}
+          className="w-full"
         >
-          <div className="max-w-7xl mx-auto px-8 flex justify-between items-center h-16">
-            {/* Logo */}
+          <div className="flex justify-between items-end w-full px-6 md:px-12 pt-6 pb-4">
+            {/* Logo — Newsreader, large, uppercase, terracotta */}
             <motion.a
               href="#"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative group"
+              whileHover={{ opacity: 0.85 }}
+              className="font-black uppercase tracking-tighter"
+              style={{
+                fontFamily: "var(--font-newsreader)",
+                fontSize: "clamp(1.6rem, 2.2vw, 2.2rem)",
+                color: "#2f7780",
+                lineHeight: 1,
+              }}
             >
-              <span className="text-2xl font-black uppercase tracking-tighter text-gray-900">
-                La Tasquita
-              </span>
+              LA TASQUITA DE SARA
             </motion.a>
 
-            {/* Desktop Navigation */}
-            <div className="flex items-center gap-2">
+            {/* Nav links — Newsreader, uppercase */}
+            <div className="flex items-center gap-10 mb-0.5">
               {navLinks.map((link, index) => (
                 <motion.a
                   key={link.name}
                   href={link.href}
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="relative px-4 py-2 font-black uppercase text-sm tracking-wide text-gray-900 hover:text-primary transition-colors"
+                  whileHover={{ opacity: 1 }}
+                  className="relative uppercase tracking-tighter transition-opacity"
+                  style={{
+                    fontFamily: "var(--font-newsreader)",
+                    fontSize: "clamp(0.85rem, 1vw, 1rem)",
+                    color: link.active ? "#1f5f67" : "#2f7780",
+                    opacity: link.active ? 1 : 0.75,
+                    textDecoration: link.active ? "underline" : "none",
+                    textDecorationThickness: link.active ? "2px" : undefined,
+                    textUnderlineOffset: link.active ? "8px" : undefined,
+                    fontWeight: 700,
+                  }}
                 >
                   {link.name}
 
-                  {/* Badge */}
                   {link.badge && (
                     <motion.span
-                      animate={{ scale: [1, 1.2, 1] }}
+                      animate={{ scale: [1, 1.3, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute -top-1 -right-1 w-2 h-2 bg-gold rounded-full"
+                      className="absolute -top-0.5 -right-2 w-1.5 h-1.5 rounded-full"
+                      style={{ backgroundColor: "#C7AF65" }}
                     />
                   )}
                 </motion.a>
@@ -96,57 +109,57 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
       </div>
 
       {/* Mobile navbar */}
-      <div className="md:hidden flex justify-between items-center p-4">
-        {/* Mobile Logo */}
+      <div
+        className="md:hidden flex justify-between items-center px-6 py-4"
+        style={{
+          backgroundColor: isScrolled
+            ? "#fcf9f3"
+            : "rgba(252, 249, 243, 0.9)",
+          backdropFilter: "blur(8px)",
+          borderBottom: isScrolled ? "1px solid #e0d5c7" : "none",
+        }}
+      >
         <motion.a
           href="#"
-          className="text-xl font-black uppercase tracking-tighter"
+          className="font-black uppercase tracking-tighter"
           style={{
-            color: isScrolled ? "#000000" : "#ffffff",
-            textShadow: isScrolled ? "none" : "2px 2px 4px rgba(0,0,0,0.5)",
+            fontFamily: "var(--font-newsreader)",
+            fontSize: "1.25rem",
+            color: "#2f7780",
           }}
         >
-          TASQUITA
+          La Tasquita
         </motion.a>
 
-        {/* Hamburger */}
         <motion.button
           onClick={() => setIsOpen(!isOpen)}
           whileTap={{ scale: 0.9 }}
-          animate={{
-            backgroundColor: isScrolled ? "#ffffff" : "rgba(0, 0, 0, 0.5)",
-            borderColor: "#000000",
-          }}
-          className="w-12 h-12 border-4 flex flex-col items-center justify-center gap-1"
+          className="w-10 h-10 flex flex-col items-center justify-center gap-1.5"
+          aria-label="Abrir menú"
         >
           <motion.div
-            animate={{
-              rotate: isOpen ? 45 : 0,
-              y: isOpen ? 6 : 0,
-              backgroundColor: isScrolled ? "#000000" : "#ffffff",
-            }}
-            className="w-6 h-1"
+            animate={{ rotate: isOpen ? 45 : 0, y: isOpen ? 7 : 0 }}
+            className="w-6 h-0.5"
+            style={{ backgroundColor: "#3a2a20" }}
           />
           <motion.div
-            animate={{
-              opacity: isOpen ? 0 : 1,
-              backgroundColor: isScrolled ? "#000000" : "#ffffff",
-            }}
-            className="w-6 h-1"
+            animate={{ opacity: isOpen ? 0 : 1 }}
+            className="w-6 h-0.5"
+            style={{ backgroundColor: "#3a2a20" }}
           />
           <motion.div
-            animate={{
-              rotate: isOpen ? -45 : 0,
-              y: isOpen ? -6 : 0,
-              backgroundColor: isScrolled ? "#000000" : "#ffffff",
-            }}
-            className="w-6 h-1"
+            animate={{ rotate: isOpen ? -45 : 0, y: isOpen ? -7 : 0 }}
+            className="w-6 h-0.5"
+            style={{ backgroundColor: "#3a2a20" }}
           />
         </motion.button>
       </div>
 
-      {/* Mobile Menu */}
-      <MobileMenu isOpen={isOpen} onClose={() => setIsOpen(false)} eventsEnabled={eventsEnabled} />
+      <MobileMenu
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        eventsEnabled={eventsEnabled}
+      />
     </nav>
   );
 }

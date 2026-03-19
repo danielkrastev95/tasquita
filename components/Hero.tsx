@@ -20,25 +20,21 @@ export default function Hero({ featuredEvent }: HeroProps) {
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start start", "end start"]
+    offset: ["start start", "end start"],
   });
 
-  // Parallax effects
-  const y1 = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const y2 = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const rotate = useTransform(scrollYProgress, [0, 1], [0, 10]);
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, -60]);
 
-  // Interactive Grid Effect
+  // Interactive Grid Effect — terracotta cells
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
-
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
     let mouse = { x: -9999, y: -9999 };
     const squareSize = 80;
     const grid: Array<{
@@ -53,21 +49,18 @@ export default function Hero({ featuredEvent }: HeroProps) {
       grid.length = 0;
       for (let x = 0; x < width; x += squareSize) {
         for (let y = 0; y < height; y += squareSize) {
-          grid.push({
-            x,
-            y,
-            alpha: 0,
-            fading: false,
-            lastTouched: 0,
-          });
+          grid.push({ x, y, alpha: 0, fading: false, lastTouched: 0 });
         }
       }
     }
 
     function getCellAt(x: number, y: number) {
-      return grid.find(cell =>
-        x >= cell.x && x < cell.x + squareSize &&
-        y >= cell.y && y < cell.y + squareSize
+      return grid.find(
+        (cell) =>
+          x >= cell.x &&
+          x < cell.x + squareSize &&
+          y >= cell.y &&
+          y < cell.y + squareSize
       );
     }
 
@@ -80,7 +73,6 @@ export default function Hero({ featuredEvent }: HeroProps) {
     const handleMouseMove = (e: MouseEvent) => {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
-
       const cell = getCellAt(mouse.x, mouse.y);
       if (cell && cell.alpha === 0) {
         cell.alpha = 1;
@@ -93,50 +85,35 @@ export default function Hero({ featuredEvent }: HeroProps) {
       if (!ctx) return;
       ctx.clearRect(0, 0, width, height);
       const now = Date.now();
-
       for (let i = 0; i < grid.length; i++) {
         const cell = grid[i];
-
-        // Start fading after 500ms
         if (cell.alpha > 0 && !cell.fading && now - cell.lastTouched > 500) {
           cell.fading = true;
         }
-
         if (cell.fading) {
           cell.alpha -= 0.02;
-          if (cell.alpha <= 0) {
-            cell.alpha = 0;
-            cell.fading = false;
-          }
+          if (cell.alpha <= 0) { cell.alpha = 0; cell.fading = false; }
         }
-
         if (cell.alpha > 0) {
-          const centerX = cell.x + squareSize / 2;
-          const centerY = cell.y + squareSize / 2;
-
-          // Verde primary: #53A699 = rgb(83, 166, 153)
-          const gradient = ctx.createRadialGradient(
-            centerX, centerY, 5,
-            centerX, centerY, squareSize
-          );
-          gradient.addColorStop(0, `rgba(83, 166, 153, ${cell.alpha})`);
-          gradient.addColorStop(1, `rgba(83, 166, 153, 0)`);
-
-          ctx.strokeStyle = gradient;
-          ctx.lineWidth = 2;
+          const cx = cell.x + squareSize / 2;
+          const cy = cell.y + squareSize / 2;
+          const g = ctx.createRadialGradient(cx, cy, 5, cx, cy, squareSize);
+          g.addColorStop(0, `rgba(47,119,128,${cell.alpha * 0.3})`);
+          g.addColorStop(1, `rgba(47,119,128,0)`);
+          ctx.fillStyle = g;
+          ctx.fillRect(cell.x, cell.y, squareSize, squareSize);
+          ctx.strokeStyle = `rgba(47,119,128,${cell.alpha * 0.18})`;
+          ctx.lineWidth = 1;
           ctx.strokeRect(cell.x + 0.5, cell.y + 0.5, squareSize - 1, squareSize - 1);
         }
       }
-
       requestAnimationFrame(drawGrid);
     }
 
     window.addEventListener("resize", handleResize);
     window.addEventListener("mousemove", handleMouseMove);
-
     initGrid();
     drawGrid();
-
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
@@ -146,246 +123,323 @@ export default function Hero({ featuredEvent }: HeroProps) {
   return (
     <section
       ref={containerRef}
-      className="relative h-screen w-full overflow-hidden bg-white"
+      className="relative w-full overflow-hidden"
+      style={{ backgroundColor: "#fcf9f3", minHeight: "100vh" }}
     >
-      {/* Interactive Canvas Grid */}
+      {/* Mouse canvas */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ display: "block" }}
         aria-hidden="true"
       />
 
-      {/* Featured Event - Floating Badge */}
-      {featuredEvent && (
-        <motion.div
-          initial={{ x: -100, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 1 }}
-          className="absolute top-32 left-8 z-30"
+      {/* Scrolling marquee background text — matches reference HTML */}
+      <div
+        className="absolute overflow-hidden pointer-events-none select-none"
+        style={{
+          top: "28%",
+          left: 0,
+          width: "100%",
+          zIndex: 1,
+          opacity: 0.055,
+        }}
+        aria-hidden="true"
+      >
+        {/* Text repeated so it loops seamlessly (translateX -50%) */}
+        <span
+          className="marquee-scroll font-bold uppercase leading-none"
+          style={{
+            fontFamily: "var(--font-newsreader)",
+            fontSize: "clamp(6rem, 14vw, 16rem)",
+            color: "#2f7780",
+            letterSpacing: "-0.02em",
+          }}
         >
-          <motion.a
-            href="#eventos"
-            whileHover={{ scale: 1.05, rotate: -2 }}
-            className="block"
+          TRADICIÓN&nbsp;•&nbsp;SABOR&nbsp;•&nbsp;FUEGO&nbsp;•&nbsp;TRADICIÓN&nbsp;•&nbsp;SABOR&nbsp;•&nbsp;FUEGO&nbsp;•&nbsp;TRADICIÓN&nbsp;•&nbsp;SABOR&nbsp;•&nbsp;FUEGO&nbsp;•&nbsp;
+        </span>
+      </div>
+
+      {/* Main two-column hero layout */}
+      <div
+        className="relative w-full grid grid-cols-1 md:grid-cols-[55%_45%]"
+        style={{ minHeight: "100vh", zIndex: 2 }}
+      >
+        {/* ─── LEFT COLUMN ─── */}
+        <div
+          className="flex flex-col justify-center px-8 md:px-14 lg:px-20"
+          style={{ paddingTop: "100px", paddingBottom: "48px" }}
+        >
+          {/* EST. badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+            className="mb-5 self-start"
           >
-            <div className="bg-primary text-white px-6 py-4 border-4 border-black shadow-2xl max-w-xs">
-              <div className="flex items-center gap-2 mb-2">
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="w-3 h-3 bg-gold rounded-full"
-                />
-                <span className="text-xs font-bold uppercase tracking-wider">Evento</span>
-              </div>
-              <h3 className="font-bold text-lg mb-1">{featuredEvent.title}</h3>
-              <p className="text-sm opacity-90">
-                {new Date(featuredEvent.date).toLocaleDateString("es-ES")} • {featuredEvent.time}
-              </p>
-            </div>
-          </motion.a>
-        </motion.div>
-      )}
-
-      {/* Main Content - Kinetic Typography */}
-      <div className="relative h-full flex items-center justify-center px-4 z-10">
-        <div className="max-w-7xl w-full">
-
-          {/* LA TASQUITA - Animated */}
-          <div className="mb-4 overflow-hidden">
-            <motion.div
-              style={{ y: y1 }}
-              className="relative"
+            <span
+              className="text-white text-xs font-bold uppercase tracking-widest px-3 py-1.5"
+              style={{
+                backgroundColor: "#2f7780",
+                fontFamily: "var(--font-space-grotesk)",
+                letterSpacing: "0.15em",
+              }}
             >
-              <motion.h1
-                animate={{
-                  x: [0, 10, 0],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="text-[16vw] sm:text-[10vw] font-black leading-none text-gray-900 uppercase tracking-tighter"
-                style={{
-                  textShadow: "8px 8px 0px rgba(83, 166, 153, 0.3)",
-                  WebkitTextStroke: "2px rgba(83, 166, 153, 0.1)"
-                }}
-              >
-                LA TASQUITA
-              </motion.h1>
-            </motion.div>
-          </div>
+              Est. Valdemoro · Tapas
+            </span>
+          </motion.div>
 
-          {/* DE SARA - Counter animated */}
-          <div className="mb-8 overflow-hidden flex justify-end">
-            <motion.div
-              style={{ y: y2, rotate }}
-              className="relative"
+          {/* Display headline */}
+          <motion.div
+            style={{ y: y1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+          >
+            <h1
+              className="font-bold uppercase leading-[0.88]"
+              style={{
+                fontFamily: "var(--font-newsreader)",
+                fontSize: "clamp(3.5rem, 7.5vw, 7rem)",
+                color: "#2f7780",
+                letterSpacing: "-0.02em",
+              }}
             >
-              <motion.h2
-                animate={{
-                  x: [0, -10, 0],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 0.5
-                }}
-                className="text-[13vw] sm:text-[8vw] font-black leading-none text-gray-900 uppercase tracking-tighter"
-                style={{
-                  textShadow: "-8px 8px 0px rgba(199, 175, 101, 0.3)",
-                  WebkitTextStroke: "2px rgba(199, 175, 101, 0.1)"
-                }}
-              >
-                DE SARA
-              </motion.h2>
-            </motion.div>
-          </div>
+              LA
+              <br />
+              TASQUITA
+              <br />
+              DE SARA
+            </h1>
+          </motion.div>
 
-          {/* Subtitle */}
+          {/* Tagline */}
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.6 }}
+            className="mt-6 mb-8 leading-relaxed max-w-[280px]"
+            style={{
+              fontFamily: "var(--font-space-grotesk)",
+              fontSize: "0.9rem",
+              color: "#3a2a20",
+              fontWeight: 400,
+            }}
+          >
+            Un tributo visceral a la cocina de barrio.
+            Donde el producto manda y el sabor no pide permiso.
+          </motion.p>
+
+          {/* CTA row */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.75, duration: 0.55 }}
+            className="flex flex-row gap-4 flex-wrap"
+          >
+            <motion.a
+              href="#contacto"
+              whileHover={{ backgroundColor: "#6b2000" }}
+              className="px-7 py-4 text-white text-xs font-bold uppercase tracking-widest transition-colors"
+              style={{
+                backgroundColor: "#2f7780",
+                fontFamily: "var(--font-space-grotesk)",
+                letterSpacing: "0.14em",
+              }}
+            >
+              Reservar mesa
+            </motion.a>
+
+            <motion.a
+              href="#menu"
+              whileHover={{ borderColor: "#2f7780", color: "#2f7780" }}
+              className="px-7 py-4 text-xs font-bold uppercase tracking-widest transition-colors border-2"
+              style={{
+                color: "#3a2a20",
+                borderColor: "#3a2a20",
+                fontFamily: "var(--font-space-grotesk)",
+                letterSpacing: "0.14em",
+                backgroundColor: "transparent",
+              }}
+            >
+              Ver menú
+            </motion.a>
+          </motion.div>
+
+          {/* Delivery badges */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="relative mb-12"
-          >
-            <motion.p
-              animate={{
-                opacity: [1, 0.7, 1],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="text-base sm:text-3xl font-bold text-gray-700 uppercase tracking-wider text-center px-2"
-            >
-              Bar de tapas · Hamburguesas · Cocina de mercado
-            </motion.p>
-          </motion.div>
-
-          {/* CTA Buttons - Bold */}
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 1, duration: 0.8 }}
-            className="flex flex-col sm:flex-row gap-6 justify-center items-center"
+            transition={{ delay: 1.1 }}
+            className="flex gap-3 mt-8"
           >
             <motion.a
-              href="#menu"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative group px-12 py-5 bg-primary text-white text-xl font-black uppercase tracking-wider overflow-hidden border-4 border-black shadow-lg"
+              href="https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ y: -2 }}
+              aria-label="Pedir en Glovo"
+              className="px-4 py-2 text-xs font-bold uppercase tracking-wider"
+              style={{ backgroundColor: "#FFC244", color: "#000", fontFamily: "var(--font-space-grotesk)" }}
             >
-              <motion.div
-                className="absolute inset-0 bg-black"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-              <span className="relative z-10 group-hover:text-white transition-colors">
-                Ver Menú
-              </span>
+              Glovo
             </motion.a>
-
             <motion.a
-              href="#contacto"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative group px-12 py-5 border-4 border-black bg-white text-black text-xl font-black uppercase tracking-wider overflow-hidden shadow-lg"
+              href="https://www.ubereats.com/es/store/la-tasquita-de-sara/tWST6whgU2iUdY71PWw9jw"
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ y: -2 }}
+              aria-label="Pedir en Uber Eats"
+              className="px-4 py-2 text-xs font-bold uppercase tracking-wider"
+              style={{ backgroundColor: "#06C167", color: "#fff", fontFamily: "var(--font-space-grotesk)" }}
             >
-              <motion.div
-                className="absolute inset-0 bg-gold"
-                initial={{ x: "-100%" }}
-                whileHover={{ x: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-              <span className="relative z-10 group-hover:text-white transition-colors">
-                Contacto
-              </span>
+              Uber Eats
             </motion.a>
           </motion.div>
+        </div>
+
+         {/* ─── RIGHT COLUMN ─── */}
+        <div
+          className="hidden md:flex flex-col justify-center items-start relative"
+          style={{ paddingTop: "80px", paddingBottom: "80px", paddingRight: "0" }}
+        >
+          {/* Wrapper gives positioning context for the secondary image */}
+          <div className="relative" style={{ width: "84%" }}>
+            {/* Main large image frame */}
+            <motion.div
+              style={{
+                y: y2,
+                border: "6px solid #2f7780",
+                position: "relative",
+                height: "65vh",
+                overflow: "hidden",
+                width: "100%",
+              }}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {/* Main large image — fills the frame */}
+              <img
+                src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&q=85"
+                alt="Plato estrella de La Tasquita de Sara"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  filter: "grayscale(100%) contrast(1.05)",
+                }}
+              />
+            </motion.div>
+
+            {/* Small secondary image — positioned outside the frame, overlapping bottom-left */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.85, duration: 0.7 }}
+              style={{
+                position: "absolute",
+                bottom: "-48px",
+                left: "-48px",
+                width: "48%",
+                zIndex: 10,
+                border: "5px solid #2f7780",
+              }}
+            >
+              <div className="relative overflow-hidden" style={{ aspectRatio: "4/3" }}>
+                <img
+                  src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80"
+                  alt="Interior La Tasquita de Sara"
+                  className="w-full h-full object-cover"
+                />
+                {/* "Live Kitchen" label */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 px-3 py-1.5"
+                  style={{ backgroundColor: "#2f7780" }}
+                >
+                  <p
+                    className="text-white text-xs font-bold uppercase tracking-widest"
+                    style={{ fontFamily: "var(--font-space-grotesk)", letterSpacing: "0.15em" }}
+                  >
+                    Cocina en vivo
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Featured event badge (top-right corner) */}
+          {featuredEvent && (
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 1.2 }}
+              className="absolute top-20 right-0"
+              style={{ zIndex: 20 }}
+            >
+              <a href="#eventos" className="block">
+                <div
+                  className="px-4 py-3 text-white"
+                  style={{
+                    backgroundColor: "#2f7780",
+                    maxWidth: "160px",
+                  }}
+                >
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <motion.div
+                      animate={{ scale: [1, 1.25, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-1.5 h-1.5"
+                      style={{ backgroundColor: "#C7AF65" }}
+                    />
+                    <span
+                      className="text-xs font-bold uppercase tracking-widest"
+                      style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "0.6rem" }}
+                    >
+                      Evento
+                    </span>
+                  </div>
+                  <h3
+                    className="font-bold text-sm leading-tight"
+                    style={{ fontFamily: "var(--font-newsreader)" }}
+                  >
+                    {featuredEvent.title}
+                  </h3>
+                  <p
+                    className="text-xs opacity-75 mt-1"
+                    style={{ fontFamily: "var(--font-space-grotesk)", fontSize: "0.65rem" }}
+                  >
+                    {new Date(featuredEvent.date).toLocaleDateString("es-ES")} · {featuredEvent.time}
+                  </p>
+                </div>
+              </a>
+            </motion.div>
+          )}
         </div>
       </div>
 
-      {/* Delivery Apps - Minimal Badges */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-12 left-0 right-0 z-20"
-      >
-        <div className="flex justify-center gap-6">
-          <motion.a
-            href="https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ y: -5, scale: 1.05 }}
-            aria-label="Pedir a domicilio en Glovo"
-            className="bg-[#FFC244] text-black font-black px-8 py-3 text-lg uppercase tracking-wider border-4 border-black shadow-lg"
-          >
-            Glovo
-          </motion.a>
 
-          <motion.a
-            href="https://www.ubereats.com/es/store/la-tasquita-de-sara/tWST6whgU2iUdY71PWw9jw"
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ y: -5, scale: 1.05 }}
-            aria-label="Pedir a domicilio en Uber Eats"
-            className="bg-[#06C167] text-white font-black px-8 py-3 text-lg uppercase tracking-wider border-4 border-black shadow-lg"
-          >
-            Uber Eats
-          </motion.a>
-        </div>
-      </motion.div>
-
-      {/* Scroll Indicator */}
+      {/* Scroll hint */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2 }}
-        className="hidden md:block absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
+        className="hidden md:flex absolute bottom-28 left-14 z-20 items-center gap-2"
       >
-        <motion.div
-          animate={{ y: [0, 15, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <svg className="w-8 h-8 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        <motion.div animate={{ y: [0, 7, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+          <svg className="w-4 h-4" fill="none" stroke="#2f7780" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>
         </motion.div>
+        <span
+          className="text-xs uppercase tracking-widest"
+          style={{ color: "#2f7780", fontFamily: "var(--font-space-grotesk)" }}
+        >
+          Scroll
+        </span>
       </motion.div>
-
-      {/* Floating Geometric Elements */}
-      <motion.div
-        animate={{
-          y: [0, -20, 0],
-          rotate: [0, 5, 0]
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-        className="absolute top-1/4 right-12 w-24 h-24 border-8 border-primary/20 rounded-full z-0"
-      />
-
-      <motion.div
-        animate={{
-          y: [0, 20, 0],
-          rotate: [0, -5, 0]
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-        className="absolute bottom-1/4 left-12 w-32 h-32 border-8 border-gold/20 z-0"
-      />
     </section>
   );
 }
