@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 interface SiteSettings {
   aboutTitle: string;
@@ -22,229 +22,334 @@ interface AboutSectionProps {
   settings: SiteSettings | null;
 }
 
-export default function AboutSection({ settings }: AboutSectionProps) {
-  return (
-    <section id="nosotros" className="py-12 relative overflow-hidden bg-white">
-      {/* Geometric Background - Asymmetric */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 right-0 w-1/2 h-1/3 bg-primary/10" />
-        <div className="absolute bottom-0 left-0 w-2/3 h-1/2 bg-gold/5" />
-        <div className="absolute top-1/3 left-1/4 w-32 h-32 border-8 border-primary/20 rotate-45" />
-        <div className="absolute bottom-1/4 right-1/3 w-48 h-48 border-8 border-gold/20" />
-      </div>
+// ─── Shared tokens ───────────────────────────────────────────────────────────
+const T = {
+  cream: "#fcf9f3",
+  primary: "#2f7780",
+  secondary: "#1f5f67",
+  gold: "#C7AF65",
+  onSurface: "#1c1c18",
+  onSurfaceVariant: "#58413b",
+  newsreader: "var(--font-newsreader)",
+  grotesk: "var(--font-space-grotesk)",
+};
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* Title - Skewed */}
-        <motion.div
-          initial={{ opacity: 0, x: -100 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="mb-12"
-        >
-          <motion.h2
-            animate={{
-              y: [0, -5, 0],
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="text-6xl sm:text-8xl font-black text-gray-900 uppercase tracking-tighter leading-none"
-            style={{
-              textShadow: "12px 12px 0px rgba(83, 166, 153, 0.2)",
-            }}
-          >
-            <span className="text-primary">{settings?.aboutTitle || "Nuestra Historia"}</span>
-          </motion.h2>
+export default function AboutSection({ settings }: AboutSectionProps) {
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start end", "end start"],
+  });
+  const imgY = useTransform(scrollYProgress, [0, 1], [0, -60]);
+
+  const values = [
+    {
+      num: "01",
+      title: settings?.value1Title || "Producto de Calidad",
+      description:
+        settings?.value1Description ||
+        "Seleccionamos los mejores ingredientes de proveedores locales y de temporada",
+    },
+    {
+      num: "02",
+      title: settings?.value2Title || "Trae a tu Peludito",
+      description:
+        settings?.value2Description ||
+        "Espacio pet-friendly donde tu mascota es bienvenida a disfrutar contigo",
+    },
+    {
+      num: "03",
+      title: settings?.value3Title || "Ambiente Familiar",
+      description:
+        settings?.value3Description ||
+        "Un espacio acogedor donde todos son bienvenidos, como en casa",
+    },
+  ];
+
+  return (
+    <section id="nosotros" style={{ backgroundColor: T.cream }}>
+      {/* ═══════════════════════════════════════════════════════════════════
+          HERO — Dark restaurant image with massive italic text overlay
+         ═══════════════════════════════════════════════════════════════════ */}
+      <div ref={heroRef} className="relative overflow-hidden" style={{ minHeight: "85vh" }}>
+        {/* Background image with parallax */}
+        <motion.div style={{ y: imgY }} className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1400&q=85"
+            alt="Interior del restaurante"
+            className="w-full object-cover"
+            style={{ height: "120%", marginTop: "-10%", filter: "brightness(0.35)" }}
+          />
         </motion.div>
 
-        {/* Content and Images Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
-          {/* Left - Images Grid */}
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
+        {/* Content overlay */}
+        <div className="relative px-6 md:px-12 pt-20 pb-12 flex flex-col justify-end" style={{ minHeight: "85vh" }}>
+          {/* Massive italic title */}
+          <motion.h2
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="relative"
+            transition={{ duration: 0.7 }}
+            className="font-black italic uppercase leading-[0.88] mb-8"
+            style={{
+              fontFamily: T.newsreader,
+              fontSize: "clamp(3.5rem, 11vw, 10rem)",
+              color: "#ffffff",
+              letterSpacing: "-0.03em",
+            }}
           >
-            <div className="grid grid-cols-2 gap-4">
-              {/* Large image */}
-              <motion.div
-                whileHover={{ y: -5 }}
-                transition={{ duration: 0.3 }}
-                className="col-span-2 relative h-64 border-4 border-black overflow-hidden shadow-xl"
-              >
-                <Image
-                  src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80"
-                  alt="Ambiente del restaurante"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-4 border-t-4 border-primary">
-                  <p className="text-2xl font-black text-white uppercase tracking-tight">Desde 2025</p>
-                  <p className="text-xs text-gold font-bold uppercase tracking-wider">Cocinando con pasión</p>
-                </div>
-              </motion.div>
+            Cocina
+            <br />
+            de barrio
+            <br />
+            <span className="inline-flex items-baseline gap-4">
+              <span style={{ color: T.gold }}>·</span> Desde 2025
+            </span>
+          </motion.h2>
 
-              {/* Small images */}
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-                className="relative h-40 border-4 border-black overflow-hidden shadow-lg"
-              >
-                <Image
-                  src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80"
-                  alt="Comida deliciosa"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                />
-              </motion.div>
-
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-                className="relative h-40 border-4 border-black overflow-hidden shadow-lg"
-              >
-                <Image
-                  src="https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=800&q=80"
-                  alt="Ingredientes frescos"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 50vw, 25vw"
-                />
-              </motion.div>
-            </div>
-          </motion.div>
-
-          {/* Right - Content */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="space-y-8"
-          >
-            {/* Subtitle Box */}
-            <div className="bg-primary border-4 border-black p-5 shadow-lg">
-              <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight leading-tight">
-                {settings?.aboutSubtitle || "Somos un bar de barrio que cocina en serio"}
-              </h3>
-            </div>
-
-            {/* Text */}
-            <div className="space-y-6 text-lg text-gray-700">
-              <p className="leading-relaxed">
-                {settings?.aboutParagraph1 || "Nacimos en 2018 con una idea clara: demostrar que la cocina de barrio puede ser extraordinaria sin perder su esencia. En La Tasquita de Sara, cada hamburguesa, cada croqueta y cada plato cuenta una historia."}
-              </p>
-              <p className="leading-relaxed">
-                {settings?.aboutParagraph2 || "Combinamos recetas tradicionales con toques modernos, siempre respetando el producto y el sabor auténtico. Porque creemos que la buena comida no necesita etiquetas, solo pasión y dedicación."}
-              </p>
-            </div>
-
-            {/* Quote */}
-            <motion.div
-              whileHover={{ y: -5 }}
-              className="relative bg-white border-l-4 border-gold p-6 shadow-lg"
-            >
-              <svg className="w-12 h-12 text-gold/20 absolute -top-3 -left-3" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-              </svg>
-              <p className="text-xl font-bold italic text-gray-900 mb-3 relative z-10">
-                "{settings?.aboutQuote || "La cocina es amor hecho visible, y aquí lo sentimos en cada plato"}"
-              </p>
-              <p className="text-sm text-primary font-black uppercase tracking-wider">
-                — {settings?.aboutQuoteAuthor || "El equipo de La Tasquita"}
-              </p>
-            </motion.div>
-          </motion.div>
-        </div>
-
-        {/* Values - Horizontal Grid */}
-        <div>
-          <motion.h3
+          {/* Descriptive paragraph over image */}
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-5xl sm:text-7xl font-black text-center text-gray-900 uppercase tracking-tighter mb-12"
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="max-w-lg leading-relaxed"
             style={{
-              textShadow: "6px 6px 0px rgba(199, 175, 101, 0.2)",
+              fontFamily: T.grotesk,
+              fontSize: "0.9rem",
+              color: "rgba(255,255,255,0.7)",
             }}
           >
-            Nuestros Valores
-          </motion.h3>
+            {settings?.aboutParagraph1 ||
+              "Somos un bar de barrio que cocina en serio. Nacimos en 2025 con una idea clara: ser el bar de barrio donde la buena comida es parte del día a día. Un sitio donde la cocina tradicional se encuentra con toques modernos, donde cada plato cuenta una historia y donde nuestros clientes se sienten como en casa."}
+          </motion.p>
 
-          {/* Horizontal Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {[
-              {
-                title: settings?.value1Title || "Producto de Calidad",
-                description: settings?.value1Description || "Seleccionamos los mejores ingredientes de proveedores locales",
-                icon: "quality",
-              },
-              {
-                title: settings?.value2Title || "Trae a tu Peludito",
-                description: settings?.value2Description || "Espacio pet-friendly donde tu mascota es bienvenida",
-                icon: "pet",
-              },
-              {
-                title: settings?.value3Title || "Ambiente Familiar",
-                description: settings?.value3Description || "Un espacio acogedor donde todos son bienvenidos",
-                icon: "family",
-              },
-            ].map((value, index) => (
-              <motion.div
-                key={value.title}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.15, duration: 0.6 }}
-                viewport={{ once: true }}
-                className="group"
-              >
-                <motion.div
-                  whileHover={{ y: -5 }}
-                  className="relative h-full bg-white border-4 border-black p-6 shadow-lg"
-                >
-                  {/* Corner Accent */}
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-primary" />
-
-                  {/* Icon */}
-                  <div className="mb-4 relative">
-                    <div className="w-16 h-16 bg-gold border-4 border-black flex items-center justify-center">
-                      {value.icon === "quality" && (
-                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                      )}
-                      {value.icon === "pet" && (
-                        <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 512 512">
-                          <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5s.3-86.2 32.6-96.8s70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7 .9 78.5 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7c-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2C84.9 480 64 459.1 64 433.3v-1.6c0-10.4 1.6-20.8 5.2-30.5zM421.8 282.7c-24.5-14-29.1-51.7-10.2-84.1s54-47.3 78.5-33.3s29.1 51.7 10.2 84.1s-54 47.3-78.5 33.3zM310.1 189.7c-32.3-10.6-46.9-53.9-32.6-96.8s52.1-69.1 84.4-58.5s46.9 53.9 32.6 96.8s-52.1 69.1-84.4 58.5z"/>
-                        </svg>
-                      )}
-                      {value.icon === "family" && (
-                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <h4 className="text-2xl font-black text-gray-900 mb-3 uppercase tracking-tight">
-                    {value.title}
-                  </h4>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    {value.description}
-                  </p>
-
-                  {/* Bottom accent line */}
-                  <div className="mt-4 h-1 w-12 bg-primary group-hover:w-full transition-all duration-500" />
-                </motion.div>
-              </motion.div>
-            ))}
-          </div>
+          {/* Bottom labels */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+            className="flex gap-8 mt-8"
+          >
+            <span
+              className="text-[0.6rem] font-bold uppercase tracking-widest"
+              style={{ fontFamily: T.grotesk, color: "rgba(255,255,255,0.4)", letterSpacing: "0.15em" }}
+            >
+              Valdemoro · Madrid
+            </span>
+          </motion.div>
         </div>
       </div>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          QUOTE + TEXT — Two-column editorial row
+         ═══════════════════════════════════════════════════════════════════ */}
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 gap-px"
+        style={{ backgroundColor: T.primary }}
+      >
+        {/* Left — Quote */}
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="p-8 md:p-12 lg:p-16 flex flex-col justify-center"
+          style={{ backgroundColor: T.cream }}
+        >
+          <p
+            className="font-black italic leading-[1.1] mb-6"
+            style={{
+              fontFamily: T.newsreader,
+              fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
+              color: T.primary,
+            }}
+          >
+            &ldquo;{settings?.aboutQuote ||
+              "La cocina es amor hecho visible, y aquí cocinamos con el corazón"}&rdquo;
+          </p>
+
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-0.5" style={{ backgroundColor: T.gold }} />
+            <span
+              className="text-xs font-bold uppercase tracking-widest"
+              style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant, letterSpacing: "0.12em" }}
+            >
+              {settings?.aboutQuoteAuthor || "El equipo de La Tasquita"}
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Right — Second paragraph + image peek */}
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          className="p-8 md:p-12 lg:p-16 flex flex-col justify-center"
+          style={{ backgroundColor: T.cream }}
+        >
+          <p
+            className="leading-relaxed mb-6"
+            style={{
+              fontFamily: T.grotesk,
+              fontSize: "0.95rem",
+              color: T.onSurfaceVariant,
+            }}
+          >
+            {settings?.aboutParagraph2 ||
+              "Trabajamos con productos de temporada y de la mejor calidad. Nuestra carta combina recetas de toda la vida con creaciones propias más atrevidas, siempre con ese sabor auténtico que nos caracteriza. Porque aquí lo importante es disfrutar de la buena comida en buena compañía."}
+          </p>
+        </motion.div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          CHEF IMAGE — Full-width horizontal image
+         ═══════════════════════════════════════════════════════════════════ */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="relative overflow-hidden"
+        style={{ height: "clamp(250px, 40vw, 450px)" }}
+      >
+        <img
+          src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1400&q=85"
+          alt="Chef preparando un plato"
+          className="w-full h-full object-cover"
+        />
+      </motion.div>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          VALUES — "Nuestros Valores" with numbered columns
+         ═══════════════════════════════════════════════════════════════════ */}
+      <div className="px-6 md:px-12 py-16 md:py-24" style={{ backgroundColor: T.cream }}>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-baseline md:justify-between mb-12 md:mb-20">
+          <motion.h3
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="font-black italic uppercase leading-[0.92] tracking-tighter"
+            style={{
+              fontFamily: T.newsreader,
+              fontSize: "clamp(3rem, 8vw, 7rem)",
+              color: T.onSurface,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Nuestros
+            <br />
+            Valores
+          </motion.h3>
+
+          <motion.span
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="text-[0.6rem] font-bold uppercase tracking-widest mt-4 md:mt-0"
+            style={{ fontFamily: T.grotesk, color: T.primary, letterSpacing: "0.15em" }}
+          >
+            Manifiesto
+            <br className="hidden md:block" />
+            {" "}Futuro
+          </motion.span>
+        </div>
+
+        {/* Three numbered columns */}
+        <div
+          className="grid grid-cols-1 md:grid-cols-3 gap-px"
+          style={{ backgroundColor: T.primary }}
+        >
+          {values.map((value, index) => (
+            <motion.div
+              key={value.num}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.12, duration: 0.5 }}
+              className="p-8 md:p-10"
+              style={{ backgroundColor: T.cream }}
+            >
+              {/* Number */}
+              <span
+                className="font-bold block mb-6"
+                style={{
+                  fontFamily: T.grotesk,
+                  fontSize: "0.75rem",
+                  color: T.primary,
+                  letterSpacing: "0.1em",
+                }}
+              >
+                {value.num}
+              </span>
+
+              {/* Divider */}
+              <div className="w-full h-px mb-6" style={{ backgroundColor: `${T.primary}30` }} />
+
+              {/* Title */}
+              <h4
+                className="font-black uppercase leading-tight mb-4"
+                style={{
+                  fontFamily: T.newsreader,
+                  fontSize: "clamp(1.2rem, 2vw, 1.5rem)",
+                  color: T.onSurface,
+                }}
+              >
+                {value.title}
+              </h4>
+
+              {/* Description */}
+              <p
+                className="text-sm leading-relaxed"
+                style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant }}
+              >
+                {value.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          RESTAURANT EXTERIOR — Full-width bottom image
+         ═══════════════════════════════════════════════════════════════════ */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="relative overflow-hidden"
+        style={{ height: "clamp(250px, 35vw, 400px)" }}
+      >
+        <img
+          src="https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=1400&q=85"
+          alt="Exterior de La Tasquita de Sara"
+          className="w-full h-full object-cover"
+        />
+        {/* Name overlay bar */}
+        <div
+          className="absolute bottom-0 left-0 right-0 px-6 md:px-12 py-4"
+          style={{ backgroundColor: T.primary }}
+        >
+          <span
+            className="font-black italic uppercase text-white tracking-tighter"
+            style={{ fontFamily: T.newsreader, fontSize: "clamp(1rem, 2vw, 1.5rem)" }}
+          >
+            La Tasquita de Sara
+          </span>
+          <span
+            className="text-white/50 text-xs ml-4"
+            style={{ fontFamily: T.grotesk }}
+          >
+            Valdemoro · Madrid · Est. 2025
+          </span>
+        </div>
+      </motion.div>
     </section>
   );
 }

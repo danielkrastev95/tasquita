@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 
 interface Event {
   id: string;
@@ -23,169 +23,366 @@ interface EventsSectionProps {
   eventsData: EventsData;
 }
 
-const categoryConfig = {
-  musica: {
-    label: "MÚSICA EN VIVO",
-    color: "bg-primary",
-  },
-  gastronomia: {
-    label: "GASTRONOMÍA",
-    color: "bg-gold",
-  },
-  especial: {
-    label: "ESPECIAL",
-    color: "bg-gray-900",
-  },
+// ─── Shared tokens ───────────────────────────────────────────────────────────
+const T = {
+  cream: "#fcf9f3",
+  primary: "#2f7780",
+  secondary: "#1f5f67",
+  gold: "#C7AF65",
+  onSurface: "#1c1c18",
+  onSurfaceVariant: "#58413b",
+  newsreader: "var(--font-newsreader)",
+  grotesk: "var(--font-space-grotesk)",
 };
 
+const categoryMeta: Record<string, { label: string; accent: string }> = {
+  musica: { label: "Música en vivo", accent: T.primary },
+  gastronomia: { label: "Gastronomía", accent: T.gold },
+  especial: { label: "Especial", accent: T.onSurface },
+};
+
+// ─── Format helpers ─────────────────────────────────────────────────────────
+function formatDate(date: string) {
+  const d = new Date(date);
+  return {
+    day: String(d.getDate()).padStart(2, "0"),
+    month: String(d.getMonth() + 1).padStart(2, "0"),
+    monthName: d.toLocaleDateString("es-ES", { month: "long" }),
+    weekday: d.toLocaleDateString("es-ES", { weekday: "long" }),
+    year: d.getFullYear(),
+  };
+}
+
+// ─── Alternating event card ─────────────────────────────────────────────────
+function EventCard({
+  event,
+  index,
+  reversed,
+}: {
+  event: Event;
+  index: number;
+  reversed: boolean;
+}) {
+  const cardRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"],
+  });
+  const imgY = useTransform(scrollYProgress, [0, 1], [25, -25]);
+  const config = categoryMeta[event.category] || categoryMeta.especial;
+  const { day, month } = formatDate(event.date);
+
+  const imageBlock = (
+    <div className="relative overflow-hidden" style={{ minHeight: "320px" }}>
+      {event.image ? (
+        <motion.div style={{ y: imgY }} className="absolute inset-0">
+          <img
+            src={event.image}
+            alt={event.title}
+            className="w-full object-cover"
+            style={{ height: "130%", marginTop: "-15%" }}
+          />
+        </motion.div>
+      ) : (
+        <div
+          className="w-full h-full flex items-center justify-center"
+          style={{ backgroundColor: config.accent, minHeight: "320px" }}
+        >
+          <span
+            className="font-black italic leading-none text-white/10 select-none"
+            style={{ fontFamily: T.newsreader, fontSize: "14rem", letterSpacing: "-0.04em" }}
+          >
+            {day}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+
+  const contentBlock = (
+    <div
+      className="flex flex-col justify-between p-8 md:p-12"
+      style={{ backgroundColor: T.cream, minHeight: "320px" }}
+    >
+      <div>
+        {/* Category + Date row */}
+        <div className={`flex items-center gap-4 mb-6 ${reversed ? "md:justify-end" : ""}`}>
+          <span
+            className="text-[0.6rem] font-bold uppercase tracking-widest px-3 py-1.5 text-white"
+            style={{ backgroundColor: config.accent, fontFamily: T.grotesk, letterSpacing: "0.15em" }}
+          >
+            {config.label}
+          </span>
+          <span
+            className="font-black"
+            style={{
+              fontFamily: T.newsreader,
+              fontSize: "clamp(1.8rem, 3vw, 2.5rem)",
+              color: T.primary,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            {day}/{month}
+          </span>
+        </div>
+
+        {/* Title */}
+        <h3
+          className={`font-black italic uppercase leading-[0.92] mb-4 ${reversed ? "md:text-right" : ""}`}
+          style={{
+            fontFamily: T.newsreader,
+            fontSize: "clamp(2.2rem, 5vw, 4rem)",
+            color: T.onSurface,
+            letterSpacing: "-0.02em",
+          }}
+        >
+          {event.title}
+        </h3>
+
+        {/* Description */}
+        {event.description && (
+          <p
+            className={`text-sm leading-relaxed max-w-md mb-6 ${reversed ? "md:text-right md:ml-auto" : ""}`}
+            style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant }}
+          >
+            {event.description}
+          </p>
+        )}
+      </div>
+
+      {/* Bottom: time + CTA */}
+      <div className={`flex items-center gap-6 ${reversed ? "md:justify-end" : ""}`}>
+        <span
+          className="text-sm font-bold uppercase tracking-wider"
+          style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant }}
+        >
+          {event.time} hrs
+        </span>
+        <motion.a
+          href="/#contacto"
+          whileHover={{ x: 4 }}
+          className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest"
+          style={{ fontFamily: T.grotesk, color: T.primary, letterSpacing: "0.12em" }}
+        >
+          Reservar
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </motion.a>
+      </div>
+    </div>
+  );
+
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay: 0.1 }}
+    >
+      {/* Desktop: alternating grid, Mobile: image always on top */}
+      <div
+        className={`grid grid-cols-1 gap-px ${
+          reversed
+            ? "md:grid-cols-[55%_45%]"
+            : "md:grid-cols-[45%_55%]"
+        }`}
+        style={{ backgroundColor: T.primary }}
+      >
+        {/* Mobile: always image first */}
+        <div className="md:hidden">{imageBlock}</div>
+        <div className="md:hidden">{contentBlock}</div>
+
+        {/* Desktop: alternate order */}
+        {reversed ? (
+          <>
+            <div className="hidden md:block">{contentBlock}</div>
+            <div className="hidden md:block">{imageBlock}</div>
+          </>
+        ) : (
+          <>
+            <div className="hidden md:block">{imageBlock}</div>
+            <div className="hidden md:block">{contentBlock}</div>
+          </>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Main component ──────────────────────────────────────────────────────────
 export default function EventsSection({ eventsData }: EventsSectionProps) {
   if (!eventsData.enabled || eventsData.events.length === 0) {
     return null;
   }
 
+  const currentYear = new Date().getFullYear();
+
   return (
-    <section id="eventos" className="py-12 bg-gray-100 relative overflow-hidden">
-      {/* Geometric Background */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 border-8 border-primary/10 rotate-12" />
-        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-gold/5" />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        {/* Title */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-          className="text-center mb-12"
+    <section id="eventos" className="relative" style={{ backgroundColor: T.cream }}>
+      {/* ═══════════════════════════════════════════════════════════════════
+          HERO HEADER — full-width teal block with massive italic title
+         ═══════════════════════════════════════════════════════════════════ */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="relative overflow-hidden"
+        style={{ backgroundColor: T.primary }}
+      >
+        {/* Subtle background pattern */}
+        <div
+          className="absolute inset-0 pointer-events-none select-none overflow-hidden"
+          aria-hidden="true"
+          style={{ opacity: 0.06 }}
         >
-          <motion.h2
-            animate={{
-              textShadow: [
-                "6px 6px 0px rgba(83, 166, 153, 0.3)",
-                "10px 10px 0px rgba(83, 166, 153, 0.3)",
-                "6px 6px 0px rgba(83, 166, 153, 0.3)",
-              ]
+          <span
+            className="absolute font-black italic uppercase leading-none text-white whitespace-nowrap"
+            style={{
+              fontFamily: T.newsreader,
+              fontSize: "clamp(12rem, 30vw, 28rem)",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%) rotate(-5deg)",
+              letterSpacing: "-0.04em",
             }}
-            transition={{ duration: 3, repeat: Infinity }}
-            className="text-6xl sm:text-8xl font-black text-gray-900 uppercase tracking-tighter mb-4"
           >
-            Eventos
-          </motion.h2>
-          <div className="h-2 w-32 bg-gradient-to-r from-primary to-gold mx-auto" />
-        </motion.div>
-
-        {/* Events Grid - Poster Style */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {eventsData.events.map((event, index) => {
-            const config = categoryConfig[event.category];
-            const eventDate = new Date(event.date);
-            const day = eventDate.getDate();
-            const month = eventDate.toLocaleDateString("es-ES", { month: "short" }).toUpperCase();
-
-            return (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 50, rotate: -5 }}
-                whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="group relative"
-              >
-                {/* Featured Star */}
-                {event.featured && (
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="absolute -top-3 -right-3 z-20 w-14 h-14 bg-gold border-4 border-black flex items-center justify-center"
-                  >
-                    <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  </motion.div>
-                )}
-
-                {/* Poster Card */}
-                <motion.div
-                  whileHover={{ y: -8, rotate: index % 2 === 0 ? 1 : -1 }}
-                  transition={{ duration: 0.3 }}
-                  className="relative bg-white border-4 border-black shadow-xl overflow-hidden"
-                >
-                  {/* Date Badge - Top Corner */}
-                  <div className="absolute top-0 left-0 z-10 bg-black text-white p-3 border-r-4 border-b-4 border-primary">
-                    <div className="text-center">
-                      <div className="text-3xl font-black leading-none">{day}</div>
-                      <div className="text-xs font-bold">{month}</div>
-                    </div>
-                  </div>
-
-                  {/* Category Tag - Top Right */}
-                  <div className={`absolute top-0 right-0 z-10 ${config.color} text-white px-4 py-2 border-l-4 border-b-4 border-black`}>
-                    <span className="text-xs font-black tracking-wider">{config.label}</span>
-                  </div>
-
-                  {/* Image */}
-                  {event.image && (
-                    <div className="relative h-56 mt-16 border-t-4 border-b-4 border-black">
-                      <Image
-                        src={event.image}
-                        alt={event.title}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-700"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                      />
-                    </div>
-                  )}
-
-                  {/* Content */}
-                  <div className="p-6 space-y-3">
-                    {/* Title */}
-                    <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight leading-tight">
-                      {event.title}
-                    </h3>
-
-                    {/* Time */}
-                    <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="text-base font-bold text-gray-700">{event.time}</span>
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-base text-gray-700 leading-relaxed">
-                      {event.description}
-                    </p>
-
-                    {/* Bottom Stripe */}
-                    <div className={`h-2 w-full ${config.color} mt-6`} />
-                  </div>
-
-                  {/* Diagonal Corner Accent */}
-                  <div className="absolute bottom-0 right-0 w-0 h-0 border-l-[40px] border-l-transparent border-b-[40px] border-b-primary" />
-                </motion.div>
-              </motion.div>
-            );
-          })}
+            EVENTOS
+          </span>
         </div>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          viewport={{ once: true }}
-          className="text-center mt-12"
-        >
-          <motion.a
-            href="#contacto"
-            whileHover={{ scale: 1.05, y: -5 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-block bg-primary text-white px-10 py-4 border-4 border-black font-black text-lg uppercase tracking-wider shadow-lg hover:bg-gold transition-colors duration-300"
+        <div className="relative px-6 md:px-12 py-16 md:py-24 lg:py-32">
+          {/* Main title */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="font-black italic uppercase leading-[0.88]"
+            style={{
+              fontFamily: T.newsreader,
+              fontSize: "clamp(4rem, 12vw, 12rem)",
+              color: "#ffffff",
+              letterSpacing: "-0.03em",
+            }}
           >
-            Organiza tu evento
-          </motion.a>
+            El Diario
+            <br />
+            Vivo
+          </motion.h1>
+
+          {/* Subtitle row */}
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mt-8 gap-6">
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="max-w-sm leading-relaxed"
+              style={{
+                fontFamily: T.grotesk,
+                fontSize: "0.9rem",
+                color: "rgba(255,255,255,0.7)",
+              }}
+            >
+              Una curaduría de experiencias sensoriales. Donde la cocina de
+              barrio se encuentra con la música y la celebración.
+            </motion.p>
+
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="font-black"
+              style={{
+                fontFamily: T.newsreader,
+                fontSize: "clamp(2rem, 4vw, 3.5rem)",
+                color: T.gold,
+                lineHeight: 1,
+              }}
+            >
+              {currentYear}
+            </motion.span>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          EVENT CARDS — alternating layout
+         ═══════════════════════════════════════════════════════════════════ */}
+      <div className="px-6 md:px-12 py-12 md:py-20 space-y-px" style={{ backgroundColor: T.cream }}>
+        {eventsData.events.map((event, index) => (
+          <EventCard
+            key={event.id}
+            event={event}
+            index={index}
+            reversed={index % 2 !== 0}
+          />
+        ))}
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          CTA BOTTOM — "Organiza tu evento"
+         ═══════════════════════════════════════════════════════════════════ */}
+      <div className="px-6 md:px-12 pb-20 md:pb-32" style={{ backgroundColor: T.cream }}>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="relative overflow-hidden"
+          style={{ backgroundColor: T.cream, borderTop: `8px solid ${T.primary}` }}
+        >
+          <div className="py-12 md:py-20 flex flex-col md:flex-row md:items-end md:justify-between gap-10">
+            {/* Left — Big italic title */}
+            <div>
+              <motion.h2
+                className="font-black italic uppercase leading-[0.88]"
+                style={{
+                  fontFamily: T.newsreader,
+                  fontSize: "clamp(3.5rem, 10vw, 9rem)",
+                  color: T.primary,
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                Organiza
+                <br />
+                Tu
+                <br />
+                Evento
+              </motion.h2>
+
+              <p
+                className="mt-6 max-w-md leading-relaxed"
+                style={{
+                  fontFamily: T.grotesk,
+                  fontSize: "0.9rem",
+                  color: T.onSurfaceVariant,
+                }}
+              >
+                Celebra tu momento especial en nuestro espacio. Menús
+                personalizados, música en vivo y un ambiente diseñado para crear
+                recuerdos.
+              </p>
+            </div>
+
+            {/* Right — CTA button */}
+            <motion.a
+              href="/#contacto"
+              whileHover={{ backgroundColor: T.secondary }}
+              className="self-start md:self-end px-10 py-6 text-white font-bold uppercase tracking-widest transition-colors flex items-center gap-3"
+              style={{
+                backgroundColor: T.primary,
+                fontFamily: T.grotesk,
+                fontSize: "0.8rem",
+                letterSpacing: "0.15em",
+              }}
+            >
+              Contáctanos
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </motion.a>
+          </div>
         </motion.div>
       </div>
     </section>

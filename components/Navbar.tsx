@@ -13,13 +13,13 @@ type NavLink = {
 };
 
 const baseNavLinks: NavLink[] = [
-  { name: "Menú", href: "#menu", active: true },
-  { name: "Nosotros", href: "#nosotros" },
+  { name: "Carta", href: "/carta" },
+  { name: "Nosotros", href: "/#nosotros" },
 ];
 
-const eventLink: NavLink = { name: "Eventos", href: "#eventos", badge: true };
+const eventLink: NavLink = { name: "Eventos", href: "/eventos", badge: true };
 
-const endNavLinks: NavLink[] = [{ name: "Contacto", href: "#contacto" }];
+const endNavLinks: NavLink[] = [{ name: "Contacto", href: "/#contacto" }];
 
 interface NavbarProps {
   eventsEnabled: boolean;
@@ -56,7 +56,7 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
           <div className="flex justify-between items-end w-full px-6 md:px-12 pt-6 pb-4">
             {/* Logo — Newsreader, large, uppercase, terracotta */}
             <motion.a
-              href="#"
+              href="/"
               whileHover={{ opacity: 0.85 }}
               className="font-black uppercase tracking-tighter"
               style={{
@@ -117,10 +117,12 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
             : "rgba(252, 249, 243, 0.9)",
           backdropFilter: "blur(8px)",
           borderBottom: isScrolled ? "1px solid #e0d5c7" : "none",
+          position: "relative",
+          zIndex: 51,
         }}
       >
         <motion.a
-          href="#"
+          href="/"
           className="font-black uppercase tracking-tighter"
           style={{
             fontFamily: "var(--font-newsreader)",

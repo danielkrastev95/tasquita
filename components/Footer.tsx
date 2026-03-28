@@ -73,19 +73,19 @@ export default function Footer({ settings }: FooterProps) {
 
           <div className="flex items-center gap-6">
             <a
-              href="#menu"
+              href="/carta"
               className="font-bold text-gray-500 hover:text-primary transition-colors uppercase"
             >
-              Menú
+              Carta
             </a>
             <a
-              href="#nosotros"
+              href="/#nosotros"
               className="font-bold text-gray-500 hover:text-primary transition-colors uppercase"
             >
               Nosotros
             </a>
             <a
-              href="#contacto"
+              href="/#contacto"
               className="font-bold text-gray-500 hover:text-primary transition-colors uppercase"
             >
               Contacto

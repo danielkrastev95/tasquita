@@ -238,7 +238,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
             className="flex flex-row gap-4 flex-wrap"
           >
             <motion.a
-              href="#contacto"
+              href="/#contacto"
               whileHover={{ backgroundColor: "#6b2000" }}
               className="px-7 py-4 text-white text-xs font-bold uppercase tracking-widest transition-colors"
               style={{
@@ -251,7 +251,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
             </motion.a>
 
             <motion.a
-              href="#menu"
+              href="/carta"
               whileHover={{ borderColor: "#2f7780", color: "#2f7780" }}
               className="px-7 py-4 text-xs font-bold uppercase tracking-widest transition-colors border-2"
               style={{
@@ -262,7 +262,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
                 backgroundColor: "transparent",
               }}
             >
-              Ver menú
+              Ver carta
             </motion.a>
           </motion.div>
 
