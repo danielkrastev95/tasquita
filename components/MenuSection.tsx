@@ -171,7 +171,7 @@ function ItemCard({ item }: { item: MenuItem }) {
 
       {/* ── Foto — solo si existe ── */}
       {hasImage && (
-        <div className="relative overflow-hidden flex-shrink-0 h-52 md:h-40">
+        <div className="relative overflow-hidden flex-shrink-0 h-52 md:h-56">
           <img
             src={item.image!}
             alt={item.name}
@@ -321,30 +321,6 @@ export default function MenuSection({ menuData }: MenuSectionProps) {
       className="relative pb-32 overflow-x-hidden"
       style={{ backgroundColor: T.cream }}
     >
-      {/* ── Compact section heading ── */}
-      <div className="px-6 md:px-12 pt-12 md:pt-16 flex items-baseline justify-between pb-4" style={{ borderBottom: `3px solid #C7AF65` }}>
-        <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.4 }}
-          className="font-black uppercase tracking-tighter leading-none"
-          style={{
-            fontFamily: T.newsreader,
-            fontSize: "clamp(2rem, 5vw, 4rem)",
-            color: T.primary,
-          }}
-        >
-          Nuestra Carta
-        </motion.h1>
-        <p
-          className="text-xs uppercase tracking-widest font-bold hidden sm:block"
-          style={{ fontFamily: T.grotesk, color: "#C7AF65" }}
-        >
-          Valdemoro · Madrid
-        </p>
-      </div>
-
       {/* ── Categories ── */}
       <div className="px-6 md:px-12">
         {menuData.map((category, catIndex) => {
