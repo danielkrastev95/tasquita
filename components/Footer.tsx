@@ -43,12 +43,12 @@ export default function Footer({ settings }: FooterProps) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="px-8 md:px-12 py-14 md:py-20 flex flex-col justify-between"
+          className="px-8 md:px-12 py-8 md:py-10 flex flex-col justify-between"
           style={{ backgroundColor: T.onSurface }}
         >
           <div>
             <span
-              className="font-bold uppercase block mb-6"
+              className="font-bold uppercase block mb-3"
               style={{
                 fontFamily: T.grotesk,
                 fontSize: "0.6rem",
@@ -63,29 +63,25 @@ export default function Footer({ settings }: FooterProps) {
               className="font-black italic uppercase leading-[0.88]"
               style={{
                 fontFamily: T.newsreader,
-                fontSize: "clamp(3.5rem, 9vw, 7rem)",
+                fontSize: "clamp(2rem, 5vw, 3.5rem)",
                 color: "#ffffff",
                 letterSpacing: "-0.03em",
               }}
             >
-              La
-              <br />
-              Tasquita
-              <br />
+              La Tasquita{" "}
               <span style={{ color: T.gold }}>de Sara</span>
             </h2>
           </div>
 
           <p
-            className="mt-10 leading-relaxed max-w-xs"
+            className="mt-5 leading-relaxed max-w-xs"
             style={{
               fontFamily: T.grotesk,
-              fontSize: "0.85rem",
+              fontSize: "0.8rem",
               color: "rgba(255,255,255,0.35)",
             }}
           >
             Un tributo visceral a la cocina de barrio.
-            Donde el producto manda y el sabor no pide permiso.
           </p>
         </motion.div>
 
@@ -95,13 +91,13 @@ export default function Footer({ settings }: FooterProps) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="px-8 md:px-12 py-14 md:py-20 grid grid-cols-2 gap-10 content-start"
+          className="px-8 md:px-12 py-8 md:py-10 grid grid-cols-2 gap-6 content-start"
           style={{ backgroundColor: T.onSurface }}
         >
           {/* Phone */}
           <div>
             <p
-              className="font-bold uppercase mb-3"
+              className="font-bold uppercase mb-2"
               style={{
                 fontFamily: T.grotesk,
                 fontSize: "0.6rem",
@@ -116,7 +112,7 @@ export default function Footer({ settings }: FooterProps) {
               className="font-black italic transition-colors"
               style={{
                 fontFamily: T.newsreader,
-                fontSize: "clamp(1.1rem, 2vw, 1.4rem)",
+                fontSize: "clamp(0.95rem, 1.6vw, 1.15rem)",
                 color: "#ffffff",
               }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = T.gold; }}
@@ -129,7 +125,7 @@ export default function Footer({ settings }: FooterProps) {
           {/* Instagram */}
           <div>
             <p
-              className="font-bold uppercase mb-3"
+              className="font-bold uppercase mb-2"
               style={{
                 fontFamily: T.grotesk,
                 fontSize: "0.6rem",
@@ -146,7 +142,7 @@ export default function Footer({ settings }: FooterProps) {
               className="font-black italic transition-colors"
               style={{
                 fontFamily: T.newsreader,
-                fontSize: "clamp(1.1rem, 2vw, 1.4rem)",
+                fontSize: "clamp(0.95rem, 1.6vw, 1.15rem)",
                 color: "#ffffff",
               }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = T.gold; }}
@@ -159,7 +155,7 @@ export default function Footer({ settings }: FooterProps) {
           {/* Address */}
           <div>
             <p
-              className="font-bold uppercase mb-3"
+              className="font-bold uppercase mb-2"
               style={{
                 fontFamily: T.grotesk,
                 fontSize: "0.6rem",
@@ -186,7 +182,7 @@ export default function Footer({ settings }: FooterProps) {
           {/* Nav */}
           <div>
             <p
-              className="font-bold uppercase mb-3"
+              className="font-bold uppercase mb-2"
               style={{
                 fontFamily: T.grotesk,
                 fontSize: "0.6rem",
