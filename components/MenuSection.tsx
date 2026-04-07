@@ -178,7 +178,7 @@ function ItemCard({ item }: { item: MenuItem }) {
 
         {/* Descripción */}
         {item.description && (
-          <p className="text-sm leading-relaxed" style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant }}>
+          <p className="leading-relaxed" style={{ fontFamily: T.grotesk, fontSize: "0.95rem", color: T.onSurfaceVariant }}>
             {item.description}
           </p>
         )}
@@ -201,8 +201,8 @@ function ItemRow({
     >
       {item.image && (
         <div
-          className="w-full md:w-44 flex-shrink-0 overflow-hidden"
-          style={{ aspectRatio: "1", backgroundColor: T.creamHighest }}
+          className="w-full md:w-80 flex-shrink-0 overflow-hidden"
+          style={{ aspectRatio: "4/3", backgroundColor: T.creamHighest }}
         >
           <img
             src={item.image}
@@ -237,11 +237,11 @@ function ItemRow({
         </div>
         {item.description && (
           <p
-            className="text-sm leading-relaxed"
+            className="leading-relaxed"
             style={{
               fontFamily: T.grotesk,
+              fontSize: "0.95rem",
               color: T.onSurfaceVariant,
-              opacity: 0.8,
             }}
           >
             {item.description}
