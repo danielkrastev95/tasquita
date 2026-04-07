@@ -62,7 +62,7 @@ function CategoryHeader({
         className="font-black uppercase tracking-tighter leading-none"
         style={{
           fontFamily: T.newsreader,
-          fontSize: "clamp(3.5rem, 9vw, 8rem)",
+          fontSize: "clamp(1.8rem, 7vw, 8rem)",
           color: T.primary,
         }}
       >
@@ -364,7 +364,7 @@ export default function MenuSection({ menuData }: MenuSectionProps) {
   return (
     <section
       id="menu"
-      className="relative pb-32"
+      className="relative pb-32 overflow-x-hidden"
       style={{ backgroundColor: T.cream }}
     >
       {/* ── Compact section heading ── */}
