@@ -92,7 +92,18 @@ model SiteSettings {
   schedule          String   @default("[]")
   heroTitle         String   @default("La Tasquita de Sara")
   heroSubtitle      String   @default("Bar de tapas moderno con hamburguesas gourmet y cocina de mercado")
-  heroImage         String?
+  heroTagline       String?  @default("Un tributo visceral a la cocina de barrio. Donde el producto manda y el sabor no pide permiso.")
+  heroMarquee       String?  @default("TRADICIÓN • SABOR • FUEGO")
+  heroImage1        String?
+  heroImage2        String?
+  aboutImage1       String?
+  aboutImage2       String?
+  aboutImage3       String?
+  contactImage      String?
+  glovoUrl          String?  @default("https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro")
+  uberEatsUrl       String?  @default("https://www.ubereats.com/es/store/la-tasquita-de-sara/tWST6whgU2iUdY71PWw9jw")
+  phone             String?  @default("624 43 45 93")
+  footerTagline     String?  @default("Un tributo visceral a la cocina de barrio.")
   updatedAt         DateTime @updatedAt
 }
 

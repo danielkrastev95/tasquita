@@ -29,8 +29,20 @@ interface FormData {
   addressCity: string;
   addressPostalCode: string;
   instagramHandle: string;
+  phone: string;
   heroTitle: string;
   heroSubtitle: string;
+  heroTagline: string;
+  heroMarquee: string;
+  heroImage1: string;
+  heroImage2: string;
+  aboutImage1: string;
+  aboutImage2: string;
+  aboutImage3: string;
+  contactImage: string;
+  glovoUrl: string;
+  uberEatsUrl: string;
+  footerTagline: string;
   schedule: ScheduleItem[];
 }
 
@@ -283,6 +295,143 @@ export default function SettingsPage() {
                   {errors.heroSubtitle.message}
                 </p>
               )}
+            </div>
+
+            {/* Hero Tagline */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tagline (texto descriptivo bajo el título)
+              </label>
+              <textarea
+                {...register("heroTagline")}
+                rows={2}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                placeholder="Un tributo visceral a la cocina de barrio..."
+              />
+            </div>
+
+            {/* Hero Marquee */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Texto marquesina de fondo
+              </label>
+              <input
+                type="text"
+                {...register("heroMarquee")}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="TRADICIÓN • SABOR • FUEGO"
+              />
+              <p className="mt-1 text-xs text-gray-500">Texto que se mueve en el fondo del hero</p>
+            </div>
+
+            {/* Hero Image 1 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Imagen principal (URL)
+              </label>
+              <input
+                type="url"
+                {...register("heroImage1")}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="https://..."
+              />
+            </div>
+
+            {/* Hero Image 2 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Imagen secundaria (URL)
+              </label>
+              <input
+                type="url"
+                {...register("heroImage2")}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="https://..."
+              />
+            </div>
+
+            {/* Delivery URLs */}
+            <div className="pt-2 border-t border-gray-100">
+              <h3 className="font-semibold text-gray-700 mb-3 text-sm">Aplicaciones de Delivery</h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    URL de Glovo
+                  </label>
+                  <input
+                    type="url"
+                    {...register("glovoUrl")}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="https://glovoapp.com/..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    URL de Uber Eats
+                  </label>
+                  <input
+                    type="url"
+                    {...register("uberEatsUrl")}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="https://www.ubereats.com/..."
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Images Section */}
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-gray-900 mb-1">Imágenes</h2>
+          <p className="text-sm text-gray-500 mb-4">URLs de las fotos del sitio. Deja en blanco para usar la imagen por defecto.</p>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nosotros — Imagen de fondo
+                </label>
+                <input
+                  type="url"
+                  {...register("aboutImage1")}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                  placeholder="https://..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nosotros — Imagen cocina/chef
+                </label>
+                <input
+                  type="url"
+                  {...register("aboutImage2")}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                  placeholder="https://..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Nosotros — Imagen exterior
+                </label>
+                <input
+                  type="url"
+                  {...register("aboutImage3")}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                  placeholder="https://..."
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Contacto — Imagen de fondo del banner "Visítanos"
+              </label>
+              <input
+                type="url"
+                {...register("contactImage")}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="https://..."
+              />
             </div>
           </div>
         </div>
@@ -617,6 +766,19 @@ export default function SettingsPage() {
               </div>
             </div>
 
+            {/* Phone */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Teléfono
+              </label>
+              <input
+                type="text"
+                {...register("phone")}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="624 43 45 93"
+              />
+            </div>
+
             {/* Instagram Handle */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -640,6 +802,19 @@ export default function SettingsPage() {
                   {errors.instagramHandle.message}
                 </p>
               )}
+            </div>
+
+            {/* Footer Tagline */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Tagline del Footer
+              </label>
+              <input
+                type="text"
+                {...register("footerTagline")}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Un tributo visceral a la cocina de barrio."
+              />
             </div>
           </div>
         </div>

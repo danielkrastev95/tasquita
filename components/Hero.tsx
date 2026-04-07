@@ -10,11 +10,27 @@ interface FeaturedEvent {
   time: string;
 }
 
-interface HeroProps {
-  featuredEvent: FeaturedEvent | null;
+interface SiteSettings {
+  heroTagline?: string | null;
+  heroMarquee?: string | null;
+  heroImage1?: string | null;
+  heroImage2?: string | null;
+  glovoUrl?: string | null;
+  uberEatsUrl?: string | null;
 }
 
-export default function Hero({ featuredEvent }: HeroProps) {
+interface HeroProps {
+  featuredEvent: FeaturedEvent | null;
+  settings?: SiteSettings | null;
+}
+
+export default function Hero({ featuredEvent, settings }: HeroProps) {
+  const heroTagline = settings?.heroTagline ?? "Un tributo visceral a la cocina de barrio. Donde el producto manda y el sabor no pide permiso.";
+  const heroMarquee = settings?.heroMarquee ?? "TRADICIÓN • SABOR • FUEGO";
+  const heroImage1 = settings?.heroImage1 || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&q=85";
+  const heroImage2 = settings?.heroImage2 || "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80";
+  const glovoUrl = settings?.glovoUrl || "https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro";
+  const uberEatsUrl = settings?.uberEatsUrl || "https://www.ubereats.com/es/store/la-tasquita-de-sara/tWST6whgU2iUdY71PWw9jw";
   const containerRef = useRef(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -156,7 +172,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
             letterSpacing: "-0.02em",
           }}
         >
-          TRADICIÓN&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;SABOR&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;FUEGO&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;TRADICIÓN&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;SABOR&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;FUEGO&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;TRADICIÓN&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;SABOR&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;FUEGO&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;
+          {heroMarquee}&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;{heroMarquee}&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;{heroMarquee}&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;
         </span>
       </div>
 
@@ -227,8 +243,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
               fontWeight: 400,
             }}
           >
-            Un tributo visceral a la cocina de barrio.
-            Donde el producto manda y el sabor no pide permiso.
+            {heroTagline}
           </motion.p>
 
           {/* CTA row */}
@@ -261,7 +276,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
             className="flex gap-3 mt-8"
           >
             <motion.a
-              href="https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro"
+              href={glovoUrl}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ y: -2 }}
@@ -272,7 +287,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
               Glovo
             </motion.a>
             <motion.a
-              href="https://www.ubereats.com/es/store/la-tasquita-de-sara/tWST6whgU2iUdY71PWw9jw"
+              href={uberEatsUrl}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ y: -2 }}
@@ -308,7 +323,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
             >
               {/* Main large image — fills the frame */}
               <img
-                src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&q=85"
+                src={heroImage1}
                 alt="Plato estrella de La Tasquita de Sara"
                 style={{
                   position: "absolute",
@@ -337,7 +352,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
             >
               <div className="relative overflow-hidden" style={{ aspectRatio: "4/3" }}>
                 <img
-                  src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80"
+                  src={heroImage2}
                   alt="Interior La Tasquita de Sara"
                   className="w-full h-full object-cover"
                 />

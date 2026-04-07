@@ -22,6 +22,18 @@ export const updateSettingsSchema = z.object({
   instagramHandle: z.string().min(1, "El usuario de Instagram es requerido").max(50).optional(),
   heroTitle: z.string().min(1, "El título es requerido").max(200).optional(),
   heroSubtitle: z.string().min(1, "El subtítulo es requerido").max(500).optional(),
+  heroTagline: z.string().max(500).optional().nullable(),
+  heroMarquee: z.string().max(200).optional().nullable(),
+  heroImage1: z.string().url("URL inválida").optional().nullable().or(z.literal("")),
+  heroImage2: z.string().url("URL inválida").optional().nullable().or(z.literal("")),
+  aboutImage1: z.string().url("URL inválida").optional().nullable().or(z.literal("")),
+  aboutImage2: z.string().url("URL inválida").optional().nullable().or(z.literal("")),
+  aboutImage3: z.string().url("URL inválida").optional().nullable().or(z.literal("")),
+  contactImage: z.string().url("URL inválida").optional().nullable().or(z.literal("")),
+  glovoUrl: z.string().url("URL inválida").optional().nullable().or(z.literal("")),
+  uberEatsUrl: z.string().url("URL inválida").optional().nullable().or(z.literal("")),
+  phone: z.string().max(30).optional().nullable(),
+  footerTagline: z.string().max(300).optional().nullable(),
   schedule: z.string().optional(),
 });
 

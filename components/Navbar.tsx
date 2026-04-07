@@ -22,9 +22,11 @@ const endNavLinks: NavLink[] = [{ name: "Contacto", href: "/#contacto" }];
 
 interface NavbarProps {
   eventsEnabled: boolean;
+  addressStreet?: string | null;
+  addressCity?: string | null;
 }
 
-export default function Navbar({ eventsEnabled }: NavbarProps) {
+export default function Navbar({ eventsEnabled, addressStreet, addressCity }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const scrollPosition = useScrollPosition();
   const isScrolled = scrollPosition > 50;
@@ -157,6 +159,8 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         eventsEnabled={eventsEnabled}
+        addressStreet={addressStreet}
+        addressCity={addressCity}
       />
     </nav>
   );

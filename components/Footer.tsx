@@ -17,6 +17,8 @@ interface SiteSettings {
   addressCity: string;
   addressPostalCode: string;
   instagramHandle: string;
+  phone?: string | null;
+  footerTagline?: string | null;
 }
 
 interface FooterProps {
@@ -81,7 +83,7 @@ export default function Footer({ settings }: FooterProps) {
               color: "rgba(255,255,255,0.35)",
             }}
           >
-            Un tributo visceral a la cocina de barrio.
+            {settings?.footerTagline || "Un tributo visceral a la cocina de barrio."}
           </p>
         </motion.div>
 
@@ -108,7 +110,7 @@ export default function Footer({ settings }: FooterProps) {
               Teléfono
             </p>
             <a
-              href="tel:+34624434593"
+              href={`tel:+34${(settings?.phone || "624 43 45 93").replace(/\s/g, "")}`}
               className="font-black italic transition-colors"
               style={{
                 fontFamily: T.newsreader,
@@ -118,7 +120,7 @@ export default function Footer({ settings }: FooterProps) {
               onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = T.gold; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff"; }}
             >
-              624 43 45 93
+              {settings?.phone || "624 43 45 93"}
             </a>
           </div>
 

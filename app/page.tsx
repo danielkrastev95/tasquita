@@ -26,8 +26,12 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-white">
-      <Navbar eventsEnabled={settings?.eventsEnabled ?? true} />
-      <Hero featuredEvent={featuredEvent} />
+      <Navbar
+        eventsEnabled={settings?.eventsEnabled ?? true}
+        addressStreet={settings?.addressStreet}
+        addressCity={settings?.addressCity}
+      />
+      <Hero featuredEvent={featuredEvent} settings={settings} />
       <AboutSection settings={settings} />
       <ContactSection settings={settings} />
       <Footer settings={settings} />

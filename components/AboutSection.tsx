@@ -16,6 +16,9 @@ interface SiteSettings {
   value2Description: string;
   value3Title: string;
   value3Description: string;
+  aboutImage1?: string | null;
+  aboutImage2?: string | null;
+  aboutImage3?: string | null;
 }
 
 interface AboutSectionProps {
@@ -75,7 +78,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
         {/* Background image with parallax */}
         <motion.div style={{ y: imgY }} className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1400&q=85"
+            src={settings?.aboutImage1 || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1400&q=85"}
             alt="Interior del restaurante"
             className="w-full object-cover"
             style={{ height: "120%", marginTop: "-10%", filter: "brightness(0.35)" }}
@@ -216,7 +219,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
         style={{ height: "clamp(250px, 40vw, 450px)" }}
       >
         <img
-          src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1400&q=85"
+          src={settings?.aboutImage2 || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1400&q=85"}
           alt="Chef preparando un plato"
           className="w-full h-full object-cover"
         />
@@ -327,7 +330,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
         style={{ height: "clamp(250px, 35vw, 400px)" }}
       >
         <img
-          src="https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=1400&q=85"
+          src={settings?.aboutImage3 || "https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=1400&q=85"}
           alt="Exterior de La Tasquita de Sara"
           className="w-full h-full object-cover"
         />

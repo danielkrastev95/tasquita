@@ -25,6 +25,8 @@ interface SiteSettings {
   addressPostalCode: string;
   instagramHandle: string;
   schedule: string;
+  phone?: string | null;
+  contactImage?: string | null;
 }
 
 interface ContactSectionProps {
@@ -51,7 +53,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
          ═══════════════════════════════════════════════════════════════════ */}
       <div className="relative overflow-hidden" style={{ height: "clamp(320px, 52vw, 540px)" }}>
         <img
-          src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400&q=85"
+          src={settings?.contactImage || "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400&q=85"}
           alt="Ambiente de La Tasquita de Sara"
           className="w-full h-full object-cover"
           style={{ filter: "brightness(0.28)" }}
@@ -318,7 +320,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
       >
         {/* Phone — dark panel */}
         <motion.a
-          href="tel:+34624434593"
+          href={`tel:+34${(settings?.phone || "624 43 45 93").replace(/\s/g, "")}`}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -352,7 +354,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
                 letterSpacing: "-0.025em",
               }}
             >
-              624 43 45 93
+              {settings?.phone || "624 43 45 93"}
             </span>
           </div>
           <svg

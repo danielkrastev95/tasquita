@@ -8,6 +8,8 @@ interface MobileMenuProps {
   isOpen: boolean;
   onClose: () => void;
   eventsEnabled: boolean;
+  addressStreet?: string | null;
+  addressCity?: string | null;
 }
 
 // ─── Shared tokens ───────────────────────────────────────────────────────────
@@ -29,7 +31,7 @@ const menuItems = [
   { name: "Contacto", href: "/#contacto" },
 ];
 
-export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMenuProps) {
+export default function MobileMenu({ isOpen, onClose, eventsEnabled, addressStreet, addressCity }: MobileMenuProps) {
   const [mounted, setMounted] = useState(false);
   const visibleItems = menuItems.filter((item) => !item.conditional || eventsEnabled);
 
@@ -222,9 +224,9 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
                     className="text-xs leading-relaxed"
                     style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant }}
                   >
-                    C. Lili Álvarez, 66
+                    {addressStreet || "C. Lili Álvarez, 66"}
                     <br />
-                    28342 Valdemoro
+                    {addressCity || "Valdemoro"}
                   </p>
                 </div>
                 <div>
