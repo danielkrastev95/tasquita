@@ -1,6 +1,6 @@
 "use client";
 
-
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 
 interface MenuItem {
@@ -81,25 +81,83 @@ function CategoryHeader({
   );
 }
 
-// ─── Card grid — wrapping 3 cols on desktop, 1 col on mobile ─────────────────
-function CardGrid({ items }: { items: MenuItem[] }) {
+// ─── Scrollable card row with arrow buttons ───────────────────────────────────
+function ScrollableCardRow({ items }: { items: MenuItem[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(items.length > 3);
+
+  const updateButtons = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 4);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+
+  const scroll = (dir: "left" | "right") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.clientWidth / 3;
+    el.scrollBy({ left: dir === "right" ? cardWidth : -cardWidth, behavior: "smooth" });
+  };
+
   return (
-    <div
-      className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-px"
-      style={{ backgroundColor: T.primary }}
-    >
-      {items.map((item, i) => (
-        <motion.div
-          key={i}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: Math.min(i * 0.06, 0.3) }}
-          className="h-full"
-        >
-          <ItemCard item={item} />
-        </motion.div>
-      ))}
+    <div className="relative">
+      <div
+        ref={scrollRef}
+        onScroll={updateButtons}
+        className="flex flex-col md:flex-row md:overflow-x-hidden scrollbar-hide gap-px"
+        style={{ backgroundColor: T.primary }}
+      >
+        {items.map((item, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: Math.min(i * 0.08, 0.4) }}
+            className="w-full md:w-1/3 flex-shrink-0 h-full"
+          >
+            <ItemCard item={item} />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Botones — solo desktop, solo cuando hay más de 3 items */}
+      {items.length > 3 && (
+        <div className="hidden md:flex justify-end gap-px mt-px">
+          <button
+            onClick={() => scroll("left")}
+            disabled={!canScrollLeft}
+            aria-label="Anterior"
+            className="flex items-center justify-center w-20 h-20 transition-opacity"
+            style={{
+              backgroundColor: canScrollLeft ? T.primary : T.creamHigh,
+              color: canScrollLeft ? "#fff" : T.onSurfaceVariant,
+              opacity: canScrollLeft ? 1 : 0.4,
+            }}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <button
+            onClick={() => scroll("right")}
+            disabled={!canScrollRight}
+            aria-label="Siguiente"
+            className="flex items-center justify-center w-20 h-20 transition-opacity"
+            style={{
+              backgroundColor: canScrollRight ? T.primary : T.creamHigh,
+              color: canScrollRight ? "#fff" : T.onSurfaceVariant,
+              opacity: canScrollRight ? 1 : 0.4,
+            }}
+          >
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -281,7 +339,7 @@ export default function MenuSection({ menuData }: MenuSectionProps) {
                 total={menuData.length}
               />
 
-              {useGridLayout && <CardGrid items={items} />}
+              {useGridLayout && <ScrollableCardRow items={items} />}
 
               {/* Row layout (for small / seafood-style categories) */}
               {useRowLayout && (
