@@ -236,31 +236,15 @@ export default function Hero({ featuredEvent }: HeroProps) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.75, duration: 0.55 }}
-            className="flex flex-row gap-4 flex-wrap"
           >
             <motion.a
-              href="/#contacto"
-              whileHover={{ backgroundColor: "#6b2000" }}
-              className="px-7 py-4 text-white text-xs font-bold uppercase tracking-widest transition-colors"
+              href="/carta"
+              whileHover={{ backgroundColor: "#1f5f67" }}
+              className="inline-block px-7 py-4 text-white text-xs font-bold uppercase tracking-widest transition-colors"
               style={{
                 backgroundColor: "#2f7780",
                 fontFamily: "var(--font-space-grotesk)",
                 letterSpacing: "0.14em",
-              }}
-            >
-              Reservar mesa
-            </motion.a>
-
-            <motion.a
-              href="/carta"
-              whileHover={{ borderColor: "#C7AF65", color: "#C7AF65" }}
-              className="px-7 py-4 text-xs font-bold uppercase tracking-widest transition-colors border-2"
-              style={{
-                color: "#3a2a20",
-                borderColor: "#3a2a20",
-                fontFamily: "var(--font-space-grotesk)",
-                letterSpacing: "0.14em",
-                backgroundColor: "transparent",
               }}
             >
               Ver carta
