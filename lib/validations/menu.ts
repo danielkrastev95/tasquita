@@ -3,7 +3,7 @@ import { z } from "zod";
 export const createMenuItemSchema = z.object({
   name: z.string().min(1, "El nombre es requerido").max(200),
   description: z.string().max(500).nullable().optional(),
-  price: z.number().positive("El precio debe ser positivo").nullable().optional(),
+  price: z.string().max(20).nullable().optional(),
   image: z.string().url("URL de imagen inválida").nullable().optional(),
   categoryId: z.string().min(1, "La categoría es requerida"),
   isPopular: z.boolean().optional().default(false),

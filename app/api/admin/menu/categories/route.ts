@@ -1,44 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { createCategorySchema } from "@/lib/validations/menu";
+import { ZodError } from "zod";
 
 export async function GET() {
-  const session = await auth();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
 
-  const categories = await prisma.menuCategory.findMany({
-    orderBy: { sortOrder: "asc" },
-    include: {
-      _count: {
-        select: { items: true },
+    const categories = await prisma.menuCategory.findMany({
+      orderBy: { sortOrder: "asc" },
+      include: {
+        _count: {
+          select: { items: true },
+        },
       },
-    },
-  });
+    });
 
-  return NextResponse.json(categories);
+    return NextResponse.json(categories);
+  } catch (error) {
+    console.error("[menu/categories GET]", error);
+    return NextResponse.json({ error: "Error al obtener categorías" }, { status: 500 });
+  }
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const session = await auth();
+    if (!session) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const validatedData = createCategorySchema.parse(body);
+
+    const category = await prisma.menuCategory.create({
+      data: validatedData,
+    });
+
+    return NextResponse.json(category, { status: 201 });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: "Datos inválidos", details: error.errors },
+        { status: 400 }
+      );
+    }
+    console.error("[menu/categories POST]", error);
+    return NextResponse.json({ error: "Error al crear categoría" }, { status: 500 });
   }
-
-  const body = await req.json();
-  const { name, slug } = body;
-
-  if (!name || !slug) {
-    return NextResponse.json(
-      { error: "Name and slug are required" },
-      { status: 400 }
-    );
-  }
-
-  const category = await prisma.menuCategory.create({
-    data: { name, slug },
-  });
-
-  return NextResponse.json(category, { status: 201 });
 }

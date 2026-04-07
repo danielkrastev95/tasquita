@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { updateMenuItemSchema } from "@/lib/validations/menu";
+import { updateMenuItemSchema, type UpdateMenuItemInput } from "@/lib/validations/menu";
 import { ZodError } from "zod";
 
 export async function GET(
@@ -53,7 +53,7 @@ export async function PUT(
     const { categoryId, ...updateData } = validatedData;
 
     // Build data object, only including categoryId if provided
-    const data: Record<string, any> = { ...updateData };
+    const data: Omit<UpdateMenuItemInput, "categoryId"> & { categoryId?: string } = { ...updateData };
     if (categoryId) {
       data.categoryId = categoryId;
     }
