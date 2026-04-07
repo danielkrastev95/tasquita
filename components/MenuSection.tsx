@@ -107,7 +107,7 @@ function ScrollableCardRow({ items }: { items: MenuItem[] }) {
         ref={scrollRef}
         onScroll={updateButtons}
         className="flex flex-col md:flex-row md:overflow-x-hidden scrollbar-hide gap-px"
-        style={{ backgroundColor: T.primary }}
+        style={{ backgroundColor: T.cream }}
       >
         {items.map((item, i) => (
           <motion.div
