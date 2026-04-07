@@ -96,7 +96,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
             className="font-black italic uppercase leading-[0.88]"
             style={{
               fontFamily: T.newsreader,
-              fontSize: "clamp(4.5rem, 13vw, 11rem)",
+              fontSize: "clamp(2.8rem, 13vw, 11rem)",
               color: "#ffffff",
               letterSpacing: "-0.03em",
             }}
