@@ -171,7 +171,7 @@ function ItemCard({ item }: { item: MenuItem }) {
 
       {/* ── Foto — solo si existe ── */}
       {hasImage && (
-        <div className="relative overflow-hidden flex-shrink-0" style={{ aspectRatio: "4/3" }}>
+        <div className="relative overflow-hidden flex-shrink-0 h-52 md:h-40">
           <img
             src={item.image!}
             alt={item.name}
