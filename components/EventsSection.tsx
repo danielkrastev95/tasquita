@@ -150,25 +150,14 @@ function EventCard({
         )}
       </div>
 
-      {/* Bottom: time + CTA */}
-      <div className={`flex items-center gap-6 ${reversed ? "md:justify-end" : ""}`}>
+      {/* Bottom: time */}
+      <div className={`flex items-center ${reversed ? "md:justify-end" : ""}`}>
         <span
           className="text-sm font-bold uppercase tracking-wider"
           style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant }}
         >
           {event.time} hrs
         </span>
-        <motion.a
-          href="/#contacto"
-          whileHover={{ x: 4 }}
-          className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest"
-          style={{ fontFamily: T.grotesk, color: T.primary, letterSpacing: "0.12em" }}
-        >
-          Reservar
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-          </svg>
-        </motion.a>
       </div>
     </div>
   );
@@ -229,7 +218,7 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
-        className="px-6 md:px-12 pt-12 md:pt-16 pb-4 flex items-baseline justify-between"
+        className="px-6 md:px-12 pt-6 md:pt-8 pb-4 flex items-baseline justify-between"
         style={{ borderBottom: `3px solid ${T.gold}` }}
       >
         <h1
