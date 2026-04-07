@@ -239,12 +239,14 @@ export default function Hero({ featuredEvent }: HeroProps) {
           >
             <motion.a
               href="/carta"
-              whileHover={{ backgroundColor: "#1f5f67" }}
-              className="inline-block px-7 py-4 text-white text-xs font-bold uppercase tracking-widest transition-colors"
+              whileHover={{ backgroundColor: "#2f7780", color: "#ffffff" }}
+              className="inline-block px-16 py-4 text-xs font-bold uppercase tracking-widest transition-colors border-2"
               style={{
-                backgroundColor: "#2f7780",
+                backgroundColor: "#ffffff",
+                color: "#2f7780",
+                borderColor: "#2f7780",
                 fontFamily: "var(--font-space-grotesk)",
-                letterSpacing: "0.14em",
+                letterSpacing: "0.18em",
               }}
             >
               Ver carta
