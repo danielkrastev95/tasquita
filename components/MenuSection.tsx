@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
+import { useState, useRef } from "react";
+import { motion } from "framer-motion";
 
 interface MenuItem {
   name: string;
@@ -165,110 +164,83 @@ function ScrollableCardRow({ items }: { items: MenuItem[] }) {
 }
 
 function ItemCard({ item }: { item: MenuItem }) {
-  const [flipped, setFlipped] = useState(false);
   const hasImage = Boolean(item.image);
 
   return (
-    // Fixed height so front and back are the same size
-    <div className={`flip-card h-full${flipped ? " flipped" : ""}`} style={{ backgroundColor: T.cream }}>
-      <div className="flip-card-inner">
+    <div className="flex flex-col h-full" style={{ backgroundColor: T.cream }}>
 
-        {/* ── FRONT ── */}
-        <div
-          className="flip-card-front flex flex-col"
-          style={{ backgroundColor: T.cream }}
-        >
-          <div className="p-6 md:p-8 flex-1 flex flex-col">
-            {/* Title + price */}
-            <div className="flex justify-between items-start gap-4 mb-4">
-              <h4
-                className="font-black leading-none uppercase"
-                style={{
-                  fontFamily: T.newsreader,
-                  fontSize: "clamp(1.5rem, 2.2vw, 2.2rem)",
-                  color: T.onSurface,
-                }}
-              >
-                {item.name}
-              </h4>
-              {item.price && (
-                <span
-                  className="font-bold text-white px-2 py-1 text-sm flex-shrink-0 leading-snug"
-                  style={{ backgroundColor: T.secondary, fontFamily: T.grotesk }}
-                >
-                  {item.price}
-                </span>
-              )}
-            </div>
-
-            {/* Badges */}
-            {(item.popular || item.homemade || item.award) && (
-              <div className="flex gap-2 mb-3">
-                {item.award && <span className="text-xs font-bold uppercase px-2 py-0.5 text-white" style={{ backgroundColor: "#C7AF65", fontFamily: T.grotesk }}>★ {item.award}</span>}
-                {item.popular && <span className="text-xs font-bold uppercase px-2 py-0.5 text-white" style={{ backgroundColor: T.primary, fontFamily: T.grotesk }}>♥ Popular</span>}
-                {item.homemade && <span className="text-xs font-bold uppercase px-2 py-0.5 text-white" style={{ backgroundColor: T.onSurface, fontFamily: T.grotesk }}>⌂ Casera</span>}
-              </div>
-            )}
-
-            {/* Description */}
-            {item.description && (
-              <p className="text-sm leading-relaxed mb-6" style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant }}>
-                {item.description}
-              </p>
-            )}
-
-            {/* Flip button — only when image exists */}
-            {hasImage && (
-              <button
-                onClick={() => setFlipped(true)}
-                aria-label={`Ver foto de ${item.name}`}
-                className="mt-auto self-start flex items-center gap-2 px-4 py-2 text-white text-xs font-bold uppercase tracking-widest transition-opacity hover:opacity-75"
-                style={{ backgroundColor: T.primary, fontFamily: T.grotesk }}
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-                Ver foto
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* ── BACK ── */}
-        <div className="flip-card-back" style={{ backgroundColor: T.cream }}>
-          {item.image && (
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-full h-full object-cover"
-              style={{ opacity: 0.85 }}
-            />
-          )}
-          {/* Overlay with name + back button */}
-          <div
-            className="absolute inset-0 flex flex-col justify-between p-6"
-            style={{ background: "linear-gradient(to top, rgba(30,15,5,0.75) 40%, transparent)" }}
-          >
-            <button
-              onClick={() => setFlipped(false)}
-              aria-label="Volver"
-              className="self-start flex items-center gap-1.5 px-3 py-1.5 text-white text-xs font-bold uppercase tracking-widest"
-              style={{ backgroundColor: "rgba(255,255,255,0.15)", fontFamily: T.grotesk, backdropFilter: "blur(6px)" }}
+      {/* ── Foto — solo si existe ── */}
+      {hasImage && (
+        <div className="relative overflow-hidden flex-shrink-0" style={{ aspectRatio: "4/3" }}>
+          <img
+            src={item.image!}
+            alt={item.name}
+            className="w-full h-full object-cover"
+          />
+          {/* Precio flotante sobre la foto */}
+          {item.price && (
+            <span
+              className="absolute bottom-0 right-0 font-bold text-white px-3 py-1.5 text-sm leading-snug"
+              style={{ backgroundColor: T.secondary, fontFamily: T.grotesk }}
             >
-              ← Volver
-            </button>
-            <div>
-              <p className="font-black uppercase text-white leading-none mb-1" style={{ fontFamily: T.newsreader, fontSize: "clamp(1.3rem, 2vw, 1.8rem)" }}>
-                {item.name}
-              </p>
-              {item.price && (
-                <span className="text-sm font-bold text-white/70" style={{ fontFamily: T.grotesk }}>{item.price}</span>
-              )}
-            </div>
-          </div>
+              {item.price}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* ── Contenido ── */}
+      <div className="p-6 md:p-7 flex flex-col flex-1">
+        {/* Título + precio (sin foto) */}
+        <div className={`flex justify-between items-start gap-4 ${hasImage ? "mb-3" : "mb-3"}`}>
+          <h4
+            className="font-black leading-none uppercase"
+            style={{
+              fontFamily: T.newsreader,
+              fontSize: "clamp(1.4rem, 2.2vw, 2rem)",
+              color: T.onSurface,
+            }}
+          >
+            {item.name}
+          </h4>
+          {/* Precio inline solo cuando no hay foto */}
+          {!hasImage && item.price && (
+            <span
+              className="font-bold text-white px-2 py-1 text-sm flex-shrink-0 leading-snug"
+              style={{ backgroundColor: T.secondary, fontFamily: T.grotesk }}
+            >
+              {item.price}
+            </span>
+          )}
         </div>
 
+        {/* Badges */}
+        {(item.popular || item.homemade || item.award) && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {item.award && (
+              <span className="text-xs font-bold uppercase px-2 py-0.5 text-white" style={{ backgroundColor: "#C7AF65", fontFamily: T.grotesk }}>
+                ★ {item.award}
+              </span>
+            )}
+            {item.popular && (
+              <span className="text-xs font-bold uppercase px-2 py-0.5 text-white" style={{ backgroundColor: T.primary, fontFamily: T.grotesk }}>
+                ♥ Popular
+              </span>
+            )}
+            {item.homemade && (
+              <span className="text-xs font-bold uppercase px-2 py-0.5 text-white" style={{ backgroundColor: T.onSurface, fontFamily: T.grotesk }}>
+                ⌂ Casera
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Descripción */}
+        {item.description && (
+          <p className="text-sm leading-relaxed" style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant }}>
+            {item.description}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -341,24 +313,6 @@ function ItemRow({
 
 // ─── Main component ──────────────────────────────────────────────────────────
 export default function MenuSection({ menuData }: MenuSectionProps) {
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && selectedImage) setSelectedImage(null);
-    };
-    if (selectedImage) {
-      document.body.style.overflow = "hidden";
-      document.addEventListener("keydown", handleEscape);
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [selectedImage]);
-
   if (!menuData || menuData.length === 0) return null;
 
   return (
@@ -437,51 +391,6 @@ export default function MenuSection({ menuData }: MenuSectionProps) {
       </div>
 
 
-      {/* ── Image Modal ── */}
-      <AnimatePresence>
-        {selectedImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedImage(null)}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Vista de imagen del plato"
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 cursor-pointer"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: "spring", duration: 0.5 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative max-w-4xl w-full aspect-[4/3] cursor-default"
-            >
-              <button
-                onClick={() => setSelectedImage(null)}
-                aria-label="Cerrar imagen"
-                className="absolute -top-4 -right-4 z-10 w-12 h-12 bg-white text-black font-black text-2xl flex items-center justify-center hover:bg-primary hover:text-white transition-colors"
-                style={{ color: T.onSurface }}
-              >
-                ×
-              </button>
-              <div
-                className="relative w-full h-full overflow-hidden"
-                style={{ border: `8px solid ${T.cream}` }}
-              >
-                <Image
-                  src={selectedImage}
-                  alt="Plato"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 1024px"
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
