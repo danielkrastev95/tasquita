@@ -54,7 +54,7 @@ function CategoryHeader({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="flex justify-between items-baseline pt-4 mb-12 mt-24 md:mt-32"
+      className={`flex justify-between items-baseline pt-4 mb-12 ${index === 0 ? "mt-8" : "mt-24 md:mt-32"}`}
       style={{ borderTop: `8px solid #C7AF65` }}
     >
       <h2
