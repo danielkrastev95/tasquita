@@ -222,88 +222,36 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
   return (
     <section id="eventos" className="relative" style={{ backgroundColor: T.cream }}>
       {/* ═══════════════════════════════════════════════════════════════════
-          HERO HEADER — full-width teal block with massive italic title
+          HEADER — compact editorial bar
          ═══════════════════════════════════════════════════════════════════ */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="relative overflow-hidden"
-        style={{ backgroundColor: T.primary }}
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="px-6 md:px-12 pt-12 md:pt-16 pb-4 flex items-baseline justify-between"
+        style={{ borderBottom: `3px solid ${T.gold}` }}
       >
-        {/* Subtle background pattern */}
-        <div
-          className="absolute inset-0 pointer-events-none select-none overflow-hidden"
-          aria-hidden="true"
-          style={{ opacity: 0.06 }}
+        <h1
+          className="font-black italic uppercase tracking-tighter leading-none"
+          style={{
+            fontFamily: T.newsreader,
+            fontSize: "clamp(1.8rem, 4.5vw, 4.5rem)",
+            color: T.primary,
+          }}
         >
-          <span
-            className="absolute font-black italic uppercase leading-none text-white whitespace-nowrap"
-            style={{
-              fontFamily: T.newsreader,
-              fontSize: "clamp(12rem, 30vw, 28rem)",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%) rotate(-5deg)",
-              letterSpacing: "-0.04em",
-            }}
-          >
-            EVENTOS
-          </span>
-        </div>
-
-        <div className="relative px-6 md:px-12 py-16 md:py-24 lg:py-32">
-          {/* Main title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-black italic uppercase leading-[0.88]"
-            style={{
-              fontFamily: T.newsreader,
-              fontSize: "clamp(4rem, 12vw, 12rem)",
-              color: "#ffffff",
-              letterSpacing: "-0.03em",
-            }}
-          >
-            El Diario
-            <br />
-            Vivo
-          </motion.h1>
-
-          {/* Subtitle row */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mt-8 gap-6">
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="max-w-sm leading-relaxed"
-              style={{
-                fontFamily: T.grotesk,
-                fontSize: "0.9rem",
-                color: "rgba(255,255,255,0.7)",
-              }}
-            >
-              Una curaduría de experiencias sensoriales. Donde la cocina de
-              barrio se encuentra con la música y la celebración.
-            </motion.p>
-
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="font-black"
-              style={{
-                fontFamily: T.newsreader,
-                fontSize: "clamp(2rem, 4vw, 3.5rem)",
-                color: T.gold,
-                lineHeight: 1,
-              }}
-            >
-              {currentYear}
-            </motion.span>
-          </div>
-        </div>
+          Eventos
+        </h1>
+        <span
+          className="font-bold hidden sm:block"
+          style={{
+            fontFamily: T.grotesk,
+            fontSize: "clamp(1rem, 1.8vw, 1.5rem)",
+            color: T.gold,
+          }}
+        >
+          {currentYear}
+        </span>
       </motion.div>
 
       {/* ═══════════════════════════════════════════════════════════════════
