@@ -85,7 +85,7 @@ function CategoryHeader({
 function CardGrid({ items }: { items: MenuItem[] }) {
   return (
     <div
-      className="grid grid-cols-1 md:grid-cols-3 gap-px"
+      className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-px"
       style={{ backgroundColor: T.primary }}
     >
       {items.map((item, i) => (
