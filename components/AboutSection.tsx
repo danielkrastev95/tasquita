@@ -171,7 +171,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
           </p>
 
           <div className="flex items-center gap-3">
-            <div className="w-8 h-0.5" style={{ backgroundColor: T.gold }} />
+            <div className="w-12 h-1" style={{ backgroundColor: T.gold }} />
             <span
               className="text-xs font-bold uppercase tracking-widest"
               style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant, letterSpacing: "0.12em" }}
@@ -281,7 +281,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
                 style={{
                   fontFamily: T.grotesk,
                   fontSize: "0.75rem",
-                  color: T.primary,
+                  color: T.gold,
                   letterSpacing: "0.1em",
                 }}
               >
@@ -289,7 +289,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
               </span>
 
               {/* Divider */}
-              <div className="w-full h-px mb-6" style={{ backgroundColor: `${T.primary}30` }} />
+              <div className="w-full h-px mb-6" style={{ backgroundColor: `${T.gold}40` }} />
 
               {/* Title */}
               <h4

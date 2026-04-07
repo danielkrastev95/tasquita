@@ -156,7 +156,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
             letterSpacing: "-0.02em",
           }}
         >
-          TRADICIÓN&nbsp;•&nbsp;SABOR&nbsp;•&nbsp;FUEGO&nbsp;•&nbsp;TRADICIÓN&nbsp;•&nbsp;SABOR&nbsp;•&nbsp;FUEGO&nbsp;•&nbsp;TRADICIÓN&nbsp;•&nbsp;SABOR&nbsp;•&nbsp;FUEGO&nbsp;•&nbsp;
+          TRADICIÓN&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;SABOR&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;FUEGO&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;TRADICIÓN&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;SABOR&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;FUEGO&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;TRADICIÓN&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;SABOR&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;FUEGO&nbsp;<span style={{ color: "#C7AF65" }}>•</span>&nbsp;
         </span>
       </div>
 
@@ -178,13 +178,14 @@ export default function Hero({ featuredEvent }: HeroProps) {
             className="mb-5 self-start"
           >
             <span
-              className="text-white text-xs font-bold uppercase tracking-widest px-3 py-1.5"
+              className="text-white text-xs font-bold uppercase tracking-widest px-3 py-1.5 flex items-center gap-2"
               style={{
                 backgroundColor: "#2f7780",
                 fontFamily: "var(--font-space-grotesk)",
                 letterSpacing: "0.15em",
               }}
             >
+              <span style={{ display: "inline-block", width: "6px", height: "6px", backgroundColor: "#C7AF65", flexShrink: 0 }} />
               Est. Valdemoro · Tapas
             </span>
           </motion.div>
@@ -252,7 +253,7 @@ export default function Hero({ featuredEvent }: HeroProps) {
 
             <motion.a
               href="/carta"
-              whileHover={{ borderColor: "#2f7780", color: "#2f7780" }}
+              whileHover={{ borderColor: "#C7AF65", color: "#C7AF65" }}
               className="px-7 py-4 text-xs font-bold uppercase tracking-widest transition-colors border-2"
               style={{
                 color: "#3a2a20",

@@ -330,7 +330,7 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="relative overflow-hidden"
-          style={{ backgroundColor: T.cream, borderTop: `8px solid ${T.primary}` }}
+          style={{ backgroundColor: T.cream, borderTop: `8px solid ${T.gold}` }}
         >
           <div className="py-12 md:py-20 flex flex-col md:flex-row md:items-end md:justify-between gap-10">
             {/* Left — Big italic title */}

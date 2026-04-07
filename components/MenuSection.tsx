@@ -56,7 +56,7 @@ function CategoryHeader({
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
       className="flex justify-between items-baseline pt-4 mb-12 mt-24 md:mt-32"
-      style={{ borderTop: `8px solid ${T.primary}` }}
+      style={{ borderTop: `8px solid #C7AF65` }}
     >
       <h2
         className="font-black uppercase tracking-tighter leading-none"
@@ -73,7 +73,7 @@ function CategoryHeader({
         style={{
           fontFamily: T.grotesk,
           fontSize: "clamp(1rem, 1.8vw, 1.5rem)",
-          color: T.primary,
+          color: "#C7AF65",
         }}
       >
         {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
@@ -368,7 +368,7 @@ export default function MenuSection({ menuData }: MenuSectionProps) {
       style={{ backgroundColor: T.cream }}
     >
       {/* ── Compact section heading ── */}
-      <div className="px-6 md:px-12 pt-12 md:pt-16 flex items-baseline justify-between border-b border-[rgba(167,52,17,0.12)] pb-4">
+      <div className="px-6 md:px-12 pt-12 md:pt-16 flex items-baseline justify-between pb-4" style={{ borderBottom: `3px solid #C7AF65` }}>
         <motion.h1
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -385,7 +385,7 @@ export default function MenuSection({ menuData }: MenuSectionProps) {
         </motion.h1>
         <p
           className="text-xs uppercase tracking-widest font-bold hidden sm:block"
-          style={{ fontFamily: T.grotesk, color: T.onSurfaceVariant }}
+          style={{ fontFamily: T.grotesk, color: "#C7AF65" }}
         >
           Valdemoro · Madrid
         </p>
