@@ -95,6 +95,7 @@ function CardGrid({ items }: { items: MenuItem[] }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: Math.min(i * 0.06, 0.3) }}
+          className="h-full"
         >
           <ItemCard item={item} />
         </motion.div>
@@ -111,7 +112,7 @@ function ItemCard({ item }: { item: MenuItem }) {
 
       {/* ── Foto — solo si existe ── */}
       {hasImage && (
-        <div className="relative overflow-hidden flex-shrink-0 h-52 md:h-64">
+        <div className="relative overflow-hidden flex-shrink-0 h-52 md:h-80">
           <img
             src={item.image!}
             alt={item.name}
