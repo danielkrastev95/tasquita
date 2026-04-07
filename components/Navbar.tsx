@@ -9,7 +9,6 @@ type NavLink = {
   name: string;
   href: string;
   badge?: boolean;
-  active?: boolean;
 };
 
 const baseNavLinks: NavLink[] = [
@@ -83,11 +82,8 @@ export default function Navbar({ eventsEnabled }: NavbarProps) {
                   style={{
                     fontFamily: "var(--font-newsreader)",
                     fontSize: "clamp(0.85rem, 1vw, 1rem)",
-                    color: link.active ? "#1f5f67" : "#2f7780",
-                    opacity: link.active ? 1 : 0.75,
-                    textDecoration: link.active ? "underline" : "none",
-                    textDecorationThickness: link.active ? "2px" : undefined,
-                    textUnderlineOffset: link.active ? "8px" : undefined,
+                    color: "#2f7780",
+                    opacity: 0.75,
                     fontWeight: 700,
                   }}
                 >

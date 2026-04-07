@@ -36,7 +36,8 @@
       "Bash(powershell -Command \"\\(Get-Content ''components\\\\Footer.tsx''\\) -replace ''font-playfair'', ''font-montserrat'' | Set-Content ''components\\\\Footer.tsx''\")",
       "Bash(powershell -Command:*)",
       "Bash(git reset:*)",
-      "Bash(npx skills add:*)"
+      "Bash(npx skills add:*)",
+      "Bash(find 'C:\\\\Users\\\\legen\\\\Desktop\\\\TRABAJO Y PROYECTOS\\\\Proyectos Claude\\\\tasquita claude\\\\.claude\\\\worktrees\\\\eloquent-villani' -type f \\\\\\(-name tailwind.config.* -o -name globals.css -o -name layout.tsx \\\\\\))"
     ]
   }
 }

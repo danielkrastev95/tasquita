@@ -209,34 +209,6 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled }: MobileMen
               transition={{ delay: 0.4, duration: 0.4 }}
               className="px-6 pb-8"
             >
-              {/* CTA Button */}
-              <a
-                href="/#contacto"
-                onClick={(e) => handleItemClick(e, "/#contacto")}
-                className="flex items-center justify-between w-full px-6 py-5 mb-6 text-white transition-colors"
-                style={{ backgroundColor: T.primary }}
-              >
-                <span
-                  className="text-sm font-bold uppercase tracking-widest"
-                  style={{ fontFamily: T.grotesk, letterSpacing: "0.14em" }}
-                >
-                  Reservar mesa
-                </span>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M5 12h14" />
-                  <path d="M12 5l7 7-7 7" />
-                </svg>
-              </a>
-
               {/* Location + Hours */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
