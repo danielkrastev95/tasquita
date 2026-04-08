@@ -22,6 +22,16 @@ const nextConfig = {
         protocol: 'http',
         hostname: 'localhost',
       },
+      // Uber Eats CDN
+      {
+        protocol: 'https',
+        hostname: 'tb-static.uber.com',
+      },
+      // Glovo CDN
+      {
+        protocol: 'https',
+        hostname: '*.glovo.com',
+      },
     ],
   },
 };
