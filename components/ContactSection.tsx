@@ -27,6 +27,9 @@ interface SiteSettings {
   schedule: string;
   phone?: string | null;
   contactImage?: string | null;
+  contactSectionTitle?: string | null;
+  contactPhoneLabel?: string | null;
+  contactSocialLabel?: string | null;
 }
 
 interface ContactSectionProps {
@@ -103,7 +106,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
               letterSpacing: "-0.03em",
             }}
           >
-            Visítanos
+            {settings?.contactSectionTitle || "Visítanos"}
           </motion.h2>
 
           <motion.div
@@ -344,7 +347,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
                 letterSpacing: "0.18em",
               }}
             >
-              Llámanos
+              {settings?.contactPhoneLabel || "Llámanos"}
             </span>
             <span
               className="font-black italic uppercase text-white"
@@ -390,7 +393,7 @@ export default function ContactSection({ settings }: ContactSectionProps) {
                 letterSpacing: "0.18em",
               }}
             >
-              Síguenos
+              {settings?.contactSocialLabel || "Síguenos"}
             </span>
             <span
               className="font-black italic uppercase"

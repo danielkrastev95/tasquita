@@ -24,9 +24,10 @@ interface NavbarProps {
   eventsEnabled: boolean;
   addressStreet?: string | null;
   addressCity?: string | null;
+  heroTitle?: string | null;
 }
 
-export default function Navbar({ eventsEnabled, addressStreet, addressCity }: NavbarProps) {
+export default function Navbar({ eventsEnabled, addressStreet, addressCity, heroTitle }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const scrollPosition = useScrollPosition();
   const isScrolled = scrollPosition > 50;
@@ -67,7 +68,7 @@ export default function Navbar({ eventsEnabled, addressStreet, addressCity }: Na
                 lineHeight: 1,
               }}
             >
-              LA TASQUITA DE SARA
+              {(heroTitle || "La Tasquita de Sara").toUpperCase()}
             </motion.a>
 
             {/* Nav links — Newsreader, uppercase */}
@@ -128,7 +129,7 @@ export default function Navbar({ eventsEnabled, addressStreet, addressCity }: Na
             color: "#2f7780",
           }}
         >
-          La Tasquita
+          {heroTitle || "La Tasquita"}
         </motion.a>
 
         <motion.button
@@ -161,6 +162,7 @@ export default function Navbar({ eventsEnabled, addressStreet, addressCity }: Na
         eventsEnabled={eventsEnabled}
         addressStreet={addressStreet}
         addressCity={addressCity}
+        heroTitle={heroTitle}
       />
     </nav>
   );

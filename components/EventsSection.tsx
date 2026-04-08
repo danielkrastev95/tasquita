@@ -19,8 +19,15 @@ interface EventsData {
   events: Event[];
 }
 
+interface SiteSettings {
+  eventsOrgTitle?: string | null;
+  eventsOrgDesc?: string | null;
+  eventsOrgCta?: string | null;
+}
+
 interface EventsSectionProps {
   eventsData: EventsData;
+  settings?: SiteSettings | null;
 }
 
 // ─── Shared tokens ───────────────────────────────────────────────────────────
@@ -201,7 +208,7 @@ function EventCard({
 }
 
 // ─── Main component ──────────────────────────────────────────────────────────
-export default function EventsSection({ eventsData }: EventsSectionProps) {
+export default function EventsSection({ eventsData, settings }: EventsSectionProps) {
   if (!eventsData.enabled || eventsData.events.length === 0) {
     return null;
   }
@@ -281,11 +288,7 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
                   letterSpacing: "-0.03em",
                 }}
               >
-                Organiza
-                <br />
-                Tu
-                <br />
-                Evento
+                {settings?.eventsOrgTitle || "Organiza Tu Evento"}
               </motion.h2>
 
               <p
@@ -296,9 +299,7 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
                   color: T.onSurfaceVariant,
                 }}
               >
-                Celebra tu momento especial en nuestro espacio. Menús
-                personalizados, música en vivo y un ambiente diseñado para crear
-                recuerdos.
+                {settings?.eventsOrgDesc || "Celebra tu momento especial en nuestro espacio. Menús personalizados, música en vivo y un ambiente diseñado para crear recuerdos."}
               </p>
             </div>
 
@@ -314,7 +315,7 @@ export default function EventsSection({ eventsData }: EventsSectionProps) {
                 letterSpacing: "0.15em",
               }}
             >
-              Contáctanos
+              {settings?.eventsOrgCta || "Contáctanos"}
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>

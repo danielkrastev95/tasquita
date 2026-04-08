@@ -47,7 +47,7 @@ export default async function EventosPage() {
   if (events.length === 0) {
     return (
       <main className="min-h-screen" style={{ backgroundColor: "#fcf9f3" }}>
-        <Navbar eventsEnabled={settings?.eventsEnabled ?? true} />
+        <Navbar eventsEnabled={settings?.eventsEnabled ?? true} heroTitle={settings?.heroTitle} addressStreet={settings?.addressStreet} addressCity={settings?.addressCity} />
         <div style={{ height: "80px" }} />
         <section
           className="px-6 md:px-12 py-32 text-center"

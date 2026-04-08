@@ -11,10 +11,15 @@ interface FeaturedEvent {
 }
 
 interface SiteSettings {
+  heroTitle?: string | null;
   heroTagline?: string | null;
   heroMarquee?: string | null;
   heroImage1?: string | null;
   heroImage2?: string | null;
+  heroBadge?: string | null;
+  heroCtaText?: string | null;
+  heroDeliveryLabel?: string | null;
+  heroKitchenLabel?: string | null;
   glovoUrl?: string | null;
   uberEatsUrl?: string | null;
 }
@@ -25,8 +30,13 @@ interface HeroProps {
 }
 
 export default function Hero({ featuredEvent, settings }: HeroProps) {
+  const heroTitle = settings?.heroTitle || "La Tasquita de Sara";
+  const heroBadge = settings?.heroBadge ?? "Est. Valdemoro · Tapas";
   const heroTagline = settings?.heroTagline ?? "Un tributo visceral a la cocina de barrio. Donde el producto manda y el sabor no pide permiso.";
   const heroMarquee = settings?.heroMarquee ?? "TRADICIÓN • SABOR • FUEGO";
+  const heroCtaText = settings?.heroCtaText || "Ver carta";
+  const heroDeliveryLabel = settings?.heroDeliveryLabel || "Pide a domicilio";
+  const heroKitchenLabel = settings?.heroKitchenLabel || "Cocina en vivo";
   const heroImage1 = settings?.heroImage1 || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&q=85";
   const heroImage2 = settings?.heroImage2 || "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&q=80";
   const glovoUrl = settings?.glovoUrl || "https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro";
@@ -202,7 +212,7 @@ export default function Hero({ featuredEvent, settings }: HeroProps) {
               }}
             >
               <span style={{ display: "inline-block", width: "6px", height: "6px", backgroundColor: "#C7AF65", flexShrink: 0 }} />
-              Est. Valdemoro · Tapas
+              {heroBadge}
             </span>
           </motion.div>
 
@@ -222,11 +232,7 @@ export default function Hero({ featuredEvent, settings }: HeroProps) {
                 letterSpacing: "-0.02em",
               }}
             >
-              LA
-              <br />
-              TASQUITA
-              <br />
-              DE SARA
+              {heroTitle.toUpperCase()}
             </h1>
           </motion.div>
 
@@ -264,7 +270,7 @@ export default function Hero({ featuredEvent, settings }: HeroProps) {
                 letterSpacing: "0.18em",
               }}
             >
-              Ver carta
+              {heroCtaText}
             </motion.a>
           </motion.div>
 
@@ -273,8 +279,10 @@ export default function Hero({ featuredEvent, settings }: HeroProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.1 }}
-            className="flex gap-3 mt-8"
+            className="mt-8"
           >
+            <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "#2f7780", fontFamily: "var(--font-space-grotesk)", opacity: 0.6 }}>{heroDeliveryLabel}</p>
+          <div className="flex gap-3">
             <motion.a
               href={glovoUrl}
               target="_blank"
@@ -297,6 +305,7 @@ export default function Hero({ featuredEvent, settings }: HeroProps) {
             >
               Uber Eats
             </motion.a>
+          </div>
           </motion.div>
         </div>
 
@@ -365,7 +374,7 @@ export default function Hero({ featuredEvent, settings }: HeroProps) {
                     className="text-white text-xs font-bold uppercase tracking-widest"
                     style={{ fontFamily: "var(--font-space-grotesk)", letterSpacing: "0.15em" }}
                   >
-                    Cocina en vivo
+                    {heroKitchenLabel}
                   </p>
                 </div>
               </div>

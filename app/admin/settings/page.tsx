@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface ScheduleItem {
   day: string;
@@ -10,45 +11,134 @@ interface ScheduleItem {
 }
 
 interface FormData {
+  // General
   eventsEnabled: boolean;
   heroEventEnabled: boolean;
+  yearFounded: number;
+  // Hero
+  heroTitle: string;
+  heroSubtitle: string;
+  heroTagline: string;
+  heroBadge: string;
+  heroMarquee: string;
+  heroCtaText: string;
+  heroDeliveryLabel: string;
+  heroKitchenLabel: string;
+  heroImage1: string;
+  heroImage2: string;
+  glovoUrl: string;
+  uberEatsUrl: string;
+  // Nosotros
+  aboutHeroTitle: string;
   aboutTitle: string;
   aboutSubtitle: string;
   aboutParagraph1: string;
   aboutParagraph2: string;
   aboutQuote: string;
   aboutQuoteAuthor: string;
-  yearFounded: number;
+  aboutValuesTitle: string;
   value1Title: string;
   value1Description: string;
   value2Title: string;
   value2Description: string;
   value3Title: string;
   value3Description: string;
-  addressStreet: string;
-  addressCity: string;
-  addressPostalCode: string;
-  instagramHandle: string;
-  phone: string;
-  heroTitle: string;
-  heroSubtitle: string;
-  heroTagline: string;
-  heroMarquee: string;
-  heroImage1: string;
-  heroImage2: string;
   aboutImage1: string;
   aboutImage2: string;
   aboutImage3: string;
+  // Contacto
+  contactSectionTitle: string;
+  contactPhoneLabel: string;
+  contactSocialLabel: string;
+  phone: string;
+  instagramHandle: string;
+  addressStreet: string;
+  addressCity: string;
+  addressPostalCode: string;
   contactImage: string;
-  glovoUrl: string;
-  uberEatsUrl: string;
-  footerTagline: string;
   schedule: ScheduleItem[];
+  // Eventos
+  eventsOrgTitle: string;
+  eventsOrgDesc: string;
+  eventsOrgCta: string;
+  // Footer
+  footerTagline: string;
+  footerEstLabel: string;
 }
+
+const TABS = [
+  { id: "general",  label: "General",   icon: "⚙️" },
+  { id: "hero",     label: "Hero",      icon: "🏠" },
+  { id: "nosotros", label: "Nosotros",  icon: "👋" },
+  { id: "contacto", label: "Contacto",  icon: "📍" },
+  { id: "eventos",  label: "Eventos",   icon: "🎉" },
+  { id: "footer",   label: "Footer",    icon: "📄" },
+] as const;
+
+type TabId = typeof TABS[number]["id"];
+
+/* ── pequeño helper de campo ── */
+function Field({
+  label,
+  hint,
+  error,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      {children}
+      {hint && <p className="mt-1 text-xs text-gray-500">{hint}</p>}
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+    </div>
+  );
+}
+
+const inputCls =
+  "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm";
+const textareaCls =
+  "w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-sm";
+
+function Toggle({
+  label,
+  description,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  description: string;
+}) {
+  return (
+    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+      <div>
+        <h3 className="font-semibold text-gray-900">{label}</h3>
+        <p className="text-sm text-gray-600">{description}</p>
+      </div>
+      <label className="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" className="sr-only peer" {...props} />
+        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" />
+      </label>
+    </div>
+  );
+}
+
+const DEFAULT_SCHEDULE: ScheduleItem[] = [
+  { day: "Lunes", hours: "Cerrado" },
+  { day: "Martes - Miércoles", hours: "9:00 - 15:45" },
+  { day: "Jueves", hours: "9:00 - 15:45 y 20:00 - 23:00" },
+  { day: "Viernes", hours: "9:00 - 15:45 y 20:00 - 23:20" },
+  { day: "Sábado", hours: "10:00 - 15:45 y 20:00 - 23:20" },
+  { day: "Domingo", hours: "10:00 - 15:45" },
+];
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [activeTab, setActiveTab] = useState<TabId>("general");
 
   const {
     register,
@@ -57,95 +147,49 @@ export default function SettingsPage() {
     control,
     formState: { errors },
   } = useForm<FormData>({
-    defaultValues: {
-      schedule: [
-        { day: "Lunes", hours: "Cerrado" },
-        { day: "Martes - Miércoles", hours: "9:00 - 15:45" },
-        { day: "Jueves", hours: "9:00 - 15:45 y 20:00 - 23:00" },
-        { day: "Viernes", hours: "9:00 - 15:45 y 20:00 - 23:20" },
-        { day: "Sábado", hours: "10:00 - 15:45 y 20:00 - 23:20" },
-        { day: "Domingo", hours: "10:00 - 15:45" },
-      ],
-    },
+    defaultValues: { schedule: DEFAULT_SCHEDULE },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "schedule",
-  });
+  const { fields, append, remove } = useFieldArray({ control, name: "schedule" });
 
   useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    try {
-      const response = await fetch("/api/admin/settings");
-      if (!response.ok) throw new Error("Failed to fetch settings");
-
-      const data = await response.json();
-      // Parse schedule JSON if it exists
-      if (data.schedule && typeof data.schedule === "string") {
-        try {
-          data.schedule = JSON.parse(data.schedule);
-          // If schedule is empty array, use default values
-          if (data.schedule.length === 0) {
-            data.schedule = [
-              { day: "Lunes", hours: "Cerrado" },
-              { day: "Martes - Miércoles", hours: "9:00 - 15:45" },
-              { day: "Jueves", hours: "9:00 - 15:45 y 20:00 - 23:00" },
-              { day: "Viernes", hours: "9:00 - 15:45 y 20:00 - 23:20" },
-              { day: "Sábado", hours: "10:00 - 15:45 y 20:00 - 23:20" },
-              { day: "Domingo", hours: "10:00 - 15:45" },
-            ];
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/settings");
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        if (data.schedule && typeof data.schedule === "string") {
+          try {
+            const parsed = JSON.parse(data.schedule);
+            data.schedule = parsed.length ? parsed : DEFAULT_SCHEDULE;
+          } catch {
+            data.schedule = DEFAULT_SCHEDULE;
           }
-        } catch {
-          // If JSON parse fails, use default values
-          data.schedule = [
-            { day: "Lunes", hours: "Cerrado" },
-            { day: "Martes - Miércoles", hours: "9:00 - 15:45" },
-            { day: "Jueves", hours: "9:00 - 15:45 y 20:00 - 23:00" },
-            { day: "Viernes", hours: "9:00 - 15:45 y 20:00 - 23:20" },
-            { day: "Sábado", hours: "10:00 - 15:45 y 20:00 - 23:20" },
-            { day: "Domingo", hours: "10:00 - 15:45" },
-          ];
         }
+        reset(data);
+      } catch {
+        toast.error("Error al cargar la configuración");
+      } finally {
+        setFetching(false);
       }
-      reset(data);
-    } catch (error) {
-      toast.error("Error al cargar la configuración");
-    } finally {
-      setFetching(false);
-    }
-  };
+    })();
+  }, [reset]);
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     try {
-      // Convert schedule array to JSON string
-      const submitData = {
-        ...data,
-        schedule: JSON.stringify(data.schedule),
-      };
-
-      const response = await fetch("/api/admin/settings", {
+      const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(submitData),
+        body: JSON.stringify({ ...data, schedule: JSON.stringify(data.schedule) }),
       });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || "Failed to update settings");
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Error al guardar");
       }
-
-      toast.success("Configuración actualizada exitosamente");
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Error al actualizar la configuración"
-      );
+      toast.success("Configuración actualizada");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error al guardar");
     } finally {
       setLoading(false);
     }
@@ -154,7 +198,7 @@ export default function SettingsPage() {
   if (fetching) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
       </div>
     );
   }
@@ -164,799 +208,408 @@ export default function SettingsPage() {
       <Toaster position="top-right" />
 
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Configuración del Sitio
-        </h1>
-        <p className="text-gray-600 mt-1">
-          Gestiona la información general del restaurante
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Configuración del Sitio</h1>
+        <p className="text-gray-500 mt-1 text-sm">
+          Edita todos los textos, imágenes y parámetros del sitio web
         </p>
       </div>
 
-      {/* Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* General Settings */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
-            Configuración General
-          </h2>
-
-          <div className="space-y-4">
-            {/* Events Section Toggle */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div>
-                <h3 className="font-semibold text-gray-900">
-                  Sección de Eventos (parte inferior)
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Mostrar u ocultar la sección completa de eventos en la parte inferior de la página
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  {...register("eventsEnabled")}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
-            </div>
-
-            {/* Hero Event Banner Toggle */}
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div>
-                <h3 className="font-semibold text-gray-900">
-                  Banner de Evento en Hero
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Mostrar u ocultar el banner del evento destacado en la parte superior (Hero)
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  {...register("heroEventEnabled")}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-              </label>
-            </div>
-
-            {/* Year Founded */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Año de Fundación
-              </label>
-              <input
-                type="number"
-                {...register("yearFounded", {
-                  valueAsNumber: true,
-                  required: "El año de fundación es requerido",
-                  min: { value: 1900, message: "Año inválido" },
-                  max: {
-                    value: new Date().getFullYear(),
-                    message: "Año inválido",
-                  },
-                })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="2018"
-              />
-              {errors.yearFounded && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.yearFounded.message}
-                </p>
-              )}
-            </div>
-          </div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Tab bar */}
+        <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 overflow-x-auto">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setActiveTab(t.id)}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                activeTab === t.id
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <span>{t.icon}</span>
+              {t.label}
+            </button>
+          ))}
         </div>
 
-        {/* Hero Section */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
-            Sección Principal (Hero)
-          </h2>
-
+        {/* ──────────────── TAB: GENERAL ──────────────── */}
+        {activeTab === "general" && (
           <div className="space-y-4">
-            {/* Hero Title */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Título Principal
-              </label>
-              <input
-                type="text"
-                {...register("heroTitle", {
-                  required: "El título es requerido",
-                })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="La Tasquita de Sara"
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Visibilidad</h2>
+              <Toggle
+                label="Sección de Eventos (parte inferior)"
+                description="Mostrar u ocultar la sección completa de eventos en la página principal"
+                {...register("eventsEnabled")}
               />
-              {errors.heroTitle && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.heroTitle.message}
-                </p>
-              )}
-            </div>
-
-            {/* Hero Subtitle */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Subtítulo Principal
-              </label>
-              <input
-                type="text"
-                {...register("heroSubtitle", {
-                  required: "El subtítulo es requerido",
-                })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Bar de tapas moderno..."
-              />
-              {errors.heroSubtitle && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.heroSubtitle.message}
-                </p>
-              )}
-            </div>
-
-            {/* Hero Tagline */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tagline (texto descriptivo bajo el título)
-              </label>
-              <textarea
-                {...register("heroTagline")}
-                rows={2}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                placeholder="Un tributo visceral a la cocina de barrio..."
+              <Toggle
+                label="Banner de Evento Destacado en Hero"
+                description="Mostrar u ocultar el banner del evento destacado en la parte superior"
+                {...register("heroEventEnabled")}
               />
             </div>
 
-            {/* Hero Marquee */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Texto marquesina de fondo
-              </label>
-              <input
-                type="text"
-                {...register("heroMarquee")}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="TRADICIÓN • SABOR • FUEGO"
-              />
-              <p className="mt-1 text-xs text-gray-500">Texto que se mueve en el fondo del hero</p>
-            </div>
-
-            {/* Hero Image 1 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Imagen principal (URL)
-              </label>
-              <input
-                type="url"
-                {...register("heroImage1")}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="https://..."
-              />
-            </div>
-
-            {/* Hero Image 2 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Imagen secundaria (URL)
-              </label>
-              <input
-                type="url"
-                {...register("heroImage2")}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="https://..."
-              />
-            </div>
-
-            {/* Delivery URLs */}
-            <div className="pt-2 border-t border-gray-100">
-              <h3 className="font-semibold text-gray-700 mb-3 text-sm">Aplicaciones de Delivery</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL de Glovo
-                  </label>
-                  <input
-                    type="url"
-                    {...register("glovoUrl")}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="https://glovoapp.com/..."
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL de Uber Eats
-                  </label>
-                  <input
-                    type="url"
-                    {...register("uberEatsUrl")}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                    placeholder="https://www.ubereats.com/..."
-                  />
-                </div>
-              </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2 mb-4">Datos del Restaurante</h2>
+              <Field
+                label="Año de Fundación"
+                error={errors.yearFounded?.message}
+              >
+                <input
+                  type="number"
+                  {...register("yearFounded", {
+                    valueAsNumber: true,
+                    required: "El año es requerido",
+                    min: { value: 1900, message: "Año inválido" },
+                    max: { value: new Date().getFullYear(), message: "Año inválido" },
+                  })}
+                  className={inputCls}
+                  placeholder="2018"
+                />
+              </Field>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Images Section */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-1">Imágenes</h2>
-          <p className="text-sm text-gray-500 mb-4">URLs de las fotos del sitio. Deja en blanco para usar la imagen por defecto.</p>
-
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nosotros — Imagen de fondo
-                </label>
-                <input
-                  type="url"
-                  {...register("aboutImage1")}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                  placeholder="https://..."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nosotros — Imagen cocina/chef
-                </label>
-                <input
-                  type="url"
-                  {...register("aboutImage2")}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                  placeholder="https://..."
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nosotros — Imagen exterior
-                </label>
-                <input
-                  type="url"
-                  {...register("aboutImage3")}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                  placeholder="https://..."
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contacto — Imagen de fondo del banner "Visítanos"
-              </label>
-              <input
-                type="url"
-                {...register("contactImage")}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="https://..."
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* About Section */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
-            Sección "Acerca de"
-          </h2>
-
-          <div className="space-y-4">
-            {/* About Title */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Título
-              </label>
-              <input
-                type="text"
-                {...register("aboutTitle", {
-                  required: "El título es requerido",
-                })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Nuestra Historia"
-              />
-              {errors.aboutTitle && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.aboutTitle.message}
-                </p>
-              )}
-            </div>
-
-            {/* About Subtitle */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Subtítulo
-              </label>
-              <input
-                type="text"
-                {...register("aboutSubtitle", {
-                  required: "El subtítulo es requerido",
-                })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Somos un bar de barrio..."
-              />
-              {errors.aboutSubtitle && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.aboutSubtitle.message}
-                </p>
-              )}
-            </div>
-
-            {/* Paragraph 1 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Primer Párrafo
-              </label>
-              <textarea
-                {...register("aboutParagraph1", {
-                  required: "Este campo es requerido",
-                })}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                placeholder="Descripción del restaurante..."
-              />
-              {errors.aboutParagraph1 && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.aboutParagraph1.message}
-                </p>
-              )}
-            </div>
-
-            {/* Paragraph 2 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Segundo Párrafo
-              </label>
-              <textarea
-                {...register("aboutParagraph2", {
-                  required: "Este campo es requerido",
-                })}
-                rows={4}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                placeholder="Más información..."
-              />
-              {errors.aboutParagraph2 && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.aboutParagraph2.message}
-                </p>
-              )}
-            </div>
-
-            {/* Quote */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Cita Destacada
-              </label>
-              <textarea
-                {...register("aboutQuote", {
-                  required: "La cita es requerida",
-                })}
-                rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                placeholder="Una cita inspiradora..."
-              />
-              {errors.aboutQuote && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.aboutQuote.message}
-                </p>
-              )}
-            </div>
-
-            {/* Quote Author */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Autor de la Cita
-              </label>
-              <input
-                type="text"
-                {...register("aboutQuoteAuthor", {
-                  required: "El autor es requerido",
-                })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="El equipo de La Tasquita"
-              />
-              {errors.aboutQuoteAuthor && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.aboutQuoteAuthor.message}
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Our Values Section */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
-            Nuestros Valores
-          </h2>
-
+        {/* ──────────────── TAB: HERO ──────────────── */}
+        {activeTab === "hero" && (
           <div className="space-y-6">
-            {/* Value 1 */}
-            <div className="p-4 bg-gray-50 rounded-lg space-y-4">
-              <h3 className="font-semibold text-gray-900">Valor 1</h3>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Título
-                </label>
-                <input
-                  type="text"
-                  {...register("value1Title", {
-                    required: "El título es requerido",
-                  })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Producto de Calidad"
-                />
-                {errors.value1Title && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.value1Title.message}
-                  </p>
-                )}
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Textos del Hero</h2>
+
+              <Field label="Nombre del restaurante (título principal)" error={errors.heroTitle?.message}>
+                <input type="text" {...register("heroTitle", { required: "Requerido" })} className={inputCls} placeholder="La Tasquita de Sara" />
+              </Field>
+
+              <Field label="Subtítulo (SEO / meta descripción)" error={errors.heroSubtitle?.message}>
+                <input type="text" {...register("heroSubtitle", { required: "Requerido" })} className={inputCls} placeholder="Bar de tapas moderno..." />
+              </Field>
+
+              <Field label="Tagline (bajo el título)" hint="Frase descriptiva que aparece debajo del título grande">
+                <textarea {...register("heroTagline")} rows={2} className={textareaCls} placeholder="Un tributo visceral a la cocina de barrio..." />
+              </Field>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="Badge / Etiqueta" hint="Ej: Est. Valdemoro · Tapas">
+                  <input type="text" {...register("heroBadge")} className={inputCls} placeholder="Est. Valdemoro · Tapas" />
+                </Field>
+                <Field label="Texto de la marquesina de fondo" hint="Texto que se mueve en el fondo">
+                  <input type="text" {...register("heroMarquee")} className={inputCls} placeholder="TRADICIÓN • SABOR • FUEGO" />
+                </Field>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción
-                </label>
-                <textarea
-                  {...register("value1Description", {
-                    required: "La descripción es requerida",
-                  })}
-                  rows={2}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                  placeholder="Seleccionamos los mejores ingredientes..."
-                />
-                {errors.value1Description && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.value1Description.message}
-                  </p>
-                )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Field label="Botón principal (CTA)">
+                  <input type="text" {...register("heroCtaText")} className={inputCls} placeholder="Ver carta" />
+                </Field>
+                <Field label="Etiqueta de Delivery">
+                  <input type="text" {...register("heroDeliveryLabel")} className={inputCls} placeholder="Pide a domicilio" />
+                </Field>
+                <Field label="Etiqueta cocina en vivo">
+                  <input type="text" {...register("heroKitchenLabel")} className={inputCls} placeholder="Cocina en vivo" />
+                </Field>
               </div>
             </div>
 
-            {/* Value 2 */}
-            <div className="p-4 bg-gray-50 rounded-lg space-y-4">
-              <h3 className="font-semibold text-gray-900">Valor 2</h3>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Título
-                </label>
-                <input
-                  type="text"
-                  {...register("value2Title", {
-                    required: "El título es requerido",
-                  })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Trae a tu Peludito"
-                />
-                {errors.value2Title && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.value2Title.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción
-                </label>
-                <textarea
-                  {...register("value2Description", {
-                    required: "La descripción es requerida",
-                  })}
-                  rows={2}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                  placeholder="Espacio pet-friendly..."
-                />
-                {errors.value2Description && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.value2Description.message}
-                  </p>
-                )}
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Imágenes del Hero</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Field label="Imagen principal">
+                  <Controller
+                    control={control}
+                    name="heroImage1"
+                    render={({ field }) => (
+                      <ImageUpload value={field.value} onChange={field.onChange} onRemove={() => field.onChange("")} />
+                    )}
+                  />
+                </Field>
+                <Field label="Imagen secundaria">
+                  <Controller
+                    control={control}
+                    name="heroImage2"
+                    render={({ field }) => (
+                      <ImageUpload value={field.value} onChange={field.onChange} onRemove={() => field.onChange("")} />
+                    )}
+                  />
+                </Field>
               </div>
             </div>
 
-            {/* Value 3 */}
-            <div className="p-4 bg-gray-50 rounded-lg space-y-4">
-              <h3 className="font-semibold text-gray-900">Valor 3</h3>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Título
-                </label>
-                <input
-                  type="text"
-                  {...register("value3Title", {
-                    required: "El título es requerido",
-                  })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Ambiente Familiar"
-                />
-                {errors.value3Title && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.value3Title.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción
-                </label>
-                <textarea
-                  {...register("value3Description", {
-                    required: "La descripción es requerida",
-                  })}
-                  rows={2}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                  placeholder="Un espacio acogedor..."
-                />
-                {errors.value3Description && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.value3Description.message}
-                  </p>
-                )}
-              </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Apps de Delivery</h2>
+              <Field label="URL de Glovo">
+                <input type="url" {...register("glovoUrl")} className={inputCls} placeholder="https://glovoapp.com/..." />
+              </Field>
+              <Field label="URL de Uber Eats">
+                <input type="url" {...register("uberEatsUrl")} className={inputCls} placeholder="https://www.ubereats.com/..." />
+              </Field>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Contact Information */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
-            Información de Contacto
-          </h2>
+        {/* ──────────────── TAB: NOSOTROS ──────────────── */}
+        {activeTab === "nosotros" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Textos principales</h2>
 
-          <div className="space-y-4">
-            {/* Address Street */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Calle
-              </label>
-              <input
-                type="text"
-                {...register("addressStreet", {
-                  required: "La dirección es requerida",
-                })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="C. Lili Álvarez, 66"
-              />
-              {errors.addressStreet && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.addressStreet.message}
-                </p>
-              )}
-            </div>
-
-            {/* Address City */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Ciudad
-                </label>
-                <input
-                  type="text"
-                  {...register("addressCity", {
-                    required: "La ciudad es requerida",
-                  })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Valdemoro, Madrid"
-                />
-                {errors.addressCity && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.addressCity.message}
-                  </p>
-                )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="Título grande del hero (sobre la foto)" hint="Ej: Cocina de barrio">
+                  <input type="text" {...register("aboutHeroTitle")} className={inputCls} placeholder="Cocina de barrio" />
+                </Field>
+                <Field label="Título de sección" hint="Ej: Nuestra Historia" error={errors.aboutTitle?.message}>
+                  <input type="text" {...register("aboutTitle", { required: "Requerido" })} className={inputCls} placeholder="Nuestra Historia" />
+                </Field>
               </div>
 
-              {/* Postal Code */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Código Postal
-                </label>
-                <input
-                  type="text"
-                  {...register("addressPostalCode", {
-                    required: "El código postal es requerido",
-                  })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="28342"
-                />
-                {errors.addressPostalCode && (
-                  <p className="mt-1 text-sm text-red-600">
-                    {errors.addressPostalCode.message}
-                  </p>
-                )}
+              <Field label="Subtítulo" error={errors.aboutSubtitle?.message}>
+                <input type="text" {...register("aboutSubtitle", { required: "Requerido" })} className={inputCls} placeholder="Somos un bar de barrio que cocina en serio" />
+              </Field>
+
+              <Field label="Primer párrafo" error={errors.aboutParagraph1?.message}>
+                <textarea {...register("aboutParagraph1", { required: "Requerido" })} rows={4} className={textareaCls} placeholder="Descripción del restaurante..." />
+              </Field>
+
+              <Field label="Segundo párrafo" error={errors.aboutParagraph2?.message}>
+                <textarea {...register("aboutParagraph2", { required: "Requerido" })} rows={4} className={textareaCls} placeholder="Más información..." />
+              </Field>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="Cita destacada" error={errors.aboutQuote?.message}>
+                  <textarea {...register("aboutQuote", { required: "Requerido" })} rows={3} className={textareaCls} placeholder="Una cita inspiradora..." />
+                </Field>
+                <Field label="Autor de la cita" error={errors.aboutQuoteAuthor?.message}>
+                  <input type="text" {...register("aboutQuoteAuthor", { required: "Requerido" })} className={inputCls} placeholder="El equipo de La Tasquita" />
+                </Field>
               </div>
             </div>
 
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Teléfono
-              </label>
-              <input
-                type="text"
-                {...register("phone")}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="624 43 45 93"
-              />
-            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Nuestros Valores</h2>
+              <Field label="Título de la sección de valores">
+                <input type="text" {...register("aboutValuesTitle")} className={inputCls} placeholder="Nuestros Valores" />
+              </Field>
 
-            {/* Instagram Handle */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Instagram (sin @)
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-500">@</span>
+              {([1, 2, 3] as const).map((n) => (
+                <div key={n} className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <h3 className="font-semibold text-gray-800 text-sm">Valor {n}</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Field label="Título">
+                      <input
+                        type="text"
+                        {...register(`value${n}Title` as keyof FormData, { required: "Requerido" })}
+                        className={inputCls}
+                        placeholder={["Producto de Calidad", "Trae a tu Peludito", "Ambiente Familiar"][n - 1]}
+                      />
+                    </Field>
+                    <Field label="Descripción">
+                      <textarea
+                        {...register(`value${n}Description` as keyof FormData, { required: "Requerido" })}
+                        rows={2}
+                        className={textareaCls}
+                        placeholder="Descripción del valor..."
+                      />
+                    </Field>
+                  </div>
                 </div>
-                <input
-                  type="text"
-                  {...register("instagramHandle", {
-                    required: "El usuario de Instagram es requerido",
-                  })}
-                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="latasquitadesara"
-                />
-              </div>
-              {errors.instagramHandle && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.instagramHandle.message}
-                </p>
-              )}
+              ))}
             </div>
 
-            {/* Footer Tagline */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Tagline del Footer
-              </label>
-              <input
-                type="text"
-                {...register("footerTagline")}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-                placeholder="Un tributo visceral a la cocina de barrio."
-              />
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Imágenes de la sección</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {(["aboutImage1", "aboutImage2", "aboutImage3"] as const).map((name, i) => (
+                  <Field key={name} label={["Imagen de fondo", "Imagen cocina / chef", "Imagen exterior"][i]}>
+                    <Controller
+                      control={control}
+                      name={name}
+                      render={({ field }) => (
+                        <ImageUpload value={field.value} onChange={field.onChange} onRemove={() => field.onChange("")} />
+                      )}
+                    />
+                  </Field>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Schedule Section */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">Horario</h2>
-              <p className="text-sm text-gray-600">
-                Configura el horario de apertura del restaurante
+        {/* ──────────────── TAB: CONTACTO ──────────────── */}
+        {activeTab === "contacto" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Textos de la sección</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Field label="Título de sección" hint="Ej: Visítanos">
+                  <input type="text" {...register("contactSectionTitle")} className={inputCls} placeholder="Visítanos" />
+                </Field>
+                <Field label="Etiqueta de teléfono" hint="Ej: Llámanos">
+                  <input type="text" {...register("contactPhoneLabel")} className={inputCls} placeholder="Llámanos" />
+                </Field>
+                <Field label="Etiqueta de redes sociales" hint="Ej: Síguenos">
+                  <input type="text" {...register("contactSocialLabel")} className={inputCls} placeholder="Síguenos" />
+                </Field>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Datos de contacto</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="Teléfono">
+                  <input type="text" {...register("phone")} className={inputCls} placeholder="624 43 45 93" />
+                </Field>
+                <Field label="Usuario de Instagram" hint="Sin el @">
+                  <input type="text" {...register("instagramHandle")} className={inputCls} placeholder="latasquitadesara" />
+                </Field>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Field label="Calle y número">
+                  <input type="text" {...register("addressStreet")} className={inputCls} placeholder="C. Lili Álvarez, 66" />
+                </Field>
+                <Field label="Ciudad">
+                  <input type="text" {...register("addressCity")} className={inputCls} placeholder="Valdemoro, Madrid" />
+                </Field>
+                <Field label="Código postal">
+                  <input type="text" {...register("addressPostalCode")} className={inputCls} placeholder="28342" />
+                </Field>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Imagen de fondo</h2>
+              <Field label="Imagen del banner de Contacto">
+                <Controller
+                  control={control}
+                  name="contactImage"
+                  render={({ field }) => (
+                    <ImageUpload value={field.value} onChange={field.onChange} onRemove={() => field.onChange("")} />
+                  )}
+                />
+              </Field>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <h2 className="text-base font-bold text-gray-900">Horarios</h2>
+                <button
+                  type="button"
+                  onClick={() => append({ day: "Nuevo día", hours: "" })}
+                  className="text-sm px-3 py-1 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  + Añadir día
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex gap-3 items-center">
+                    <input
+                      {...register(`schedule.${index}.day`)}
+                      className={`${inputCls} flex-1`}
+                      placeholder="Día / rango de días"
+                    />
+                    <input
+                      {...register(`schedule.${index}.hours`)}
+                      className={`${inputCls} flex-1`}
+                      placeholder="Horario (ej: 9:00 - 15:45)"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => remove(index)}
+                      className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                      title="Eliminar"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-400">
+                Estos horarios aparecen en la sección de contacto del sitio
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => append({ day: "", hours: "" })}
-              className="px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-medium transition-colors text-sm flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Añadir Día
-            </button>
           </div>
+        )}
 
-          <div className="space-y-3">
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex gap-3 items-start">
-                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {/* Day */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Día
-                    </label>
-                    <input
-                      type="text"
-                      {...register(`schedule.${index}.day`, {
-                        required: "El día es requerido",
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                      placeholder="Ej: Lunes, Martes - Miércoles"
-                    />
-                    {errors.schedule?.[index]?.day && (
-                      <p className="mt-1 text-xs text-red-600">
-                        {errors.schedule[index]?.day?.message}
-                      </p>
-                    )}
-                  </div>
+        {/* ──────────────── TAB: EVENTOS ──────────────── */}
+        {activeTab === "eventos" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">
+                Bloque "Organiza Tu Evento"
+              </h2>
+              <p className="text-sm text-gray-500">
+                Este bloque aparece al final de la sección de eventos como llamada a la acción para celebraciones privadas.
+              </p>
 
-                  {/* Hours */}
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Horario
-                    </label>
-                    <input
-                      type="text"
-                      {...register(`schedule.${index}.hours`, {
-                        required: "El horario es requerido",
-                      })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
-                      placeholder="Ej: 9:00 - 15:45 o Cerrado"
-                    />
-                    {errors.schedule?.[index]?.hours && (
-                      <p className="mt-1 text-xs text-red-600">
-                        {errors.schedule[index]?.hours?.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
+              <Field label="Título">
+                <input type="text" {...register("eventsOrgTitle")} className={inputCls} placeholder="Organiza Tu Evento" />
+              </Field>
 
-                {/* Remove button */}
-                {fields.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="mt-6 p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Eliminar"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
+              <Field label="Descripción" hint="Texto descriptivo bajo el título">
+                <textarea {...register("eventsOrgDesc")} rows={3} className={textareaCls} placeholder="Celebra tu momento especial en nuestro espacio..." />
+              </Field>
 
-          {fields.length === 0 && (
-            <div className="text-center py-8 text-gray-500 text-sm">
-              No hay días configurados. Haz clic en "Añadir Día" para empezar.
+              <Field label="Texto del botón (CTA)">
+                <input type="text" {...register("eventsOrgCta")} className={inputCls} placeholder="Contáctanos" />
+              </Field>
             </div>
-          )}
-        </div>
 
-        {/* Save Button */}
-        <div className="flex gap-3 justify-end sticky bottom-4 bg-gray-50 p-4 rounded-xl shadow-lg border border-gray-200">
+            <div className="bg-white rounded-xl p-6 shadow-sm">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-3 mb-3">Gestión de eventos</h2>
+              <p className="text-sm text-gray-600">
+                Para crear, editar o eliminar eventos individuales, ve a la sección{" "}
+                <a href="/admin/events" className="text-primary font-medium hover:underline">
+                  Eventos →
+                </a>
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ──────────────── TAB: FOOTER ──────────────── */}
+        {activeTab === "footer" && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-bold text-gray-900 border-b pb-2">Textos del pie de página</h2>
+
+              <Field label="Tagline del footer" hint="Frase breve bajo el logo">
+                <input type="text" {...register("footerTagline")} className={inputCls} placeholder="Un tributo visceral a la cocina de barrio." />
+              </Field>
+
+              <Field label="Etiqueta de fundación" hint="Texto de 'Est.' que aparece bajo el tagline">
+                <input type="text" {...register("footerEstLabel")} className={inputCls} placeholder="Est. 2025 · Valdemoro, Madrid" />
+              </Field>
+
+              <div className="p-4 bg-blue-50 rounded-lg text-sm text-blue-700">
+                <strong>Nota:</strong> El nombre del restaurante en el footer se toma automáticamente del campo <em>Nombre del restaurante</em> en la pestaña <strong>Hero</strong>.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Save Button — always visible */}
+        <div className="mt-6 flex justify-end gap-3">
           <button
             type="submit"
             disabled={loading}
-            className="px-8 py-3 rounded-lg bg-primary text-white hover:bg-primary/90 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-8 py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
           >
             {loading ? (
-              <>
-                <svg
-                  className="animate-spin h-5 w-5"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
+              <span className="flex items-center gap-2">
+                <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
                 Guardando...
-              </>
+              </span>
             ) : (
-              <>
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Guardar Cambios
-              </>
+              "Guardar cambios"
             )}
           </button>
         </div>

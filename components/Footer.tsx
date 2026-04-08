@@ -19,6 +19,8 @@ interface SiteSettings {
   instagramHandle: string;
   phone?: string | null;
   footerTagline?: string | null;
+  footerEstLabel?: string | null;
+  heroTitle?: string | null;
 }
 
 interface FooterProps {
@@ -58,7 +60,7 @@ export default function Footer({ settings }: FooterProps) {
                 letterSpacing: "0.2em",
               }}
             >
-              Est. 2025 · Valdemoro, Madrid
+              {settings?.footerEstLabel || "Est. 2025 · Valdemoro, Madrid"}
             </span>
 
             <h2
@@ -70,8 +72,8 @@ export default function Footer({ settings }: FooterProps) {
                 letterSpacing: "-0.03em",
               }}
             >
-              La Tasquita{" "}
-              <span style={{ color: T.gold }}>de Sara</span>
+              {(settings?.heroTitle || "La Tasquita de Sara").split(" ").slice(0, -1).join(" ")}{" "}
+              <span style={{ color: T.gold }}>{(settings?.heroTitle || "La Tasquita de Sara").split(" ").slice(-1)[0]}</span>
             </h2>
           </div>
 

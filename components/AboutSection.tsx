@@ -19,6 +19,9 @@ interface SiteSettings {
   aboutImage1?: string | null;
   aboutImage2?: string | null;
   aboutImage3?: string | null;
+  aboutHeroTitle?: string | null;
+  aboutValuesTitle?: string | null;
+  yearFounded?: number | null;
 }
 
 interface AboutSectionProps {
@@ -101,13 +104,10 @@ export default function AboutSection({ settings }: AboutSectionProps) {
               letterSpacing: "-0.03em",
             }}
           >
-            Cocina
-            <br />
-            de barrio
-            <br />
-            <span className="inline-flex items-baseline gap-4">
-              <span style={{ color: T.gold }}>·</span> Desde 2025
-            </span>
+            {settings?.aboutHeroTitle || "Cocina de barrio"}
+            {settings?.yearFounded && (
+              <><br /><span className="inline-flex items-baseline gap-4"><span style={{ color: T.gold }}>·</span> Desde {settings.yearFounded}</span></>
+            )}
           </motion.h2>
 
           {/* Descriptive paragraph over image */}
@@ -244,9 +244,7 @@ export default function AboutSection({ settings }: AboutSectionProps) {
               letterSpacing: "-0.02em",
             }}
           >
-            Nuestros
-            <br />
-            Valores
+            {settings?.aboutValuesTitle || "Nuestros Valores"}
           </motion.h3>
 
           <motion.span

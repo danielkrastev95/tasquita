@@ -104,6 +104,19 @@ model SiteSettings {
   uberEatsUrl       String?  @default("https://www.ubereats.com/es/store/la-tasquita-de-sara/tWST6whgU2iUdY71PWw9jw")
   phone             String?  @default("624 43 45 93")
   footerTagline     String?  @default("Un tributo visceral a la cocina de barrio.")
+  footerEstLabel    String?  @default("Est. 2025 · Valdemoro, Madrid")
+  heroBadge         String?  @default("Est. Valdemoro · Tapas")
+  heroCtaText       String?  @default("Ver carta")
+  heroDeliveryLabel String?  @default("Pide a domicilio")
+  heroKitchenLabel  String?  @default("Cocina en vivo")
+  aboutHeroTitle    String?  @default("Cocina de barrio")
+  aboutValuesTitle  String?  @default("Nuestros Valores")
+  contactSectionTitle String? @default("Visítanos")
+  contactPhoneLabel String?  @default("Llámanos")
+  contactSocialLabel String? @default("Síguenos")
+  eventsOrgTitle    String?  @default("Organiza Tu Evento")
+  eventsOrgDesc     String?  @default("Celebra tu momento especial en nuestro espacio. Menús personalizados, música en vivo y un ambiente diseñado para crear recuerdos.")
+  eventsOrgCta      String?  @default("Contáctanos")
   updatedAt         DateTime @updatedAt
 }
 

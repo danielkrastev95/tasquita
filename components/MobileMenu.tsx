@@ -10,6 +10,7 @@ interface MobileMenuProps {
   eventsEnabled: boolean;
   addressStreet?: string | null;
   addressCity?: string | null;
+  heroTitle?: string | null;
 }
 
 // ─── Shared tokens ───────────────────────────────────────────────────────────
@@ -31,7 +32,7 @@ const menuItems = [
   { name: "Contacto", href: "/#contacto" },
 ];
 
-export default function MobileMenu({ isOpen, onClose, eventsEnabled, addressStreet, addressCity }: MobileMenuProps) {
+export default function MobileMenu({ isOpen, onClose, eventsEnabled, addressStreet, addressCity, heroTitle }: MobileMenuProps) {
   const [mounted, setMounted] = useState(false);
   const visibleItems = menuItems.filter((item) => !item.conditional || eventsEnabled);
 
@@ -132,7 +133,7 @@ export default function MobileMenu({ isOpen, onClose, eventsEnabled, addressStre
                   color: T.primary,
                 }}
               >
-                La Tasquita
+                {heroTitle || "La Tasquita"}
               </a>
 
               <button
