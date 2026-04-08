@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createEventSchema } from "@/lib/validations/events";
 import { ZodError } from "zod";
+import { revalidatePath } from "next/cache";
 
 export async function GET() {
   try {
@@ -16,7 +17,7 @@ export async function GET() {
     });
 
     return NextResponse.json(events);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Error al obtener eventos" },
       { status: 500 }
@@ -32,8 +33,6 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-
-    // Validate input
     const validatedData = createEventSchema.parse(body);
 
     const event = await prisma.event.create({
@@ -43,18 +42,21 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    revalidatePath("/");
+    revalidatePath("/eventos");
+
     return NextResponse.json(event, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
-        {
-          error: "Datos inválidos",
-          details: error.errors
-        },
+        { error: "Datos inválidos", details: error.errors },
         { status: 400 }
       );
     }
 
+    if (process.env.NODE_ENV === "development") {
+      console.error("[events POST]", error);
+    }
     return NextResponse.json(
       { error: "Error al crear evento" },
       { status: 500 }

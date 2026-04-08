@@ -1,25 +1,16 @@
-import { headers } from "next/headers";
-import AdminSidebar from "@/components/admin/AdminSidebar";
+import { Suspense } from "react";
+import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
 
-export default async function AdminLayout({
+export const dynamic = "force-dynamic";
+
+export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const headersList = await headers();
-  const pathname = headersList.get("x-pathname") || "";
-
-  // Don't apply admin layout to login page
-  if (pathname.includes("/login")) {
-    return children;
-  }
-
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <AdminSidebar />
-      <main className="flex-1 overflow-auto">
-        <div className="p-8">{children}</div>
-      </main>
-    </div>
+    <AdminLayoutClient>
+      <Suspense>{children}</Suspense>
+    </AdminLayoutClient>
   );
 }

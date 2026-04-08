@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createCategorySchema } from "@/lib/validations/menu";
 import { ZodError } from "zod";
+import { revalidatePath } from "next/cache";
 
 export async function GET() {
   try {
@@ -21,8 +22,7 @@ export async function GET() {
     });
 
     return NextResponse.json(categories);
-  } catch (error) {
-    console.error("[menu/categories GET]", error);
+  } catch {
     return NextResponse.json({ error: "Error al obtener categorías" }, { status: 500 });
   }
 }
@@ -41,6 +41,8 @@ export async function POST(req: NextRequest) {
       data: validatedData,
     });
 
+    revalidatePath("/carta");
+
     return NextResponse.json(category, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {
@@ -49,7 +51,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    console.error("[menu/categories POST]", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("[menu/categories POST]", error);
+    }
     return NextResponse.json({ error: "Error al crear categoría" }, { status: 500 });
   }
 }

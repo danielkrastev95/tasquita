@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { updateEventSchema } from "@/lib/validations/events";
+import { updateCategorySchema } from "@/lib/validations/menu";
 import { ZodError } from "zod";
 import { revalidatePath } from "next/cache";
 
@@ -16,18 +16,24 @@ export async function GET(
     }
 
     const { id } = await params;
-    const event = await prisma.event.findUnique({
+    const category = await prisma.menuCategory.findUnique({
       where: { id },
+      include: {
+        _count: { select: { items: true } },
+      },
     });
 
-    if (!event) {
-      return NextResponse.json({ error: "Evento no encontrado" }, { status: 404 });
+    if (!category) {
+      return NextResponse.json(
+        { error: "Categoría no encontrada" },
+        { status: 404 }
+      );
     }
 
-    return NextResponse.json(event);
+    return NextResponse.json(category);
   } catch {
     return NextResponse.json(
-      { error: "Error al obtener evento" },
+      { error: "Error al obtener categoría" },
       { status: 500 }
     );
   }
@@ -45,20 +51,15 @@ export async function PUT(
 
     const { id } = await params;
     const body = await req.json();
-    const validatedData = updateEventSchema.parse(body);
+    const validatedData = updateCategorySchema.parse(body);
 
-    const event = await prisma.event.update({
+    const category = await prisma.menuCategory.update({
       where: { id },
-      data: {
-        ...validatedData,
-        date: validatedData.date ? new Date(validatedData.date) : undefined,
-      },
+      data: validatedData,
     });
 
-    revalidatePath("/");
-    revalidatePath("/eventos");
-
-    return NextResponse.json(event);
+    revalidatePath("/carta");
+    return NextResponse.json(category);
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
@@ -66,12 +67,8 @@ export async function PUT(
         { status: 400 }
       );
     }
-
-    if (process.env.NODE_ENV === "development") {
-      console.error("[events PUT]", error);
-    }
     return NextResponse.json(
-      { error: "Error al actualizar evento" },
+      { error: "Error al actualizar categoría" },
       { status: 500 }
     );
   }
@@ -88,17 +85,15 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    await prisma.event.delete({
+    await prisma.menuCategory.delete({
       where: { id },
     });
 
-    revalidatePath("/");
-    revalidatePath("/eventos");
-
+    revalidatePath("/carta");
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json(
-      { error: "Error al eliminar evento" },
+      { error: "Error al eliminar categoría" },
       { status: 500 }
     );
   }

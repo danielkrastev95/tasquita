@@ -212,7 +212,12 @@ async function main() {
   // Create admin user
   console.log("👤 Creating admin user...");
   const adminEmail = process.env.ADMIN_EMAIL || "admin@latasquitadesara.com";
-  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminPassword) {
+    throw new Error(
+      "ADMIN_PASSWORD env var is required for seeding. Set it before running db:seed."
+    );
+  }
   const passwordHash = await bcrypt.hash(adminPassword, 12);
   await prisma.user.upsert({
     where: { email: adminEmail },

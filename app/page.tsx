@@ -6,18 +6,25 @@ import EventsSection from "@/components/EventsSection";
 import Footer from "@/components/Footer";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function Home() {
-  const [events, settings] = await Promise.all([
-    prisma.event.findMany({
-      where: { isActive: true },
-      orderBy: { date: "asc" },
-    }),
-    prisma.siteSettings.findUnique({
-      where: { id: "main" },
-    }),
-  ]);
+  let events: Awaited<ReturnType<typeof prisma.event.findMany>> = [];
+  let settings: Awaited<ReturnType<typeof prisma.siteSettings.findUnique>> = null;
+
+  try {
+    [events, settings] = await Promise.all([
+      prisma.event.findMany({
+        where: { isActive: true },
+        orderBy: { date: "asc" },
+      }),
+      prisma.siteSettings.findUnique({
+        where: { id: "main" },
+      }),
+    ]);
+  } catch {
+    // DB unavailable at build time — page renders with defaults
+  }
 
   const featuredEvent =
     settings?.heroEventEnabled

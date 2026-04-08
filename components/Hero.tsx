@@ -107,6 +107,8 @@ export default function Hero({ featuredEvent, settings }: HeroProps) {
       }
     };
 
+    let animationFrameId: number;
+
     function drawGrid() {
       if (!ctx) return;
       ctx.clearRect(0, 0, width, height);
@@ -133,14 +135,15 @@ export default function Hero({ featuredEvent, settings }: HeroProps) {
           ctx.strokeRect(cell.x + 0.5, cell.y + 0.5, squareSize - 1, squareSize - 1);
         }
       }
-      requestAnimationFrame(drawGrid);
+      animationFrameId = requestAnimationFrame(drawGrid);
     }
 
     window.addEventListener("resize", handleResize);
     window.addEventListener("mousemove", handleMouseMove);
     initGrid();
-    drawGrid();
+    animationFrameId = requestAnimationFrame(drawGrid);
     return () => {
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
     };

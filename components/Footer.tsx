@@ -113,14 +113,11 @@ export default function Footer({ settings }: FooterProps) {
             </p>
             <a
               href={`tel:+34${(settings?.phone || "624 43 45 93").replace(/\s/g, "")}`}
-              className="font-black italic transition-colors"
+              className="font-black italic text-white hover:text-[#C7AF65] transition-colors"
               style={{
                 fontFamily: T.newsreader,
                 fontSize: "clamp(0.95rem, 1.6vw, 1.15rem)",
-                color: "#ffffff",
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = T.gold; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff"; }}
             >
               {settings?.phone || "624 43 45 93"}
             </a>
@@ -143,14 +140,11 @@ export default function Footer({ settings }: FooterProps) {
               href={`https://instagram.com/${settings?.instagramHandle || "latasquitadesara"}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-black italic transition-colors"
+              className="font-black italic text-white hover:text-[#C7AF65] transition-colors"
               style={{
                 fontFamily: T.newsreader,
                 fontSize: "clamp(0.95rem, 1.6vw, 1.15rem)",
-                color: "#ffffff",
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = T.gold; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff"; }}
             >
               @{settings?.instagramHandle || "latasquitadesara"}
             </a>
@@ -206,15 +200,12 @@ export default function Footer({ settings }: FooterProps) {
                 <a
                   key={link.label}
                   href={link.href}
-                  className="font-bold uppercase transition-colors w-fit"
+                  className="font-bold uppercase text-white/40 hover:text-[#C7AF65] transition-colors w-fit"
                   style={{
                     fontFamily: T.grotesk,
                     fontSize: "0.75rem",
-                    color: "rgba(255,255,255,0.4)",
                     letterSpacing: "0.08em",
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = T.gold; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.4)"; }}
                 >
                   {link.label}
                 </a>

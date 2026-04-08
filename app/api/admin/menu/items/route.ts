@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createMenuItemSchema } from "@/lib/validations/menu";
 import { ZodError } from "zod";
+import { revalidatePath } from "next/cache";
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,8 +22,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(items);
-  } catch (error) {
-    console.error("[menu/items GET]", error);
+  } catch {
     return NextResponse.json({ error: "Error al obtener platos" }, { status: 500 });
   }
 }
@@ -42,6 +42,8 @@ export async function POST(req: NextRequest) {
       include: { category: true },
     });
 
+    revalidatePath("/carta");
+
     return NextResponse.json(item, { status: 201 });
   } catch (error) {
     if (error instanceof ZodError) {
@@ -50,7 +52,9 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    console.error("[menu/items POST]", error);
+    if (process.env.NODE_ENV === "development") {
+      console.error("[menu/items POST]", error);
+    }
     return NextResponse.json({ error: "Error al crear plato" }, { status: 500 });
   }
 }

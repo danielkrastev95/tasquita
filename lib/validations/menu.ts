@@ -1,10 +1,15 @@
 import { z } from "zod";
 
+const safeUrl = z
+  .string()
+  .url("URL de imagen inválida")
+  .refine((url) => /^https?:\/\//i.test(url), "Solo se permiten URLs HTTP/HTTPS");
+
 export const createMenuItemSchema = z.object({
   name: z.string().min(1, "El nombre es requerido").max(200),
   description: z.string().max(500).nullable().optional(),
   price: z.string().max(20).nullable().optional(),
-  image: z.string().url("URL de imagen inválida").nullable().optional(),
+  image: safeUrl.nullable().optional(),
   categoryId: z.string().min(1, "La categoría es requerida"),
   isPopular: z.boolean().optional().default(false),
   isHomemade: z.boolean().optional().default(false),

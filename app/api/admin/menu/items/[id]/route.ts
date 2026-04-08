@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { updateMenuItemSchema, type UpdateMenuItemInput } from "@/lib/validations/menu";
+import { updateMenuItemSchema } from "@/lib/validations/menu";
 import { ZodError } from "zod";
+import { revalidatePath } from "next/cache";
 
 export async function GET(
   req: NextRequest,
@@ -25,7 +26,7 @@ export async function GET(
     }
 
     return NextResponse.json(item);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Error al obtener plato" },
       { status: 500 }
@@ -45,18 +46,10 @@ export async function PUT(
 
     const { id } = await params;
     const body = await req.json();
-
-    // Validate input
     const validatedData = updateMenuItemSchema.parse(body);
 
-    // Extract categoryId to handle separately
     const { categoryId, ...updateData } = validatedData;
-
-    // Build data object, only including categoryId if provided
-    const data: Omit<UpdateMenuItemInput, "categoryId"> & { categoryId?: string } = { ...updateData };
-    if (categoryId) {
-      data.categoryId = categoryId;
-    }
+    const data = { ...updateData, ...(categoryId ? { categoryId } : {}) };
 
     const item = await prisma.menuItem.update({
       where: { id },
@@ -64,18 +57,20 @@ export async function PUT(
       include: { category: true },
     });
 
+    revalidatePath("/carta");
+
     return NextResponse.json(item);
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
-        {
-          error: "Datos inválidos",
-          details: error.errors
-        },
+        { error: "Datos inválidos", details: error.errors },
         { status: 400 }
       );
     }
 
+    if (process.env.NODE_ENV === "development") {
+      console.error("[menu/items PUT]", error);
+    }
     return NextResponse.json(
       { error: "Error al actualizar plato" },
       { status: 500 }
@@ -98,8 +93,10 @@ export async function DELETE(
       where: { id },
     });
 
+    revalidatePath("/carta");
+
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Error al eliminar plato" },
       { status: 500 }

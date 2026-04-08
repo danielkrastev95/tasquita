@@ -1,12 +1,10 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import type { Adapter } from "next-auth/adapters";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma) as Adapter,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/admin/login",
@@ -43,8 +41,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role as string;
-        session.user.id = token.sub as string;
+        session.user.role = (token.role as string) || "";
+        session.user.id = (token.sub as string) || "";
       }
       return session;
     },
@@ -55,10 +53,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: { type: "email" },
         password: { type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
+
+        // Rate limit login attempts by IP
+        const forwarded = request?.headers?.get?.("x-forwarded-for");
+        const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
+        const { success } = rateLimit(`login:${ip}`, 5, 15 * 60 * 1000);
+        if (!success) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email as string },

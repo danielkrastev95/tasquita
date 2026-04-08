@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 
 interface MenuItem {
@@ -87,12 +87,19 @@ function ScrollableCardRow({ items }: { items: MenuItem[] }) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(items.length > 3);
 
-  const updateButtons = () => {
+  const updateButtons = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     setCanScrollLeft(el.scrollLeft > 4);
     setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
-  };
+  }, []);
+
+  // Throttle scroll updates to one per animation frame
+  const rafRef = useRef<number>(0);
+  const handleScroll = useCallback(() => {
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(updateButtons);
+  }, [updateButtons]);
 
   const scroll = (dir: "left" | "right") => {
     const el = scrollRef.current;
@@ -105,7 +112,7 @@ function ScrollableCardRow({ items }: { items: MenuItem[] }) {
     <div className="relative">
       <div
         ref={scrollRef}
-        onScroll={updateButtons}
+        onScroll={handleScroll}
         className="flex flex-col md:flex-row md:overflow-x-hidden scrollbar-hide gap-px"
         style={{ backgroundColor: T.cream }}
       >

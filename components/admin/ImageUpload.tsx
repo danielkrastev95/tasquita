@@ -1,13 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-// Declarar el tipo global para Cloudinary
-declare global {
-  interface Window {
-    cloudinary: any;
-  }
-}
+import { useRef, useState } from "react";
 
 interface ImageUploadProps {
   value?: string;
@@ -15,102 +8,67 @@ interface ImageUploadProps {
   onRemove?: () => void;
 }
 
+const ACCEPTED_TYPES = "image/jpeg,image/png,image/webp,image/gif";
+const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+
 export default function ImageUpload({
   value,
   onChange,
   onRemove,
 }: ImageUploadProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Cargar el script de Cloudinary
-  useEffect(() => {
-    if (window.cloudinary) {
-      setIsScriptLoaded(true);
+  const uploadFile = async (file: File) => {
+    setError(null);
+
+    if (!file.type.match(/^image\/(jpeg|png|webp|gif)$/)) {
+      setError("Formato no permitido. Usa JPG, PNG, WEBP o GIF.");
       return;
     }
-
-    const script = document.createElement("script");
-    script.src = "https://upload-widget.cloudinary.com/global/all.js";
-    script.async = true;
-    script.onload = () => setIsScriptLoaded(true);
-    document.body.appendChild(script);
-
-    return () => {
-      // Cleanup si el componente se desmonta
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
-  }, []);
-
-  const openWidget = () => {
-    if (!isScriptLoaded || !window.cloudinary) {
-      console.error("Cloudinary script not loaded");
+    if (file.size > MAX_SIZE) {
+      setError("Archivo demasiado grande (máximo 5MB).");
       return;
     }
 
     setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const widget = window.cloudinary.createUploadWidget(
-      {
-        cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-        uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
-        sources: ["local", "url", "camera"],
-        multiple: false,
-        folder: "tasquita",
-        tags: ["restaurant"],
-        clientAllowedFormats: ["jpg", "jpeg", "png", "webp", "gif"],
-        maxImageFileSize: 5000000, // 5MB
-        maxImageWidth: 2000,
-        maxImageHeight: 2000,
-        cropping: false,
-        showSkipCropButton: true,
-        resourceType: "image",
-        language: "es",
-        text: {
-          es: {
-            or: "o",
-            back: "Atrás",
-            close: "Cerrar",
-            skip: "Saltar",
-            menu: {
-              files: "Archivos",
-              web: "Web",
-              camera: "Cámara",
-            },
-            local: {
-              browse: "Seleccionar",
-              dd_title_single: "Arrastra una imagen aquí",
-              dd_title_multi: "Arrastra imágenes aquí",
-            },
-            camera: {
-              capture: "Capturar",
-              cancel: "Cancelar",
-              take_pic: "Tomar foto",
-              explanation:
-                "Asegúrate de que tu cámara esté conectada y que tu navegador permita la captura de cámara. Cuando estés listo, haz clic en Capturar.",
-            },
-          },
-        },
-      },
-      (error: any, result: any) => {
-        setIsLoading(false);
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-        if (error) {
-          console.error("Error uploading to Cloudinary:", error);
-          return;
-        }
-
-        if (result.event === "success") {
-          // Obtener URL optimizada
-          const imageUrl = result.info.secure_url;
-          onChange(imageUrl);
-        }
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Error al subir imagen");
+        return;
       }
-    );
 
-    widget.open();
+      onChange(data.url);
+    } catch {
+      setError("Error de conexión al subir imagen");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadFile(file);
+    // Reset input so same file can be re-selected
+    e.target.value = "";
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file) uploadFile(file);
   };
 
   const handleRemove = () => {
@@ -123,13 +81,29 @@ export default function ImageUpload({
 
   return (
     <div className="space-y-4">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={ACCEPTED_TYPES}
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
       {/* Upload Button */}
       {!value && (
         <button
           type="button"
-          onClick={openWidget}
-          disabled={isLoading || !isScriptLoaded}
-          className="w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg hover:border-primary hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+          onDragLeave={() => setIsDragOver(false)}
+          onDrop={handleDrop}
+          disabled={isLoading}
+          className={`w-full px-4 py-8 border-2 border-dashed rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+            isDragOver
+              ? "border-primary bg-primary/5"
+              : "border-gray-300 hover:border-primary hover:bg-gray-50"
+          }`}
         >
           <div className="flex flex-col items-center gap-2">
             <svg
@@ -149,7 +123,7 @@ export default function ImageUpload({
               <p className="text-sm font-medium text-gray-700">
                 {isLoading
                   ? "Subiendo imagen..."
-                  : "Haz clic para subir una imagen"}
+                  : "Haz clic o arrastra una imagen aquí"}
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 JPG, PNG, WEBP hasta 5MB
@@ -159,12 +133,16 @@ export default function ImageUpload({
         </button>
       )}
 
+      {/* Error */}
+      {error && (
+        <p className="text-sm text-red-600">{error}</p>
+      )}
+
       {/* Image Preview */}
       {value && (
         <div className="space-y-3">
           <p className="text-sm font-medium text-gray-700">Vista Previa</p>
           <div className="relative group">
-            {/* Image — plain <img> so any URL works in the admin without domain whitelisting */}
             <div className="w-full h-64 rounded-lg overflow-hidden bg-gray-100">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -176,17 +154,14 @@ export default function ImageUpload({
 
             {/* Overlay with actions */}
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all rounded-lg flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100">
-              {/* Change button */}
               <button
                 type="button"
-                onClick={openWidget}
+                onClick={() => fileInputRef.current?.click()}
                 disabled={isLoading}
                 className="px-4 py-2 bg-white text-gray-900 rounded-lg hover:bg-gray-100 font-medium transition-colors disabled:opacity-50"
               >
                 Cambiar
               </button>
-
-              {/* Remove button */}
               <button
                 type="button"
                 onClick={handleRemove}
@@ -197,7 +172,6 @@ export default function ImageUpload({
             </div>
           </div>
 
-          {/* Image URL (for debugging) */}
           <p className="text-xs text-gray-500 truncate">{value}</p>
         </div>
       )}
