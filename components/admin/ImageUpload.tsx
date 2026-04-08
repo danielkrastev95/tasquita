@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 
 // Declarar el tipo global para Cloudinary
 declare global {
@@ -165,14 +164,13 @@ export default function ImageUpload({
         <div className="space-y-3">
           <p className="text-sm font-medium text-gray-700">Vista Previa</p>
           <div className="relative group">
-            {/* Image */}
-            <div className="relative w-full h-64 rounded-lg overflow-hidden bg-gray-100">
-              <Image
+            {/* Image — plain <img> so any URL works in the admin without domain whitelisting */}
+            <div className="w-full h-64 rounded-lg overflow-hidden bg-gray-100">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={value}
                 alt="Preview"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                className="w-full h-full object-cover"
               />
             </div>
 

@@ -32,6 +32,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.glovo.com',
       },
+      // Facebook / Instagram CDN
+      {
+        protocol: 'https',
+        hostname: '*.fbcdn.net',
+      },
     ],
   },
 };
