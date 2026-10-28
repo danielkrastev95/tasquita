@@ -20,5 +20,7 @@ if (!user) {
   process.exit(1);
 }
 await sql`DELETE FROM two_factors WHERE user_id = ${user.id}`;
+// Olvida también los "dispositivos de confianza" (no deben saltarse el nuevo 2FA)
+await sql`DELETE FROM verifications WHERE value = ${user.id} AND identifier LIKE 'trust-device-%'`;
 await sql`DELETE FROM sessions WHERE user_id = ${user.id}`;
 console.log(`✓ 2FA reiniciado para ${email}. Se pedirá configurarlo al entrar.`);

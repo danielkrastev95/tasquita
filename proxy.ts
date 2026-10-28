@@ -6,11 +6,13 @@ import { NextResponse, type NextRequest } from "next/server";
  * La verificación real (sesión válida + 2FA activo) se hace en servidor con requireAdmin().
  */
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, search } = request.nextUrl;
   const isPublicAdminRoute = pathname === "/admin/login";
 
   if (!isPublicAdminRoute && !getSessionCookie(request)) {
     const url = new URL("/admin/login", request.url);
+    // Vuelve a la página pedida tras entrar (el login valida que sea una ruta interna del panel).
+    if (pathname !== "/admin" && pathname !== "/admin/") url.searchParams.set("next", `${pathname}${search}`);
     return NextResponse.redirect(url);
   }
 
