@@ -15,6 +15,8 @@ export const timeRangeSchema = z.object({
 });
 export type TimeRange = z.infer<typeof timeRangeSchema>;
 
+import { WEEKDAYS } from "@/lib/weekdays";
+
 export { WEEKDAYS, WEEKDAY_LABELS, type Weekday } from "@/lib/weekdays";
 
 const day = z.array(timeRangeSchema).max(3);
@@ -42,6 +44,35 @@ export const valueSchema = z.object({
   title: z.string().trim().min(1).max(80),
   description: z.string().trim().max(240),
 });
+
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha no válida");
+
+/** Cierre puntual (vacaciones, festivo…). Fechas locales de Madrid, ambas incluidas. */
+export const closureSchema = z
+  .object({
+    from: isoDate,
+    to: isoDate,
+    note: z.string().trim().max(120).default(""),
+  })
+  .refine((c) => c.to >= c.from, { message: "La fecha final no puede ser anterior a la inicial", path: ["to"] });
+export type Closure = z.infer<typeof closureSchema>;
+
+const dish = z.string().trim().min(1).max(140);
+
+export const dailyMenuSchema = z.object({
+  enabled: z.boolean().default(false),
+  title: z.string().trim().max(60).default("Menú del día"),
+  priceCents: z.number().int().min(0).max(100_000).nullable().default(null),
+  /** Días en que se sirve */
+  days: z.array(z.enum(WEEKDAYS)).max(7).default(["tue", "wed", "thu", "fri"]),
+  hours: z.string().trim().max(60).default("13:30 – 16:00"),
+  starters: z.array(dish).max(8).default([]),
+  mains: z.array(dish).max(8).default([]),
+  desserts: z.array(dish).max(6).default([]),
+  includes: z.string().trim().max(160).default("Pan, bebida y postre o café"),
+  note: z.string().trim().max(200).default(""),
+});
+export type DailyMenu = z.infer<typeof dailyMenuSchema>;
 
 export const siteSettingsSchema = z.object({
   /* Identidad */
@@ -110,6 +141,22 @@ export const siteSettingsSchema = z.object({
   /* Horario */
   openingHours: openingHoursSchema.default(openingHoursSchema.parse({})),
   hoursNote: text("", 160),
+  /** Vacaciones, festivos y cierres puntuales: la web dice "Cerrado" esos días. */
+  specialClosures: z.array(closureSchema).max(30).default([]),
+
+  /* Menú del día */
+  dailyMenu: dailyMenuSchema.default(dailyMenuSchema.parse({})),
+
+  /* Reservas (por WhatsApp, sin formularios ni bases de datos) */
+  whatsappEnabled: z.boolean().default(true),
+  /** Número con WhatsApp. Se aceptan espacios; si no lleva prefijo se asume España (+34). */
+  whatsappPhone: text("624 43 45 93", 30),
+  reservationsEnabled: z.boolean().default(true),
+  reservationsNote: text("Te confirmamos la reserva por WhatsApp lo antes posible.", 200),
+  reservationMaxGuests: z.number().int().min(1).max(200).default(20),
+
+  /* Reseñas */
+  googleReviewsUrl: optionalUrl,
 
   /* Pedidos a domicilio */
   glovoUrl: optionalUrl.default("https://glovoapp.com/es/es/valdemoro-ciempozuelos/stores/la-tasquita-de-sara-valdemoro"),
@@ -127,6 +174,12 @@ export const siteSettingsSchema = z.object({
   /* Pie de página */
   footerTagline: text("Un tributo visceral a la cocina de barrio.", 160),
   footerEstLabel: text("Est. 2025 · Valdemoro, Madrid", 60),
+
+  /* Datos legales (aviso legal y privacidad, LSSI/RGPD) */
+  legalName: text("", 120),
+  legalTaxId: text("", 20),
+  legalAddress: text("", 200),
+  legalEmail: z.union([z.email(), z.literal("")]).default(""),
 });
 
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;

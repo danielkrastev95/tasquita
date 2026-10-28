@@ -2,7 +2,7 @@ import "server-only";
 import { and, asc, eq, gte } from "drizzle-orm";
 import { cache } from "react";
 import { db } from "@/lib/db";
-import { events, menuCategories, menuItems, siteSettings, type EventCategory } from "@/lib/db/schema";
+import { events, menuCategories, menuItems, siteSettings, type EventCategory, type PriceVariant } from "@/lib/db/schema";
 import { todayInMadrid } from "@/lib/format";
 import { DEFAULT_SETTINGS, parseSettings, type SiteSettings } from "@/lib/settings";
 
@@ -24,7 +24,11 @@ export type PublicMenuItem = {
   name: string;
   description: string | null;
   priceCents: number | null;
+  /** Medidas extra (Tapa / Media / Ración…) */
+  priceVariants: PriceVariant[];
   imageUrl: string | null;
+  /** Agotado hoy (se reinicia solo al día siguiente) */
+  soldOut: boolean;
   isPopular: boolean;
   isHomemade: boolean;
   award: string | null;
@@ -54,6 +58,8 @@ export const getMenu = cache(async (): Promise<PublicMenuCategory[]> => {
           name: menuItems.name,
           description: menuItems.description,
           priceCents: menuItems.priceCents,
+          priceVariants: menuItems.priceVariants,
+          soldOutOn: menuItems.soldOutOn,
           imageUrl: menuItems.imageUrl,
           isPopular: menuItems.isPopular,
           isHomemade: menuItems.isHomemade,
@@ -66,14 +72,15 @@ export const getMenu = cache(async (): Promise<PublicMenuCategory[]> => {
       .where(eq(menuCategories.isActive, true))
       .orderBy(asc(menuCategories.sortOrder), asc(menuCategories.name), asc(menuItems.sortOrder), asc(menuItems.name));
 
+    const today = todayInMadrid();
     const categories = new Map<string, PublicMenuCategory>();
-    for (const { category, item } of rows) {
+    for (const { category, item: { soldOutOn, ...item } } of rows) {
       let entry = categories.get(category.id);
       if (!entry) {
         entry = { ...category, items: [] };
         categories.set(category.id, entry);
       }
-      entry.items.push(item);
+      entry.items.push({ ...item, soldOut: soldOutOn === today });
     }
     return [...categories.values()];
   } catch (error) {

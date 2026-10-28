@@ -50,6 +50,13 @@ export const menuItems = pgTable(
     description: text("description"),
     /** Precio en céntimos de euro. `null` = sin precio visible (p. ej. "según mercado"). */
     priceCents: integer("price_cents"),
+    /** Medidas adicionales con su precio (p. ej. Tapa / Media / Ración). Si hay, `priceCents` es la principal. */
+    priceVariants: jsonb("price_variants")
+      .$type<PriceVariant[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    /** "Agotado hoy": fecha (Madrid) en la que se agotó. Deja de estar agotado automáticamente al día siguiente. */
+    soldOutOn: date("sold_out_on", { mode: "string" }),
     imageUrl: text("image_url"),
     isPopular: boolean("is_popular").notNull().default(false),
     isHomemade: boolean("is_homemade").notNull().default(false),
@@ -66,7 +73,9 @@ export const menuItems = pgTable(
   (t) => [index("menu_items_category_sort_idx").on(t.categoryId, t.sortOrder)],
 );
 
-export const EVENT_CATEGORIES = ["musica", "gastronomia", "especial"] as const;
+export type PriceVariant = { label: string; priceCents: number };
+
+export const EVENT_CATEGORIES = ["musica", "gastronomia", "deporte", "especial"] as const;
 export type EventCategory = (typeof EVENT_CATEGORIES)[number];
 
 export const events = pgTable(
