@@ -39,7 +39,7 @@ export function PriceVariantsEditor({ value, onChange, errors, fieldId, hasMainP
   const update = (key: string, patch: Partial<VariantDraft>) => onChange(value.map((v) => (v.key === key ? { ...v, ...patch } : v)));
 
   return (
-    <fieldset id={fieldId("priceVariants")} tabIndex={-1} className="rounded-xl bg-cream-100/70 p-3.5 outline-none sm:p-4">
+    <fieldset id={fieldId("priceVariants")} tabIndex={-1} className="@container rounded-xl bg-cream-100/70 p-3.5 outline-none sm:p-4">
       <legend className="sr-only">Otras medidas</legend>
       <div className="mb-2 flex items-baseline justify-between gap-2">
         <p className="text-sm font-medium text-ink">Otras medidas</p>
@@ -80,7 +80,7 @@ export function PriceVariantsEditor({ value, onChange, errors, fieldId, hasMainP
               key={s}
               type="button"
               onClick={() => add(s)}
-              className="inline-flex min-h-10 items-center gap-1 rounded-full border border-cream-400 bg-white px-3 text-xs font-semibold text-ink transition hover:border-primary hover:text-primary"
+              className="inline-flex min-h-11 items-center gap-1 rounded-full border border-cream-400 bg-white px-3 text-xs font-semibold text-ink transition hover:border-primary hover:text-primary"
             >
               <Plus className="size-3.5" aria-hidden />
               {s}
@@ -89,7 +89,7 @@ export function PriceVariantsEditor({ value, onChange, errors, fieldId, hasMainP
           <button
             type="button"
             onClick={() => add("")}
-            className="inline-flex min-h-10 items-center gap-1 rounded-full border border-dashed border-cream-400 px-3 text-xs font-semibold text-ink-muted transition hover:border-primary hover:text-primary"
+            className="inline-flex min-h-11 items-center gap-1 rounded-full border border-dashed border-cream-400 px-3 text-xs font-semibold text-ink-muted transition hover:border-primary hover:text-primary"
           >
             <Plus className="size-3.5" aria-hidden />
             Otra medida
@@ -126,8 +126,8 @@ function VariantRow({
   const priceId = fieldId(`priceVariants.${index}.price`);
   return (
     <li ref={rowRef} style={rowStyle} className={cn("rounded-xl", isDragging && "bg-white shadow-xl ring-2 ring-primary/30")}>
-      <div className="flex items-center gap-1.5">
-        {sortable ? <DragHandle label={`«${name}»`} handleProps={handleProps} className="w-7" /> : null}
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1.5 @sm:grid-cols-[auto_minmax(0,1fr)_7rem_auto]">
+        {sortable ? <DragHandle label={`«${name}»`} handleProps={handleProps} className="w-7" /> : <span aria-hidden />}
         <label htmlFor={labelId} className="sr-only">
           Nombre de la medida {index + 1}
         </label>
@@ -139,9 +139,9 @@ function VariantRow({
           autoCapitalize="sentences"
           onChange={(e) => onChange({ label: e.target.value })}
           aria-invalid={labelError ? true : undefined}
-          className="h-11 min-w-0 flex-1 px-3"
+          className="col-span-2 h-11 min-w-0 px-3 @sm:col-span-1"
         />
-        <div className="relative w-28 shrink-0">
+        <div className="relative col-start-2 row-start-2 w-full @sm:col-start-auto @sm:row-start-auto">
           <label htmlFor={priceId} className="sr-only">
             Precio de {name}
           </label>
@@ -167,12 +167,12 @@ function VariantRow({
           type="button"
           onClick={onRemove}
           aria-label={`Quitar la medida «${name}»`}
-          className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-ink-muted transition hover:bg-danger/10 hover:text-danger"
+          className="col-start-3 row-start-2 inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-ink-muted transition hover:bg-danger/10 hover:text-danger @sm:col-start-auto @sm:row-start-auto"
         >
           <X className="size-4" aria-hidden />
         </button>
       </div>
-      {(labelError || priceError) && <p className="mt-1 pl-1 text-sm text-danger">{labelError ?? priceError}</p>}
+      {(labelError || priceError) && <p className="mt-1 pl-9 text-sm text-danger">{labelError ?? priceError}</p>}
     </li>
   );
 }

@@ -98,7 +98,25 @@ Todo lo que depende de "ahora" (abierto/cerrado, hoy, menú de hoy, días reserv
   reducedMotion="user"` en `MotionProvider`.
 - Curva de marca: `ease-out-expo`. Hovers: 200–300 ms; imágenes: zoom 1.03–1.04.
 
-## 6. Accesibilidad (mínimos)
+## 6. Móvil (prioridad)
+
+- **Sin scroll lateral**: `html, body { overflow-x: clip }` es solo un cinturón; cada desborde se arregla en su
+  origen (texto fluido con `clamp()` + `min-w-0`, nada de márgenes negativos que salgan del contenedor, rejillas
+  `grid-cols-1`/`minmax(0,1fr)` cuando un titular largo puede ensanchar la pista). Barrido de comprobación:
+  `scratchpad/site-tools/sweep-mobile.mjs` (320–440 px, horizontal, con interacciones).
+- **Cabecera**: wordmark `clamp(1.05rem,5.6vw,1.3rem)`; por debajo de 384 px el botón de menú es solo icono
+  (44×44). En móvil/tablet se esconde al bajar y reaparece al subir (`html[data-header-hidden]`); lo que va
+  pegado debajo lleva `data-follow-header` y sube con ella (chips de la carta).
+- **Fijo en pantalla**: cabecera 60 px, chips 56 px (60 desde `md`), barra inferior 64 px (56 si la pantalla
+  mide menos de 704 px de alto). Respetan `env(safe-area-inset-*)` (`viewport-fit=cover` en la web pública).
+- **Texto**: cuerpo ≥ 16 px en móvil (15 px solo desde `sm`/`lg` en tarjetas densas); etiquetas ≥ 11 px.
+  Titulares de portada y menú limitados también por la altura (`min(14.2vw,13svh)`) para el modo horizontal.
+- **Táctil**: `hover:` de Tailwind v4 ya solo aplica con `(hover: hover)`; estados `active:` en chips y botones;
+  `touch-action: manipulation`; `overscroll-x-contain` en tiras horizontales; inputs a 16 px (sin zoom en iOS).
+- **Carta en móvil**: fotos 16/9 (4/3 desde `sm`) para ver más platos por pantalla; el CTA de domicilio solo al
+  final; la página salta a cada sección con `window.scrollTo` (nunca mueve la página en horizontal).
+
+## 7. Accesibilidad (mínimos)
 
 Skip-link, landmarks, `aria-current`, objetivos táctiles ≥ 44 px, foco visible teal, contraste AA,
 `alt` real en fotos de contenido y `alt=""` en fondos decorativos, enlaces externos anunciados.

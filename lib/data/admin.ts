@@ -24,6 +24,8 @@ export type AdminMenuItem = {
   imageUrl: string | null;
   isPopular: boolean;
   isHomemade: boolean;
+  /** Insignia «Nuevo» */
+  isNew: boolean;
   award: string | null;
   allergens: string[];
   sortOrder: number;
@@ -53,6 +55,7 @@ const itemColumns = {
   imageUrl: menuItems.imageUrl,
   isPopular: menuItems.isPopular,
   isHomemade: menuItems.isHomemade,
+  isNew: menuItems.isNew,
   award: menuItems.award,
   allergens: menuItems.allergens,
   sortOrder: menuItems.sortOrder,

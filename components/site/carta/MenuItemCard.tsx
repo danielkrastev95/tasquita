@@ -1,4 +1,4 @@
-import { Ban, Heart, House, Star } from "lucide-react";
+import { Ban, Heart, House, Sparkles, Star } from "lucide-react";
 import { getAllergen } from "@/lib/allergens";
 import type { PublicMenuItem } from "@/lib/data/public";
 import { formatPrice } from "@/lib/format";
@@ -15,7 +15,18 @@ const badge = "inline-flex items-center gap-1.5 px-2 py-1 text-xs leading-none f
  * del mismo tamaño que las fotos para que las filas de la rejilla no queden descompensadas.
  * Medidas (Tapa/Media/Ración) bajo el nombre; "Agotado hoy" atenúa la tarjeta pero la deja visible.
  */
-export function MenuItemCard({ item, number, poster = false }: { item: PublicMenuItem; number: number; poster?: boolean }) {
+export function MenuItemCard({
+  item,
+  number,
+  poster = false,
+  wide = false,
+}: {
+  item: PublicMenuItem;
+  number: number;
+  poster?: boolean;
+  /** En una rejilla de 2 columnas en escritorio (fotos más grandes) */
+  wide?: boolean;
+}) {
   const price = formatPrice(item.priceCents);
   const allergens = item.allergens.map(getAllergen).filter((a) => a !== undefined);
   const showPoster = !item.imageUrl && poster;
@@ -23,12 +34,12 @@ export function MenuItemCard({ item, number, poster = false }: { item: PublicMen
   return (
     <article className={cn("group relative flex h-full flex-col bg-cream", !item.imageUrl && "overflow-hidden", item.soldOut && "bg-cream-100")}>
       {item.imageUrl ? (
-        <div className="relative aspect-[4/3] overflow-hidden bg-cream-300">
+        <div className={cn("relative aspect-[16/9] overflow-hidden bg-cream-300 sm:aspect-[4/3]", wide && "lg:aspect-[16/9]")}>
           <SmartImage
             src={item.imageUrl}
             alt={item.name}
             fill
-            sizes="(min-width: 1024px) 31vw, (min-width: 640px) 46vw, 100vw"
+            sizes={wide ? "(min-width: 640px) 46vw, calc(100vw - 2.5rem)" : "(min-width: 1024px) 31vw, (min-width: 640px) 46vw, calc(100vw - 2.5rem)"}
             className={cn(
               "object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]",
               item.soldOut && "opacity-55 grayscale-[70%]",
@@ -42,7 +53,13 @@ export function MenuItemCard({ item, number, poster = false }: { item: PublicMen
       ) : (
         <>
           {showPoster && (
-            <div className={cn("relative hidden aspect-[4/3] items-center justify-center overflow-hidden bg-primary sm:flex", item.soldOut && "bg-primary/60")}>
+            <div
+              className={cn(
+                "relative hidden aspect-[4/3] items-center justify-center overflow-hidden bg-primary sm:flex",
+                wide && "lg:aspect-[16/9]",
+                item.soldOut && "bg-primary/60",
+              )}
+            >
               {item.soldOut && <SoldOutStamp />}
               <span aria-hidden className="absolute inset-0 bg-grain opacity-10 mix-blend-overlay" />
               <span aria-hidden className="absolute top-4 left-5 text-xs font-bold tracking-[0.16em] text-gold">
@@ -101,12 +118,18 @@ export function MenuItemCard({ item, number, poster = false }: { item: PublicMen
           </ul>
         )}
 
-        {(item.soldOut || item.award || item.isPopular || item.isHomemade) && (
+        {(item.soldOut || item.isNew || item.award || item.isPopular || item.isHomemade) && (
           <ul className="mt-3.5 flex flex-wrap gap-1.5" aria-label="Distintivos">
             {item.soldOut && (
               <li className={cn(badge, "bg-danger text-white")}>
                 <Ban aria-hidden className="size-3" />
                 Agotado hoy
+              </li>
+            )}
+            {item.isNew && (
+              <li className={cn(badge, "bg-cream text-primary ring-1 ring-primary ring-inset")}>
+                <Sparkles aria-hidden className="size-3" />
+                Nuevo
               </li>
             )}
             {item.award && (
@@ -131,7 +154,7 @@ export function MenuItemCard({ item, number, poster = false }: { item: PublicMen
         )}
 
         {item.description && (
-          <p className={cn("mt-3.5 max-w-prose text-[0.9375rem] leading-relaxed whitespace-pre-line text-ink-muted text-pretty", item.soldOut && "opacity-70")}>
+          <p className={cn("mt-3.5 max-w-prose text-base leading-relaxed sm:text-[0.9375rem] whitespace-pre-line text-ink-muted text-pretty", item.soldOut && "opacity-70")}>
             {item.description}
           </p>
         )}

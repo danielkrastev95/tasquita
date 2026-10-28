@@ -342,7 +342,7 @@ export function ImageField({ label, value, onChange, hint, error, aspect = "land
               Usar
             </Button>
           </div>
-          <button type="button" onClick={() => setShowUrl(false)} className="min-h-9 text-xs font-medium text-ink-muted underline underline-offset-2">
+          <button type="button" onClick={() => setShowUrl(false)} className="min-h-11 text-xs font-medium text-ink-muted underline underline-offset-2">
             Cancelar
           </button>
         </div>

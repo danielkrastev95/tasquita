@@ -35,11 +35,11 @@ export function MobileActionBar({ actions, hidden }: { actions: SiteActions; hid
       aria-hidden={!visible}
       inert={!visible}
       className={cn(
-        "fixed inset-x-0 bottom-0 z-40 border-t border-primary bg-cream pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_30px_-18px_rgb(28_28_24/0.35)] transition-transform duration-500 ease-out-expo md:hidden",
+        "fixed inset-x-0 bottom-0 z-40 border-t border-primary bg-cream pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] shadow-[0_-12px_30px_-18px_rgb(28_28_24/0.35)] transition-transform duration-500 ease-out-expo md:hidden",
         visible ? "translate-y-0" : "translate-y-[calc(100%+1px)]",
       )}
     >
-      <ul className="grid h-16 grid-cols-3 divide-x divide-primary/20">
+      <ul className="grid h-16 grid-cols-3 divide-x divide-primary/20 [@media(max-height:44rem)]:h-14">
         <li>
           <a href={actions.telHref} className={cn(cell, "text-ink active:bg-cream-200")}>
             <Phone aria-hidden className="size-5 text-primary" />

@@ -13,7 +13,7 @@ import { ImageField } from "../ImageField";
 import { HoursEditor } from "./HoursEditor";
 import { SectionForm, TextRow, useSectionForm, type SectionFormApi } from "./SectionForm";
 import { DailyMenuEditor } from "./DailyMenuEditor";
-import { CierresForm, LegalForm, ResenasForm, ReservasForm } from "./extra-sections";
+import { CierresForm, LegalForm, NotasForm, ResenasForm, ReservasForm } from "./extra-sections";
 import { ValuesEditor } from "./ValuesEditor";
 
 export type SectionExtra = {
@@ -35,6 +35,8 @@ export function SectionEditor(props: EditorProps & { extra: SectionExtra }) {
       return <DailyMenuEditor initial={props.initial} today={props.extra.todayWeekday} />;
     case "cierres":
       return <CierresForm initial={props.initial} today={props.extra.todayDate} />;
+    case "notas":
+      return <NotasForm initial={props.initial} />;
     case "reservas":
       return <ReservasForm initial={props.initial} />;
     case "resenas":
@@ -489,7 +491,7 @@ function UrlRow({ form, name, label }: { form: SectionFormApi<DomicilioState>; n
         hint="Abre tu ficha en la app o la web, copia el enlace y pégalo aquí."
       />
       {/^https:\/\//.test(value) && (
-        <a href={value} target="_blank" rel="noopener" className="inline-flex min-h-10 items-center gap-1.5 text-sm font-semibold text-primary">
+        <a href={value} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-primary">
           <ExternalLink className="size-4" aria-hidden />
           Probar el enlace
         </a>

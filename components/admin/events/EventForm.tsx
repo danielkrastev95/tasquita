@@ -179,7 +179,7 @@ export function EventForm({ mode, eventId, initial, today, otherFeatured, duplic
                     onChange={(e) => set("date", e.target.value)}
                     aria-invalid={errors.date ? true : undefined}
                     aria-describedby={`${fid("date")}-label`}
-                    className="min-w-0 appearance-none text-left [&::-webkit-date-and-time-value]:text-left"
+                    className="min-w-0 appearance-none text-left max-sm:[&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-date-and-time-value]:text-left"
                   />
                 </Field>
                 <Field label="Hora" htmlFor={fid("time")} error={errors.time}>
@@ -189,7 +189,7 @@ export function EventForm({ mode, eventId, initial, today, otherFeatured, duplic
                     value={values.time}
                     onChange={(e) => set("time", e.target.value)}
                     aria-invalid={errors.time ? true : undefined}
-                    className="min-w-0 appearance-none text-left [&::-webkit-date-and-time-value]:text-left"
+                    className="min-w-0 appearance-none text-left max-sm:[&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-date-and-time-value]:text-left"
                   />
                 </Field>
               </div>

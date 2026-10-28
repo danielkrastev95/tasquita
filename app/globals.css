@@ -95,7 +95,12 @@
 /* Altura de la cabecera fija y de la barra de categorías de /carta */
 :root {
   --header-h: 3.75rem;
-  --chips-h: 3.75rem;
+  --chips-h: 3.5rem;
+}
+@media (min-width: 48rem) {
+  :root {
+    --chips-h: 3.75rem;
+  }
 }
 @media (min-width: 64rem) {
   :root {
@@ -269,4 +274,24 @@ html:has([data-site]) {
   & strong {
     color: var(--color-ink);
   }
+}
+
+/* Web pública — móvil */
+/* Cinturón de seguridad contra el scroll lateral. `clip` (no `hidden`): no crea contenedor de
+ * scroll, así que position: sticky sigue funcionando. No sustituye a arreglar cada desborde en su origen. */
+html,
+body {
+  overflow-x: clip;
+}
+
+/* Con la cabecera escondida (móvil/tablet), lo que va pegado debajo sube a ocupar su sitio */
+@media (max-width: 63.999rem) {
+  html[data-header-hidden] [data-follow-header] {
+    translate: 0 calc(-1 * var(--header-h));
+  }
+}
+
+/* Toques: sin retardo de doble toque en los controles */
+[data-site] :is(a, button, label, input, select, textarea, summary) {
+  touch-action: manipulation;
 }

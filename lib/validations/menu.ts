@@ -80,6 +80,7 @@ export const menuItemInputSchema = z.object({
   imageUrl: imageUrlSchema,
   isPopular: z.boolean().default(false),
   isHomemade: z.boolean().default(false),
+  isNew: z.boolean().default(false),
   award: optionalText(80),
   allergens: z
     .array(z.enum(ALLERGEN_CODES))

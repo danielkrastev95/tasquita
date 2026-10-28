@@ -8,7 +8,7 @@ import { ReservationForm } from "./ReservationForm";
 export function ReservationSection({ settings: s }: { settings: SiteSettings }) {
   return (
     <section id="reservar" aria-labelledby="reservar-title" className="border-t border-primary/15 bg-cream-100">
-      <div className="mx-auto grid max-w-[100rem] gap-10 px-5 py-16 md:px-10 md:py-24 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16 lg:px-14 lg:py-32">
+      <div className="mx-auto grid max-w-[100rem] gap-8 px-5 py-12 md:gap-10 md:px-10 md:py-24 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16 lg:px-14 lg:py-32">
         <div className="reveal lg:pt-2">
           <p className="mb-5 flex items-center gap-3 text-xs font-bold tracking-[0.2em] text-primary uppercase">
             <span aria-hidden className="h-px w-10 bg-gold" />
@@ -24,7 +24,7 @@ export function ReservationSection({ settings: s }: { settings: SiteSettings }) 
             Elige día, hora y cuántos sois: te abrimos WhatsApp con el mensaje listo. Solo tienes que enviarlo.
           </p>
           {s.reservationsNote && (
-            <p className="mt-5 flex max-w-md items-start gap-3 border-l-2 border-gold pl-4 text-[0.9375rem] leading-relaxed text-ink">
+            <p className="mt-5 flex max-w-md items-start gap-3 border-l-2 border-gold pl-4 text-base leading-relaxed text-ink">
               <WhatsAppIcon className="mt-0.5 size-4 shrink-0 text-[#1fa855]" />
               {s.reservationsNote}
             </p>

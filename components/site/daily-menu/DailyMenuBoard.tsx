@@ -115,7 +115,7 @@ export function DailyMenuBoard({
         {(menu.includes || menu.note) && (
           <div className="mt-7 flex flex-col gap-3 md:mt-9 lg:flex-row lg:items-center lg:justify-between lg:gap-10">
             {menu.includes && (
-              <p className="flex flex-wrap items-center gap-3 text-[0.9375rem] text-cream/90">
+              <p className="flex flex-wrap items-center gap-3 text-base text-cream/90 lg:text-[0.9375rem]">
                 <span className="bg-cream px-2 py-1 text-xs font-bold tracking-[0.14em] text-primary-dark uppercase">Incluye</span>
                 {menu.includes}
               </p>

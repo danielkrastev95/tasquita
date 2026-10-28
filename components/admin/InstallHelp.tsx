@@ -178,7 +178,7 @@ export function InstallBanner() {
         <Button size="sm" variant="secondary" onClick={() => setOpen(true)} className="shrink-0">
           Cómo
         </Button>
-        <button type="button" onClick={dismiss} aria-label="No volver a mostrar" className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl text-ink-muted hover:bg-white/60">
+        <button type="button" onClick={dismiss} aria-label="No volver a mostrar" className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-ink-muted hover:bg-white/60">
           <X className="size-4" aria-hidden />
         </button>
       </section>

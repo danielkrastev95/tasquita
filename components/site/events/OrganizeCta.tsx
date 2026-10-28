@@ -6,7 +6,7 @@ import type { SiteSettings } from "@/lib/settings";
 export function OrganizeCta({ settings: s, headingLevel: Heading = "h2" }: { settings: SiteSettings; headingLevel?: "h2" | "h3" }) {
   if (!s.eventsOrgTitle) return null;
   return (
-    <div className="reveal mt-16 flex flex-col gap-8 border-t-8 border-gold pt-8 md:mt-24 md:flex-row md:items-end md:justify-between md:gap-12 md:pt-12">
+    <div className="reveal mt-12 flex flex-col gap-8 border-t-8 border-gold pt-8 md:mt-24 md:flex-row md:items-end md:justify-between md:gap-12 md:pt-12">
       <div className="max-w-3xl">
         <Heading className="font-serif text-[clamp(2.75rem,10vw,8rem)] leading-[0.86] font-extrabold tracking-[-0.035em] text-balance text-primary uppercase italic">
           {s.eventsOrgTitle}

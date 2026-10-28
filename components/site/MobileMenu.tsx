@@ -100,7 +100,7 @@ export function MobileMenu({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
-          className="fixed inset-0 z-[60] flex flex-col overflow-y-auto overscroll-contain bg-cream lg:hidden"
+          className="fixed inset-0 z-[60] flex flex-col overflow-x-hidden overflow-y-auto overscroll-contain bg-cream pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] lg:hidden"
         >
           <div className="flex h-(--header-h) shrink-0 items-center justify-between border-b border-primary/15 px-5 md:px-10">
             <Link href="/" onClick={onClose} className="font-serif text-[1.3rem] leading-none font-extrabold tracking-[-0.03em] text-primary uppercase">
@@ -138,7 +138,7 @@ export function MobileMenu({
                       <span className="w-6 shrink-0 text-xs font-bold tracking-[0.12em] text-gold-deep tabular-nums">{pad2(i + 1)}</span>
                       <span
                         className={cn(
-                          "font-serif text-[clamp(2.5rem,12vw,4.25rem)] leading-none font-extrabold tracking-[-0.025em] uppercase italic transition-colors group-hover:text-primary",
+                          "font-serif text-[clamp(2.25rem,min(12vw,9svh),4.25rem)] leading-none font-extrabold tracking-[-0.025em] uppercase italic transition-colors group-hover:text-primary",
                           active ? "text-primary" : "text-ink",
                         )}
                       >

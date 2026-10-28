@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useEffect, useId, useRef, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useKeyboardInset } from "./useKeyboardInset";
 
 type DialogProps = {
   open: boolean;
@@ -24,6 +25,7 @@ type DialogProps = {
  */
 export function Dialog({ open, onClose, title, description, children, footer, size = "sm", dismissible = true, className }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  const keyboard = useKeyboardInset();
   const titleId = useId();
   const descriptionId = useId();
 
@@ -61,6 +63,8 @@ export function Dialog({ open, onClose, title, description, children, footer, si
       onClick={(event) => {
         if (event.target === event.currentTarget && dismissible) onClose();
       }}
+      // Con el teclado abierto, la hoja sube y se encoge para quedar entera por encima de él
+      style={open && keyboard ? { transform: `translateY(-${keyboard}px)`, maxHeight: `calc(100dvh - ${keyboard}px - 0.75rem)` } : undefined}
       className={cn(
         "fixed inset-x-0 top-auto bottom-0 m-0 h-auto max-h-[92dvh] w-full max-w-full overflow-y-auto overscroll-contain rounded-t-[1.75rem] border-0 bg-white p-0 text-ink shadow-2xl",
         "transition-[translate,opacity] duration-300 ease-out-expo starting:translate-y-full",
@@ -71,7 +75,7 @@ export function Dialog({ open, onClose, title, description, children, footer, si
       )}
     >
       {open && (
-        <div className="px-5 pt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] md:px-6 md:pt-6 md:pb-6">
+        <div className="pt-5 pr-[max(1.25rem,env(safe-area-inset-right))] pb-[max(1.25rem,env(safe-area-inset-bottom))] pl-[max(1.25rem,env(safe-area-inset-left))] md:px-6 md:pt-6 md:pb-6">
           <header className="mb-4 flex items-start justify-between gap-4">
             <div className="space-y-1.5 pt-1">
               <h2 id={titleId} className="font-serif text-2xl leading-tight font-bold italic text-ink">

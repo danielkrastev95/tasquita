@@ -33,6 +33,7 @@ export type MenuItemFormValues = {
   imageUrl: string | null;
   isPopular: boolean;
   isHomemade: boolean;
+  isNew: boolean;
   award: string;
   allergens: AllergenCode[];
   isActive: boolean;
@@ -282,6 +283,13 @@ export function MenuItemForm({ mode, itemId, initial, categories, duplicateOf }:
                 onCheckedChange={(v) => set("isHomemade", v)}
                 label="Casero"
                 description="Hecho en casa, con la etiqueta «Casero»."
+                className="py-3"
+              />
+              <Switch
+                checked={values.isNew}
+                onCheckedChange={(v) => set("isNew", v)}
+                label="Nuevo"
+                description="Lleva la etiqueta «Nuevo». Quítala cuando ya no sea novedad."
                 className="py-3"
               />
               <div className="pt-4">

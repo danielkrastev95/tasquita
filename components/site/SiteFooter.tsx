@@ -24,7 +24,7 @@ export function SiteFooter({ settings: s, links }: { settings: SiteSettings; lin
             </p>
           </div>
           <div className="flex flex-col gap-5">
-            {s.footerTagline && <p className="max-w-sm text-[0.9375rem] leading-relaxed text-white/65 text-pretty">{s.footerTagline}</p>}
+            {s.footerTagline && <p className="max-w-sm text-base leading-relaxed text-white/65 text-pretty">{s.footerTagline}</p>}
             {s.googleReviewsUrl && (
               <div>
                 <p className={label}>¿Te ha gustado?</p>
@@ -86,7 +86,7 @@ export function SiteFooter({ settings: s, links }: { settings: SiteSettings; lin
           )}
           <div>
             <p className={label}>Dirección</p>
-            <address className="text-[0.9375rem] leading-relaxed text-white/75 not-italic">
+            <address className="text-base leading-relaxed text-white/75 not-italic">
               {s.addressStreet}
               <br />
               {s.addressPostalCode} {s.addressCity}
@@ -117,7 +117,7 @@ export function SiteFooter({ settings: s, links }: { settings: SiteSettings; lin
             <span aria-hidden className="size-1.5 bg-gold" />© {currentYear()} {s.name} · {s.addressCity}
           </p>
           <nav aria-label="Información legal">
-            <ul className="-mx-2 flex flex-wrap">
+            <ul className="-ml-2 flex flex-wrap">
               {LEGAL_PAGES.map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="inline-flex min-h-10 items-center px-2 tracking-[0.06em] transition-colors hover:text-gold">

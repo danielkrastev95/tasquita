@@ -13,7 +13,7 @@ export function EventsSection({ settings, events }: { settings: SiteSettings; ev
   const shown = events.slice(0, MAX_ON_HOME);
 
   return (
-    <section id="eventos" aria-labelledby="eventos-title" className="mx-auto max-w-[100rem] px-5 py-16 md:px-10 md:py-24 lg:px-14 lg:py-32">
+    <section id="eventos" aria-labelledby="eventos-title" className="mx-auto max-w-[100rem] px-5 py-12 md:px-10 md:py-24 lg:px-14 lg:py-32">
       <div className="mb-8 flex items-end justify-between gap-6 border-b-[3px] border-gold pb-4 md:mb-12">
         <h2
           id="eventos-title"

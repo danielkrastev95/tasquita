@@ -76,7 +76,13 @@ export function CategoryNav({ categories }: { categories: NavCategory[] }) {
     setActive(slug);
     lockedRef.current = true;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    // window.scrollTo (no scrollIntoView): nunca desplaza la página en horizontal.
+    // Al bajar en móvil la cabecera se esconde, así que solo hay que dejar sitio a los chips.
+    const rect = target.getBoundingClientRect();
+    const headerHides = rect.top > 0 && !window.matchMedia("(min-width: 64rem)").matches;
+    const header = headerHides ? 0 : (document.querySelector<HTMLElement>("[data-site] header")?.offsetHeight ?? 0);
+    const offset = header + (navRef.current?.offsetHeight ?? 0) + 16;
+    window.scrollTo({ top: Math.max(0, rect.top + window.scrollY - offset), left: 0, behavior: reduce ? "auto" : "smooth" });
     target.focus({ preventScroll: true });
     history.replaceState(null, "", `#${slug}`);
 
@@ -94,11 +100,12 @@ export function CategoryNav({ categories }: { categories: NavCategory[] }) {
     <nav
       ref={navRef}
       aria-label="Secciones de la carta"
-      className="sticky top-(--header-h) z-40 border-y border-primary/20 bg-cream/95 backdrop-blur-md"
+      data-follow-header
+      className="sticky top-(--header-h) z-40 border-y border-primary/20 bg-cream/95 backdrop-blur-md transition-transform duration-300 ease-out-expo"
     >
       <ul
         ref={listRef}
-        className="scrollbar-hide mx-auto flex h-(--chips-h) max-w-[100rem] items-center gap-2 overflow-x-auto scroll-smooth px-5 [mask-image:linear-gradient(to_right,transparent,black_1.25rem,black_calc(100%-2.5rem),transparent)] md:px-10 lg:px-14"
+        className="scrollbar-hide mx-auto flex h-(--chips-h) max-w-[100rem] items-center gap-2 overflow-x-auto overscroll-x-contain scroll-smooth px-5 [mask-image:linear-gradient(to_right,transparent,black_1.25rem,black_calc(100%-2.5rem),transparent)] md:px-10 lg:px-14"
       >
         {categories.map((c) => {
           const number = categories.filter((x) => !x.special).indexOf(c) + 1;
@@ -111,7 +118,9 @@ export function CategoryNav({ categories }: { categories: NavCategory[] }) {
                 aria-current={isActive ? "location" : undefined}
                 className={cn(
                   "inline-flex h-11 items-center gap-2 border px-4 text-xs font-bold tracking-[0.14em] whitespace-nowrap uppercase transition-colors duration-200",
-                  isActive ? "border-primary bg-primary text-white" : "border-primary/25 bg-cream text-ink hover:border-primary hover:text-primary",
+                  isActive
+                    ? "border-primary bg-primary text-white"
+                    : "border-primary/25 bg-cream text-ink hover:border-primary hover:text-primary active:bg-primary-light",
                 )}
               >
                 <span aria-hidden className={cn("tabular-nums", isActive ? "text-white/70" : "text-gold-deep")}>

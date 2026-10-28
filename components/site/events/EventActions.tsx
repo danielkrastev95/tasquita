@@ -5,7 +5,7 @@ import { whatsappLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
 const secondary =
-  "inline-flex h-11 items-center justify-center gap-2 border border-primary/30 px-4 text-xs font-bold tracking-[0.14em] whitespace-nowrap text-primary uppercase transition-colors hover:border-primary hover:bg-primary hover:text-white active:translate-y-px";
+  "inline-flex h-11 items-center justify-center gap-1.5 border border-primary/30 px-3 text-xs font-bold tracking-[0.1em] whitespace-nowrap sm:gap-2 sm:px-4 sm:tracking-[0.14em] text-primary uppercase transition-colors hover:border-primary hover:bg-primary hover:text-white active:translate-y-px";
 
 /** Reservar para el evento (WhatsApp o llamada), añadir al calendario (.ics) y compartir. */
 export function EventActions({
@@ -40,20 +40,20 @@ export function EventActions({
   };
 
   return (
-    <div className="grid max-w-md grid-cols-2 gap-2">
+    <div className="grid max-w-md grid-cols-1 gap-2 min-[24rem]:grid-cols-2">
       {reservePhone ? (
         <a
           href={whatsappLink(reservePhone, `¡Hola! Me gustaría reservar para «${title}» (${when}). Seríamos … personas.`)}
           target="_blank"
           rel="noopener noreferrer"
-          className={cn(secondary, "col-span-2 border-primary bg-primary text-white hover:bg-primary-dark")}
+          className={cn(secondary, "border-primary bg-primary text-white hover:bg-primary-dark min-[24rem]:col-span-2")}
         >
           <MessageCircle aria-hidden className="size-4" />
           Reservar para este evento
           <span className="sr-only">(WhatsApp, se abre en otra pestaña)</span>
         </a>
       ) : (
-        <a href={telHref} className={cn(secondary, "col-span-2 border-primary bg-primary text-white hover:bg-primary-dark")}>
+        <a href={telHref} className={cn(secondary, "border-primary bg-primary text-white hover:bg-primary-dark min-[24rem]:col-span-2")}>
           <Phone aria-hidden className="size-4" />
           Reservar por teléfono
         </a>

@@ -112,7 +112,7 @@ export function QuickAnnouncement({ initialEnabled, initialText }: { initialEnab
                 setError(null);
                 inputRef.current?.focus();
               }}
-              className="min-h-10 shrink-0 rounded-full border border-cream-400 bg-white px-3.5 text-xs font-medium whitespace-nowrap text-ink-muted transition hover:border-primary hover:text-primary"
+              className="min-h-11 shrink-0 rounded-full border border-cream-400 bg-white px-3.5 text-xs font-medium whitespace-nowrap text-ink-muted transition hover:border-primary hover:text-primary"
             >
               {idea}
             </button>

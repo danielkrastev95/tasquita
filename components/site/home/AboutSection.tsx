@@ -84,19 +84,19 @@ export function AboutSection({ settings: s }: { settings: SiteSettings }) {
       )}
 
       {/* Valores */}
-      <div className="mx-auto max-w-[100rem] px-5 py-16 md:px-10 md:py-24 lg:px-14 lg:py-32">
-        <h2 className="reveal mb-10 font-serif text-[clamp(2.75rem,11vw,8rem)] leading-[0.86] font-extrabold tracking-[-0.035em] text-balance text-ink uppercase italic md:mb-16">
+      <div className="mx-auto max-w-[100rem] px-5 py-12 md:px-10 md:py-24 lg:px-14 lg:py-32">
+        <h2 className="reveal mb-8 font-serif text-[clamp(2.75rem,11vw,8rem)] leading-[0.86] font-extrabold tracking-[-0.035em] text-balance text-ink uppercase italic md:mb-16">
           {s.aboutValuesTitle}
         </h2>
         <ol className={cn("reveal grid gap-px border border-primary bg-primary", VALUE_COLS[s.values.length])}>
           {s.values.map((value, i) => (
-            <li key={value.title} className="flex flex-col bg-cream p-6 md:p-8 lg:p-10">
-              <span className="font-serif text-5xl leading-none font-bold glyph-outline text-gold-deep md:text-6xl" aria-hidden>
+            <li key={value.title} className="flex flex-col bg-cream p-5 md:p-8 lg:p-10">
+              <span className="font-serif text-4xl leading-none font-bold glyph-outline text-gold-deep md:text-6xl" aria-hidden>
                 {pad2(i + 1)}
               </span>
-              <span aria-hidden className="my-6 h-px w-full bg-gold/60" />
+              <span aria-hidden className="my-4 h-px w-full bg-gold/60 md:my-6" />
               <h3 className="font-serif text-[1.6rem] leading-[1.02] font-extrabold text-balance text-ink uppercase md:text-[1.85rem]">{value.title}</h3>
-              {value.description && <p className="mt-3 text-[0.9375rem] leading-relaxed text-ink-muted text-pretty">{value.description}</p>}
+              {value.description && <p className="mt-3 text-base leading-relaxed text-ink-muted text-pretty lg:text-[0.9375rem]">{value.description}</p>}
             </li>
           ))}
         </ol>

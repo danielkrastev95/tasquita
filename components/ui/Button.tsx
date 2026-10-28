@@ -11,7 +11,8 @@ const variants = {
 
 const sizes = {
   md: "h-12 px-5 text-sm",
-  sm: "h-10 px-4 text-sm",
+  // 44 px: objetivo táctil mínimo recomendado (Apple HIG / WCAG 2.5.5)
+  sm: "h-11 px-4 text-sm",
   icon: "h-11 w-11 p-0",
 } as const;
 

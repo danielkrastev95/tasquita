@@ -15,7 +15,7 @@ export function AuthShell({ children, size = "sm" }: { children: React.ReactNode
       <header className="mb-7 text-center sm:mb-9">
         <Link
           href="/"
-          className="inline-block rounded-md font-serif text-[1.65rem] leading-none font-bold tracking-tight text-primary sm:text-[2rem]"
+          className="-my-2.5 inline-block rounded-md px-1 py-2.5 font-serif text-[1.65rem] leading-none font-bold tracking-tight text-primary sm:text-[2rem]"
         >
           LA TASQUITA DE SARA
         </Link>

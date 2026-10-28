@@ -106,7 +106,7 @@ export function ClosuresEditor({ value, onChange, today, errorFor, fieldId }: Pr
                       value={closure.from}
                       onChange={(e) => update(index, { from: e.target.value })}
                       aria-invalid={fromError ? true : undefined}
-                      className="min-w-0 appearance-none px-3 text-left [&::-webkit-date-and-time-value]:text-left"
+                      className="min-w-0 appearance-none px-3 text-left max-sm:[&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-date-and-time-value]:text-left"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -120,7 +120,7 @@ export function ClosuresEditor({ value, onChange, today, errorFor, fieldId }: Pr
                       min={closure.from || undefined}
                       onChange={(e) => update(index, { to: e.target.value })}
                       aria-invalid={toError ? true : undefined}
-                      className="min-w-0 appearance-none px-3 text-left [&::-webkit-date-and-time-value]:text-left"
+                      className="min-w-0 appearance-none px-3 text-left max-sm:[&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-date-and-time-value]:text-left"
                     />
                   </div>
                 </div>

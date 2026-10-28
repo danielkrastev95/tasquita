@@ -1,7 +1,7 @@
 "use client";
 
-import { ClipboardPaste, Eraser, ExternalLink, Plus, X } from "lucide-react";
-import { useCallback, useId, useRef, useState } from "react";
+import { Eraser, ExternalLink } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Card, CardTitle } from "@/components/ui/Card";
@@ -13,10 +13,10 @@ import { cn } from "@/lib/utils";
 import { PRICE_PATTERN } from "@/lib/validations/menu";
 import type { SectionValues } from "@/lib/validations/settings";
 import { WEEKDAYS, WEEKDAY_LABELS, type Weekday } from "@/lib/weekdays";
-import { DragHandle, SortableList, useSortableRow } from "../sortable";
-import { SectionForm, useSectionForm, type SectionFormApi } from "./SectionForm";
+import { SectionForm, useSectionForm } from "./SectionForm";
+import { StringListEditor, fromEntries, toEntries, type ListEntry } from "./StringListEditor";
 
-type Dish = { key: string; text: string };
+type Dish = ListEntry;
 type ListName = "starters" | "mains" | "desserts";
 
 type MenuState = {
@@ -40,29 +40,18 @@ const LISTS: { name: ListName; title: string; max: number; placeholder: string }
 
 const DAY_INITIALS: Record<Weekday, string> = { mon: "L", tue: "M", wed: "X", thu: "J", fri: "V", sat: "S", sun: "D" };
 
-let keySeq = 0;
-const newKey = () => `n${++keySeq}`;
-
 const toState = (m: SectionValues<"menu">["dailyMenu"]): MenuState => ({
   enabled: m.enabled,
   title: m.title,
   price: centsToInput(m.priceCents),
   days: [...m.days],
   hours: m.hours,
-  // Claves deterministas al cargar (sin desajustes entre servidor y navegador)
-  starters: m.starters.map((text, i) => ({ key: `s${i}`, text })),
-  mains: m.mains.map((text, i) => ({ key: `m${i}`, text })),
-  desserts: m.desserts.map((text, i) => ({ key: `d${i}`, text })),
+  starters: toEntries(m.starters, "s"),
+  mains: toEntries(m.mains, "m"),
+  desserts: toEntries(m.desserts, "d"),
   includes: m.includes,
   note: m.note,
 });
-
-/** "1. Lentejas\n- Ensalada mixta\n• Gazpacho" → ["Lentejas", "Ensalada mixta", "Gazpacho"] */
-const splitLines = (text: string) =>
-  text
-    .split(/\r?\n/)
-    .map((line) => line.replace(/^\s*(?:[-–—•*·]+|\d+[.)-])\s*/, "").trim())
-    .filter(Boolean);
 
 export function DailyMenuEditor({ initial, today }: { initial: SectionValues<"menu">; today: Weekday }) {
   const form = useSectionForm<"menu", MenuState>("menu", toState(initial.dailyMenu), {
@@ -74,9 +63,9 @@ export function DailyMenuEditor({ initial, today }: { initial: SectionValues<"me
           ...rest,
           // Precio no válido: se envía tal cual para que el servidor lo explique
           priceCents: (trimmed && cents == null ? trimmed : cents) as number | null,
-          starters: starters.map((d) => d.text.trim()).filter(Boolean),
-          mains: mains.map((d) => d.text.trim()).filter(Boolean),
-          desserts: desserts.map((d) => d.text.trim()).filter(Boolean),
+          starters: fromEntries(starters),
+          mains: fromEntries(mains),
+          desserts: fromEntries(desserts),
         },
       };
     },
@@ -213,7 +202,18 @@ export function DailyMenuEditor({ initial, today }: { initial: SectionValues<"me
 
           {LISTS.map((list) => (
             <Card key={list.name}>
-              <DishList form={form} list={list} />
+              <StringListEditor
+                title={list.title}
+                items={v[list.name]}
+                onChange={(next) => form.set(list.name, next)}
+                max={list.max}
+                maxLength={140}
+                placeholder={list.placeholder}
+                itemLabel="plato"
+                inputId={(index) => form.fieldId(`dailyMenu.${list.name}.${index}`)}
+                error={form.errorFor(`dailyMenu.${list.name}`, true)}
+                emptyHint="Truco: pega una lista (un plato por línea) y se añaden todos de golpe."
+              />
             </Card>
           ))}
 
@@ -261,184 +261,6 @@ export function DailyMenuEditor({ initial, today }: { initial: SectionValues<"me
         </aside>
       </div>
     </SectionForm>
-  );
-}
-
-function DishList({ form, list }: { form: SectionFormApi<MenuState>; list: (typeof LISTS)[number] }) {
-  const items = form.values[list.name];
-  const addId = useId();
-  const [draft, setDraft] = useState("");
-  const addRef = useRef<HTMLInputElement>(null);
-  const error = form.errorFor(`dailyMenu.${list.name}`, true);
-  const full = items.length >= list.max;
-  const setItems = (next: Dish[]) => form.set(list.name, next);
-
-  const addMany = (texts: string[]) => {
-    const room = list.max - items.length;
-    if (room <= 0) {
-      toast.error(`Como máximo ${list.max} ${list.title.toLowerCase()}`);
-      return;
-    }
-    const accepted = texts.slice(0, room).map((text) => ({ key: newKey(), text: text.slice(0, 140) }));
-    setItems([...items, ...accepted]);
-    if (texts.length > room) toast.warning(`Solo caben ${list.max} ${list.title.toLowerCase()}: se han añadido ${room}.`);
-    else if (accepted.length > 1) toast.success(`${accepted.length} platos añadidos a ${list.title}`);
-  };
-
-  const commitDraft = () => {
-    const texts = splitLines(draft);
-    if (texts.length === 0) return;
-    addMany(texts);
-    setDraft("");
-    addRef.current?.focus();
-  };
-
-  const getLabel = useCallback((key: string) => items.find((d) => d.key === key)?.text || "plato", [items]);
-
-  return (
-    <div>
-      <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 className="text-xs font-semibold tracking-[0.14em] text-primary uppercase">{list.title}</h2>
-        <span className={cn("text-xs tabular-nums", full ? "text-gold-deep" : "text-ink-muted")}>
-          {items.length}/{list.max}
-        </span>
-      </div>
-
-      {items.length > 0 && (
-        <SortableList ids={items.map((d) => d.key)} getLabel={getLabel} onReorder={(keys) => setItems(keys.map((k) => items.find((d) => d.key === k)).filter((d): d is Dish => Boolean(d)))}>
-          <ul className="mb-3 space-y-2">
-            {items.map((dish, index) => (
-              <DishRow
-                key={dish.key}
-                dish={dish}
-                index={index}
-                sortable={items.length > 1}
-                inputId={form.fieldId(`dailyMenu.${list.name}.${index}`)}
-                listTitle={list.title}
-                onChange={(text) => setItems(items.map((d) => (d.key === dish.key ? { ...d, text } : d)))}
-                onRemove={() => setItems(items.filter((d) => d.key !== dish.key))}
-                onPasteLines={(lines) => {
-                  // Pegar varias líneas en un plato: la primera lo sustituye, el resto se añaden debajo
-                  const [first, ...rest] = lines;
-                  const replaced = items.map((d) => (d.key === dish.key ? { ...d, text: first } : d));
-                  const room = list.max - items.length;
-                  const extra = rest.slice(0, room).map((text) => ({ key: newKey(), text }));
-                  setItems([...replaced.slice(0, index + 1), ...extra, ...replaced.slice(index + 1)]);
-                  if (rest.length > room) toast.warning(`Solo caben ${list.max} ${list.title.toLowerCase()}.`);
-                }}
-              />
-            ))}
-          </ul>
-        </SortableList>
-      )}
-
-      {!full && (
-        <div className="flex gap-2">
-          <label htmlFor={addId} className="sr-only">
-            Añadir a {list.title}
-          </label>
-          <Input
-            ref={addRef}
-            id={addId}
-            value={draft}
-            maxLength={600}
-            placeholder={items.length ? "Añadir otro…" : list.placeholder}
-            enterKeyHint="done"
-            autoCapitalize="sentences"
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                commitDraft();
-              }
-            }}
-            onPaste={(e) => {
-              const lines = splitLines(e.clipboardData.getData("text"));
-              if (lines.length > 1) {
-                e.preventDefault();
-                addMany(lines);
-                setDraft("");
-              }
-            }}
-            className="min-w-0 flex-1"
-          />
-          <Button variant="secondary" size="icon" className="size-12" onClick={commitDraft} disabled={!draft.trim()} aria-label={`Añadir a ${list.title}`}>
-            <Plus className="size-5" aria-hidden />
-          </Button>
-        </div>
-      )}
-      {error && (
-        <p role="alert" className="mt-2 text-sm text-danger">
-          {error}
-        </p>
-      )}
-      {items.length === 0 && (
-        <p className="mt-2 flex items-center gap-1.5 text-xs text-ink-muted">
-          <ClipboardPaste className="size-3.5" aria-hidden />
-          Truco: pega una lista (un plato por línea) y se añaden todos de golpe.
-        </p>
-      )}
-    </div>
-  );
-}
-
-function DishRow({
-  dish,
-  index,
-  sortable,
-  inputId,
-  listTitle,
-  onChange,
-  onRemove,
-  onPasteLines,
-}: {
-  dish: Dish;
-  index: number;
-  sortable: boolean;
-  inputId: string;
-  listTitle: string;
-  onChange: (text: string) => void;
-  onRemove: () => void;
-  onPasteLines: (lines: string[]) => void;
-}) {
-  const { rowRef, rowStyle, isDragging, handleProps } = useSortableRow(dish.key, !sortable);
-  const label = dish.text.trim() || `${listTitle.toLowerCase()} ${index + 1}`;
-  return (
-    <li ref={rowRef} style={rowStyle} className={cn("flex items-center gap-1 rounded-xl bg-white", isDragging && "shadow-xl ring-2 ring-primary/30")}>
-      {sortable ? <DragHandle label={`«${label}»`} handleProps={handleProps} /> : <span className="w-2" aria-hidden />}
-      <label htmlFor={inputId} className="sr-only">
-        {listTitle}, plato {index + 1}
-      </label>
-      {/* Crece con el texto: los nombres largos se leen enteros */}
-      <Textarea
-        id={inputId}
-        rows={1}
-        value={dish.text}
-        maxLength={140}
-        autoCapitalize="sentences"
-        enterKeyHint="done"
-        onChange={(e) => onChange(e.target.value.replace(/\n/g, " "))}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") e.preventDefault();
-        }}
-        onPaste={(e) => {
-          const lines = splitLines(e.clipboardData.getData("text"));
-          if (lines.length > 1) {
-            e.preventDefault();
-            onPasteLines(lines);
-          }
-        }}
-        className="field-sizing-content min-h-11 min-w-0 flex-1 resize-none py-2.5 leading-snug"
-      />
-      <button
-        type="button"
-        onClick={onRemove}
-        aria-label={`Quitar «${label}»`}
-        className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-ink-muted transition hover:bg-danger/10 hover:text-danger"
-      >
-        <X className="size-4" aria-hidden />
-      </button>
-    </li>
   );
 }
 

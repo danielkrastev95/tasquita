@@ -64,7 +64,7 @@ export function Hero({
           )}
           <h1
             id="hero-title"
-            className="font-serif text-[clamp(3.1rem,14.2vw,6.5rem)] leading-[0.84] font-extrabold tracking-[-0.035em] text-balance text-primary uppercase lg:text-[clamp(4.5rem,7.2vw,8.5rem)]"
+            className="font-serif text-[clamp(2.75rem,min(14.2vw,13svh),6.5rem)] leading-[0.84] font-extrabold tracking-[-0.035em] text-balance text-primary uppercase lg:text-[clamp(4.5rem,7.2vw,8.5rem)]"
           >
             {s.name}
           </h1>
@@ -82,13 +82,13 @@ export function Hero({
                 alt={photos.main.alt}
                 fill
                 priority
-                sizes="(min-width: 1024px) 42vw, (min-width: 768px) 78vw, 88vw"
+                sizes="(min-width: 1024px) 42vw, (min-width: 768px) 66vw, 80vw"
                 className="animate-settle object-cover"
               />
             </div>
 
             {photos.secondary && (
-              <figure className="absolute -right-[13.5%] -bottom-9 w-[44%] animate-rise border-4 border-primary bg-primary [animation-delay:250ms] md:-right-[21%] md:w-[38%] lg:right-auto lg:-bottom-14 lg:-left-[16%] lg:w-[46%] lg:border-[5px]">
+              <figure className="absolute -right-[13.5%] -bottom-9 w-[50%] animate-rise border-4 border-primary bg-primary [animation-delay:250ms] md:-right-[21%] md:w-[38%] lg:right-auto lg:-bottom-14 lg:-left-[16%] lg:w-[46%] lg:border-[5px]">
                 <div className="relative aspect-[4/3] overflow-hidden bg-cream-300">
                   <SmartImage
                     src={photos.secondary.src}
@@ -99,7 +99,7 @@ export function Hero({
                   />
                 </div>
                 {s.heroKitchenLabel && (
-                  <figcaption className="px-2.5 pt-2 pb-1.5 text-[0.6875rem] leading-tight font-bold tracking-[0.16em] text-white uppercase md:text-xs">
+                  <figcaption className="truncate px-2.5 pt-2 pb-1.5 text-[0.6875rem] leading-tight font-bold tracking-[0.12em] text-white uppercase md:text-xs md:tracking-[0.16em]">
                     {s.heroKitchenLabel}
                   </figcaption>
                 )}
@@ -205,7 +205,7 @@ function HeroEventTag({ event }: { event: PublicEvent }) {
         </span>
       </span>
       <span className="mt-1 flex items-center gap-2 font-serif text-[1.05rem] leading-[1.1] font-bold lg:mt-1.5 lg:block lg:text-xl lg:text-balance">
-        {event.title}
+        <span className="line-clamp-2 lg:line-clamp-none">{event.title}</span>
         <ArrowRight aria-hidden className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5 lg:hidden" />
       </span>
       <span className="mt-1.5 hidden items-center gap-1.5 text-sm font-semibold text-white/85 lg:flex">

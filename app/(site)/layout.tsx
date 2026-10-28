@@ -1,3 +1,4 @@
+import type { Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { getSiteSettings, getUpcomingEvents } from "@/lib/data/public";
 import { toSchemaOrgClosures, toSchemaOrgHours, upcomingClosures } from "@/lib/schedule";
@@ -11,6 +12,15 @@ import { siteUrl } from "@/components/site/seo";
 import { canReserve, directionsUrl, getNavLinks, getSchedule, getSiteActions, instagramUrl, phoneE164, splitCity } from "@/components/site/utils";
 
 /* Estructura común de la web pública: aviso, cabecera, contenido, pie y datos estructurados. */
+
+/* viewport-fit=cover: la barra inferior fija puede respetar la zona del indicador de inicio
+ * (env(safe-area-inset-*)); en horizontal, el contenedor añade el margen del notch. */
+export const viewport: Viewport = {
+  themeColor: "#fcf9f3",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 function restaurantJsonLd(s: SiteSettings) {
   const { locality, region } = splitCity(s.addressCity);
@@ -53,7 +63,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <MotionProvider>
-      <div data-site className="flex min-h-dvh flex-col">
+      <div data-site className="flex min-h-dvh flex-col pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
         <a
           href="#contenido"
           className="sr-only z-[70] bg-primary px-5 py-3 text-sm font-bold tracking-[0.12em] text-white uppercase focus:not-sr-only focus:fixed focus:top-3 focus:left-3"

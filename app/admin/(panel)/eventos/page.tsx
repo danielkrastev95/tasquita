@@ -20,12 +20,12 @@ export default async function EventsPage() {
         description="Conciertos, catas, partidos… Toca la estrella para destacar uno en la portada."
         actions={
           <>
-            <Link href="/admin/eventos/nuevo" className={buttonClasses("primary", "md", "flex-1 sm:flex-none")}>
-              <CalendarPlus className="size-4" aria-hidden />
+            <Link href="/admin/eventos/nuevo" className={buttonClasses("primary", "md", "flex-1 px-3 whitespace-nowrap sm:flex-none sm:px-5")}>
+              <CalendarPlus className="size-4 max-[359px]:hidden" aria-hidden />
               Crear evento
             </Link>
-            <a href="/eventos" target="_blank" rel="noopener" className={buttonClasses("secondary", "md", "flex-1 sm:flex-none")}>
-              <ExternalLink className="size-4" aria-hidden />
+            <a href="/eventos" target="_blank" rel="noopener" className={buttonClasses("secondary", "md", "flex-1 px-3 whitespace-nowrap sm:flex-none sm:px-5")}>
+              <ExternalLink className="size-4 max-[359px]:hidden" aria-hidden />
               Ver en la web
             </a>
           </>

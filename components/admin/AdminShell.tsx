@@ -41,7 +41,7 @@ export function AdminShell({ user, children }: { user: ShellUser; children: Reac
   const signOut = useSignOut();
 
   return (
-    <div className="min-h-dvh md:pl-64">
+    <div className="min-h-dvh md:pl-[calc(16rem+env(safe-area-inset-left))]">
       <a
         href="#contenido-panel"
         className="sr-only z-50 rounded-xl bg-primary px-4 py-3 font-semibold text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
@@ -50,7 +50,7 @@ export function AdminShell({ user, children }: { user: ShellUser; children: Reac
       </a>
 
       {/* ── Escritorio: barra lateral ── */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-cream-400/70 bg-white md:flex">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[calc(16rem+env(safe-area-inset-left))] flex-col border-r border-cream-400/70 bg-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] md:flex">
         <div className="px-6 pt-7 pb-6">
           <Brand />
         </div>
@@ -92,8 +92,8 @@ export function AdminShell({ user, children }: { user: ShellUser; children: Reac
       </aside>
 
       {/* ── Móvil: barra superior ── */}
-      <header className="sticky top-0 z-30 border-b border-cream-400/60 bg-cream-100/85 pt-[env(safe-area-inset-top)] backdrop-blur-md md:hidden">
-        <div className="flex h-14 items-center justify-between gap-3 px-4">
+      <header className="sticky top-0 z-30 border-b border-cream-400/60 bg-cream-100/85 pt-[env(safe-area-inset-top)] backdrop-blur-md md:hidden [@media(max-height:480px)]:static">
+        <div className="flex h-14 items-center justify-between gap-3 pr-[max(1rem,env(safe-area-inset-right))] pl-[max(1rem,env(safe-area-inset-left))] [@media(max-height:480px)]:h-12">
           <Link href="/admin" aria-label="Inicio del panel" className="-ml-1 rounded-xl p-1">
             <Brand compact />
           </Link>
@@ -101,7 +101,7 @@ export function AdminShell({ user, children }: { user: ShellUser; children: Reac
             href="/"
             target="_blank"
             rel="noopener"
-            className="inline-flex h-10 items-center gap-1.5 rounded-full border border-cream-400 bg-white px-3.5 text-sm font-semibold text-ink shadow-sm active:scale-[0.98]"
+            className="inline-flex h-11 items-center gap-1.5 rounded-full border border-cream-400 bg-white px-3.5 text-sm font-semibold text-ink shadow-sm active:scale-[0.98]"
           >
             Ver web
             <ExternalLink className="size-3.5" aria-hidden />
@@ -110,7 +110,11 @@ export function AdminShell({ user, children }: { user: ShellUser; children: Reac
         </div>
       </header>
 
-      <main id="contenido-panel" tabIndex={-1} className="mx-auto max-w-5xl px-4 pt-5 pb-[calc(env(safe-area-inset-bottom)+6.5rem)] outline-none md:px-8 md:pt-10 md:pb-12">
+      <main
+        id="contenido-panel"
+        tabIndex={-1}
+        className="mx-auto max-w-5xl [--gl:max(1rem,env(safe-area-inset-left))] [--gr:max(1rem,env(safe-area-inset-right))] pt-5 pr-(--gr) pb-[calc(env(safe-area-inset-bottom)+6.5rem)] pl-(--gl) outline-none md:[--gl:2rem] md:[--gr:max(2rem,env(safe-area-inset-right))] md:pt-10 md:pb-12 [@media(max-height:480px)]:pb-[calc(env(safe-area-inset-bottom)+4.5rem)]"
+      >
         {children}
       </main>
 
@@ -118,9 +122,9 @@ export function AdminShell({ user, children }: { user: ShellUser; children: Reac
       {!isDetail && (
         <nav
           aria-label="Secciones del panel"
-          className="fixed inset-x-0 bottom-0 z-30 border-t border-cream-400/70 bg-white/92 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 border-t border-cream-400/70 bg-white/92 pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] backdrop-blur-md md:hidden"
         >
-          <ul className="mx-auto grid max-w-md grid-cols-5">
+          <ul className="mx-auto grid max-w-md grid-cols-5 [@media(max-height:480px)]:max-w-2xl">
             {MAIN_NAV.map((item) => (
               <li key={item.href}>
                 <TabLink item={item} active={item.match(pathname)} />
@@ -270,13 +274,13 @@ function SidebarLink({ item, active }: { item: NavItem; active: boolean }) {
 
 const tabClasses = (active: boolean) =>
   cn(
-    "flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors active:scale-[0.97]",
+    "flex h-16 w-full flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors active:scale-[0.97] [@media(max-height:480px)]:h-12 [@media(max-height:480px)]:flex-row [@media(max-height:480px)]:gap-1.5 [@media(max-height:480px)]:text-xs",
     active ? "text-primary-dark" : "text-ink-muted",
   );
 
 function TabIcon({ icon: Icon, active }: { icon: Icon; active: boolean }) {
   return (
-    <span className={cn("inline-flex h-7 w-14 items-center justify-center rounded-full transition-colors duration-200", active && "bg-primary-light")}>
+    <span className={cn("inline-flex h-7 w-14 items-center justify-center rounded-full transition-colors duration-200 [@media(max-height:480px)]:w-9", active && "bg-primary-light")}>
       <Icon className="size-[22px]" aria-hidden strokeWidth={active ? 2.25 : 1.9} />
     </span>
   );

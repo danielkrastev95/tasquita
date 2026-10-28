@@ -58,6 +58,7 @@ export default async function EditMenuItemPage({ params }: { params: Promise<{ i
           imageUrl: item.imageUrl,
           isPopular: item.isPopular,
           isHomemade: item.isHomemade,
+          isNew: item.isNew,
           award: item.award ?? "",
           allergens: item.allergens as AllergenCode[],
           isActive: item.isActive,

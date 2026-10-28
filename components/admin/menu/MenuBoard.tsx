@@ -9,12 +9,14 @@ import {
   EyeOff,
   Flame,
   FolderPlus,
+  NotebookText,
   Pencil,
   Plus,
   QrCode,
   RotateCcw,
   Search,
   SearchX,
+  Sparkles,
   UtensilsCrossed,
   X,
 } from "lucide-react";
@@ -93,9 +95,11 @@ type Props = {
   today: string;
   initialMode?: BoardMode;
   highlightId?: string;
+  /** Notas al pie de la carta (se editan en Contenido) */
+  notes?: string[];
 };
 
-export function MenuBoard({ categories, today, initialMode = "carta", highlightId }: Props) {
+export function MenuBoard({ categories, today, initialMode = "carta", highlightId, notes = [] }: Props) {
   const [board, apply] = useOptimistic(categories, reducer);
   const [, startTransition] = useTransition();
   const [mode, setMode] = useState<BoardMode>(initialMode);
@@ -214,12 +218,12 @@ export function MenuBoard({ categories, today, initialMode = "carta", highlightI
               <Link
                 href="/admin/carta/platos/nuevo"
                 aria-disabled={board.length === 0 || undefined}
-                className={buttonClasses("primary", "md", cn(board.length === 0 && "pointer-events-none opacity-50"))}
+                className={buttonClasses("primary", "md", cn("px-3 whitespace-nowrap", board.length === 0 && "pointer-events-none opacity-50"))}
               >
-                <Plus className="size-4" aria-hidden />
+                <Plus className="size-4 max-[359px]:hidden" aria-hidden />
                 Añadir plato
               </Link>
-              <Button variant="secondary" className="px-3" onClick={newCategory}>
+              <Button variant="secondary" className="px-3 whitespace-nowrap" onClick={newCategory}>
                 <FolderPlus className="hidden size-4 sm:block" aria-hidden />
                 Nueva categoría
               </Button>
@@ -285,7 +289,7 @@ export function MenuBoard({ categories, today, initialMode = "carta", highlightI
           )}
 
           {/* Buscador + saltos a categoría (fijos al hacer scroll) */}
-          <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 mb-4 border-b border-cream-400/50 bg-cream-100/92 px-4 pt-1 pb-3 backdrop-blur-md md:top-0 md:-mx-8 md:px-8 md:pt-4">
+          <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mr-(--gr) mb-4 -ml-(--gl) border-b border-cream-400/50 bg-cream-100/92 pt-1 pr-(--gr) pb-2.5 pl-(--gl) backdrop-blur-md md:top-0 md:pt-4 [@media(max-height:480px)]:static">
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="pointer-events-none absolute top-1/2 left-3.5 size-5 -translate-y-1/2 text-ink-muted" aria-hidden />
@@ -307,7 +311,7 @@ export function MenuBoard({ categories, today, initialMode = "carta", highlightI
                     type="button"
                     onClick={() => setQuery("")}
                     aria-label="Borrar búsqueda"
-                    className="absolute top-1/2 right-1 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-lg text-ink-muted hover:text-ink"
+                    className="absolute top-1/2 right-0.5 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-lg text-ink-muted hover:text-ink"
                   >
                     <X className="size-4" aria-hidden />
                   </button>
@@ -320,7 +324,7 @@ export function MenuBoard({ categories, today, initialMode = "carta", highlightI
               )}
             </div>
             {!searching && (
-              <nav aria-label="Ir a una categoría" className="scrollbar-hide -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
+              <nav aria-label="Ir a una categoría" className="scrollbar-hide mt-3 -mr-(--gr) -ml-(--gl) flex gap-2 overflow-x-auto pr-(--gr) pl-(--gl) md:mx-0 md:flex-wrap md:px-0">
                 {board.map((c) => (
                   <a
                     key={c.id}
@@ -330,7 +334,7 @@ export function MenuBoard({ categories, today, initialMode = "carta", highlightI
                       document.getElementById(`categoria-${c.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
                     className={cn(
-                      "inline-flex min-h-9 shrink-0 items-center rounded-full border px-3.5 text-xs font-semibold whitespace-nowrap transition",
+                      "inline-flex min-h-11 shrink-0 items-center rounded-full border px-3.5 text-xs font-semibold whitespace-nowrap transition",
                       c.isActive ? "border-cream-400 bg-white text-ink hover:border-primary hover:text-primary" : "border-dashed border-cream-400 text-ink-muted",
                     )}
                   >
@@ -369,6 +373,34 @@ export function MenuBoard({ categories, today, initialMode = "carta", highlightI
                 />
               ))}
             </div>
+          )}
+
+          {!service && !searching && (
+            <section aria-labelledby="notas-carta" className="mt-10 rounded-2xl border border-dashed border-cream-400 bg-white/60 p-5">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <NotebookText className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+                  <div>
+                    <h2 id="notas-carta" className="font-semibold text-ink">
+                      Notas al pie de la carta
+                    </h2>
+                    {notes.length === 0 ? (
+                      <p className="text-sm text-ink-muted">Sin notas. Úsalas para el pan, suplementos de terraza, IVA…</p>
+                    ) : (
+                      <ul className="mt-1.5 space-y-1 text-sm text-ink-muted">
+                        {notes.map((note, i) => (
+                          <li key={i}>{note}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+                <Link href="/admin/contenido/notas" className={buttonClasses("ghost", "sm", "-mt-1 -mr-2 shrink-0 text-primary")}>
+                  <Pencil className="size-4" aria-hidden />
+                  Editar
+                </Link>
+              </div>
+            </section>
           )}
         </>
       )}
@@ -566,6 +598,11 @@ function ItemRow({
           {!service && item.isPopular && (
             <Badge icon={Flame} tone="gold">
               Popular
+            </Badge>
+          )}
+          {!service && item.isNew && (
+            <Badge icon={Sparkles} tone="success">
+              Nuevo
             </Badge>
           )}
           {!service && item.isHomemade && (

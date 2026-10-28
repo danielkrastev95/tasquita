@@ -17,6 +17,12 @@ export const SETTINGS_SECTIONS = {
     webPath: "/#contacto",
     keys: ["specialClosures"],
   },
+  notas: {
+    title: "Notas de la carta",
+    description: "Avisos al pie de la carta: suplementos, pan, IVA incluido, alérgenos a consultar…",
+    webPath: "/carta",
+    keys: ["menuNotes"],
+  },
   aviso: {
     title: "Aviso superior",
     description: "Una franja arriba del todo de la web para avisos puntuales: vacaciones, cierres, novedades.",

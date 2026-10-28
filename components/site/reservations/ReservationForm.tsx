@@ -176,7 +176,7 @@ export function ReservationForm({
       {/* Día */}
       <fieldset className="min-w-0" aria-describedby={errors.date ? `${uid}-dia-error` : undefined}>
         <legend className={label}>Día</legend>
-        <div className="scrollbar-hide relative -mx-1 flex snap-x gap-2 overflow-x-auto px-1 pt-0.5 pb-2 [mask-image:linear-gradient(to_right,black_calc(100%-2.5rem),transparent)]">
+        <div className="scrollbar-hide relative flex snap-x gap-2 overflow-x-auto overscroll-x-contain pt-0.5 pb-2 [mask-image:linear-gradient(to_right,black_calc(100%-2.5rem),transparent)]">
           {now
             ? days.map((d, i) => (
                 <label key={d.date} className="relative shrink-0 snap-start" title={d.closed ? (d.reason ?? "Cerrado") : undefined}>
@@ -193,9 +193,9 @@ export function ReservationForm({
                   <span
                     className={cn(
                       "flex h-[4.5rem] w-16 cursor-pointer flex-col items-center justify-center border border-primary/25 bg-white transition-colors",
-                      "peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-primary",
+                      "peer-checked:border-primary peer-checked:bg-primary peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:-outline-offset-4 peer-focus-visible:outline-primary",
                       "peer-disabled:cursor-not-allowed peer-disabled:border-dashed peer-disabled:bg-cream-100 peer-disabled:text-ink-muted/45",
-                      !d.closed && "hover:border-primary",
+                      !d.closed && "hover:border-primary active:bg-primary-light",
                     )}
                   >
                     <span className="text-[0.6875rem] font-bold tracking-[0.12em] uppercase">
@@ -219,7 +219,7 @@ export function ReservationForm({
             max={today ? addDays(today, MAX_AHEAD) : undefined}
             value={date && !isQuick ? date : ""}
             onChange={(e) => e.target.value && pickDate(e.target.value)}
-            className="h-11 border border-primary/30 bg-white px-3 text-base text-ink focus:border-primary focus-visible:outline-2 focus-visible:outline-primary"
+            className="h-11 w-44 min-w-0 appearance-none border border-primary/30 bg-white px-3 text-left text-base text-ink focus:border-primary focus-visible:outline-2 focus-visible:outline-primary [&::-webkit-date-and-time-value]:text-left"
           />
         </div>
         {(errors.date || (selected?.closed && !isQuick)) && (

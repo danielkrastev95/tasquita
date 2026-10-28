@@ -38,7 +38,7 @@ export function HolderList({ settings }: { settings: SiteSettings }) {
       {rows.map((r) => (
         <div key={r.label} className="bg-cream px-4 py-3 sm:contents">
           <dt className="text-xs font-bold tracking-[0.14em] text-primary uppercase sm:bg-cream-100 sm:px-4 sm:py-3.5">{r.label}</dt>
-          <dd className="mt-1 text-[0.9375rem] break-words text-ink sm:mt-0 sm:bg-cream sm:px-4 sm:py-3">{r.value}</dd>
+          <dd className="mt-1 text-base break-words sm:text-[0.9375rem] text-ink sm:mt-0 sm:bg-cream sm:px-4 sm:py-3">{r.value}</dd>
         </div>
       ))}
     </dl>

@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import { MobileActionBar } from "./MobileActionBar";
 import { MobileMenu, type MenuContact } from "./MobileMenu";
 import type { NavLink, Schedule, SiteActions } from "./utils";
 
-/* Cabecera sticky. Escritorio: logotipo + enlaces + "Reservar". Móvil: logotipo + botón de menú + barra de acciones fija. */
+/* Cabecera sticky. Escritorio: logotipo + enlaces + "Reservar". Móvil: logotipo + botón de menú + barra de acciones fija.
+ * En móvil y tablet se esconde al bajar y reaparece al subir, para dejar más pantalla al contenido
+ * (html[data-header-hidden] lo usan también las barras que van pegadas debajo, como los chips de la carta). */
 
 function subscribeScroll(onChange: () => void) {
   window.addEventListener("scroll", onChange, { passive: true });
@@ -36,20 +38,55 @@ export function SiteHeader({
   const scrolled = useSyncExternalStore(subscribeScroll, getScrolled, getServerScrolled);
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const close = useCallback(() => setOpen(false), []);
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 64rem)");
+    let lastY = window.scrollY;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const dy = y - lastY;
+      if (Math.abs(dy) < 8 && y > 0) return;
+      lastY = y;
+      const focusInside = headerRef.current?.contains(document.activeElement) ?? false;
+      setHidden(!desktop.matches && dy > 0 && y > 160 && !focusInside);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  const headerHidden = hidden && !open;
+  useEffect(() => {
+    document.documentElement.toggleAttribute("data-header-hidden", headerHidden);
+    return () => document.documentElement.removeAttribute("data-header-hidden");
+  }, [headerHidden]);
 
   return (
     <>
       <header
+        ref={headerRef}
+        onFocus={() => setHidden(false)}
         className={cn(
-          "sticky top-0 z-50 h-(--header-h) border-b transition-[background-color,border-color,box-shadow] duration-300",
+          "sticky top-0 z-50 h-(--header-h) border-b transition-[background-color,border-color,box-shadow,translate] duration-300 ease-out-expo lg:translate-y-0",
           scrolled ? "border-primary/15 bg-cream shadow-[0_10px_30px_-22px_rgb(28_28_24/0.4)]" : "border-transparent bg-cream",
+          headerHidden && "-translate-y-full shadow-none",
         )}
       >
-        <div className="mx-auto flex h-full max-w-[100rem] items-center justify-between gap-6 px-5 md:px-10 lg:px-14">
+        {/* pr-3: el botón de menú lleva su propio relleno y su icono queda alineado con el margen de 20 px */}
+        <div className="mx-auto flex h-full max-w-[100rem] items-center justify-between gap-3 pr-3 pl-5 sm:gap-6 md:px-10 lg:px-14">
           <Link
             href="/"
-            className="font-serif text-[1.3rem] leading-none font-extrabold tracking-[-0.03em] whitespace-nowrap text-primary uppercase transition-opacity hover:opacity-80 lg:text-[1.6rem] xl:text-[1.85rem]"
+            className="line-clamp-2 min-w-0 font-serif text-[clamp(1.05rem,5.6vw,1.3rem)] leading-[0.95] font-extrabold tracking-[-0.03em] text-balance text-primary uppercase transition-opacity hover:opacity-80 lg:line-clamp-none lg:shrink-0 lg:text-[1.6rem] lg:whitespace-nowrap xl:text-[1.85rem]"
           >
             {name}
           </Link>
@@ -105,9 +142,10 @@ export function SiteHeader({
             aria-expanded={open}
             aria-controls="menu-movil"
             aria-haspopup="dialog"
-            className="-mr-2 inline-flex h-11 items-center gap-3 px-2 text-ink lg:hidden"
+            className="inline-flex h-11 min-w-11 shrink-0 items-center justify-center gap-3 px-2 text-ink lg:hidden"
           >
-            <span className="text-xs font-bold tracking-[0.18em] uppercase">Menú</span>
+            {/* En pantallas muy estrechas solo el icono (el texto sigue disponible para lectores de pantalla) */}
+            <span className="sr-only text-xs font-bold tracking-[0.18em] uppercase min-[24rem]:not-sr-only">Menú</span>
             <span aria-hidden className="flex w-6 flex-col gap-[5px]">
               <span className="h-0.5 w-full bg-current" />
               <span className="h-0.5 w-full bg-current" />

@@ -5,6 +5,11 @@ Web y panel privado de **La Tasquita de Sara**, bar de tapas en Valdemoro (Madri
 - **Web:** https://tasquita.vercel.app — portada, carta (`/carta`) y eventos (`/eventos`).
 - **Panel:** https://tasquita.vercel.app/admin — carta, eventos, textos, fotos y horario. Acceso con contraseña + app de autenticación (2FA obligatorio).
 
+## Funcionalidades
+
+- **Web:** carta con navegación por secciones, insignias (premio, más pedido, casero, nuevo), medidas con precio, agotados del día y alérgenos; menú del día; reservas por WhatsApp con franjas según el horario; estado "abierto/cerrado" con festivos y vacaciones; eventos con "añadir al calendario" y compartir; barra de acciones en móvil; mapa bajo demanda; páginas legales; SEO (JSON-LD, sitemap, Open Graph).
+- **Panel:** inicio con estado del local y aviso rápido; carta (reordenar, ocultar, agotado hoy, medidas, alérgenos, QR imprimible para las mesas); menú del día; eventos; textos, fotos, horario, cierres, WhatsApp, reseñas y datos legales; seguridad (2FA, sesiones, códigos de respaldo). Instalable como app en el móvil.
+
 ## Stack
 
 | Capa | Tecnología |
@@ -37,6 +42,7 @@ npm run dev                  # http://localhost:3000
 | `npm run db:migrate` | Aplica las migraciones pendientes a la base de `DATABASE_URL` |
 | `npm run db:studio` | Drizzle Studio para ver/editar datos |
 | `npm run db:import-legacy` | Importa los datos del panel antiguo (Prisma). Idempotente |
+| `npm run carta:replace [-- --yes]` | Sustituye la carta entera por `scripts/data/carta.ts` (sin `--yes` solo muestra qué haría) |
 | `npm run admin:reset-password -- <email> "<contraseña>"` | Cambia (o crea) la contraseña del panel y cierra sus sesiones |
 | `npm run admin:reset-2fa -- <email>` | Quita el 2FA de una cuenta (móvil perdido); se pedirá configurarlo al entrar |
 

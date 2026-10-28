@@ -67,12 +67,15 @@ export default async function EventosPage() {
       <header className="mx-auto max-w-[100rem] px-5 pt-8 pb-8 md:px-10 md:pt-14 md:pb-12 lg:px-14">
         <p className="mb-4 flex items-center gap-3 text-xs font-bold tracking-[0.2em] text-primary uppercase">
           <span aria-hidden className="h-px w-10 bg-gold" />
-          Agenda
-          {events.length > 0 && (
-            <span className="lg:hidden">
-              · {events.length} {events.length === 1 ? "próximo" : "próximos"}
-            </span>
-          )}
+          <span>
+            Agenda
+            {events.length > 0 && (
+              <span className="lg:hidden">
+                {" "}
+                · {events.length} {events.length === 1 ? "próximo" : "próximos"}
+              </span>
+            )}
+          </span>
         </p>
         <div className="flex items-end justify-between gap-6 border-b-[3px] border-gold pb-4">
           <h1 className="-ml-[0.04em] font-serif text-[clamp(3.5rem,16vw,13rem)] leading-[0.8] font-extrabold tracking-[-0.045em] text-primary uppercase italic">

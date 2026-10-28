@@ -66,13 +66,12 @@ export function HoursEditor({ value, onChange, dayError, fieldId }: Props) {
           const error = dayError(day);
           const label = WEEKDAY_LABELS[day];
           return (
-            <li key={day} id={fieldId(`openingHours.${day}`)} tabIndex={-1} className={cn("p-4 outline-none md:p-5", !open && "bg-cream-100/60")}>
+            <li key={day} id={fieldId(`openingHours.${day}`)} tabIndex={-1} className={cn("p-3.5 outline-none sm:p-4 md:p-5", !open && "bg-cream-100/60")}>
               <Switch
                 checked={open}
                 onCheckedChange={(v) => toggleDay(day, v)}
                 label={label}
                 description={open ? undefined : "Cerrado"}
-                className="min-h-10"
               />
 
               {open && (
@@ -221,7 +220,7 @@ function TimeInput({ id, label, value, onChange }: { id?: string; label: string;
       aria-label={label}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="h-12 min-w-0 flex-1 appearance-none rounded-xl border border-cream-400 bg-white px-3 text-center text-base text-ink tabular-nums transition focus:border-primary focus:ring-4 focus:ring-primary/15 focus:outline-none [&::-webkit-date-and-time-value]:text-center"
+      className="h-12 min-w-0 flex-1 appearance-none rounded-xl border border-cream-400 bg-white px-2 text-center max-sm:[&::-webkit-calendar-picker-indicator]:hidden sm:px-3 text-base text-ink tabular-nums transition focus:border-primary focus:ring-4 focus:ring-primary/15 focus:outline-none [&::-webkit-date-and-time-value]:text-center"
     />
   );
 }
@@ -231,7 +230,7 @@ function SmallAction({ icon: Icon, onClick, children }: { icon: React.ComponentT
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-primary transition hover:bg-primary-light"
+      className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-primary transition hover:bg-primary-light"
     >
       <Icon className="size-3.5" aria-hidden />
       {children}

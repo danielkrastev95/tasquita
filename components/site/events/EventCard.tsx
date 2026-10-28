@@ -41,8 +41,8 @@ export function EventCard({
     >
       <div
         className={cn(
-          "relative aspect-[16/10] overflow-hidden md:aspect-[16/8] lg:aspect-auto lg:min-h-[26rem]",
-          event.imageUrl ? "bg-primary-dark" : category.panel,
+          "relative overflow-hidden md:aspect-[16/8] lg:aspect-auto lg:min-h-[26rem]",
+          event.imageUrl ? "aspect-[16/10] bg-primary-dark" : cn("aspect-[5/2]", category.panel),
           reversed && "lg:order-2",
         )}
       >
@@ -51,7 +51,7 @@ export function EventCard({
             src={event.imageUrl}
             alt=""
             fill
-            sizes="(min-width: 1024px) 46vw, 100vw"
+            sizes="(min-width: 1024px) 46vw, calc(100vw - 2.5rem)"
             className="object-cover transition-transform duration-[1.2s] ease-out-expo hover:scale-[1.03]"
           />
         ) : (
@@ -89,7 +89,7 @@ export function EventCard({
           {event.title}
         </Heading>
         {event.description && (
-          <p className="mt-4 max-w-prose text-[0.9375rem] leading-relaxed whitespace-pre-line text-ink-muted text-pretty md:text-base">
+          <p className="mt-4 max-w-prose text-base leading-relaxed whitespace-pre-line text-ink-muted text-pretty md:text-base">
             {event.description}
           </p>
         )}

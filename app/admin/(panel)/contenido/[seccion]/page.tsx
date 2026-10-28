@@ -55,7 +55,7 @@ export default async function ContentSectionPage({ params }: { params: Params })
                   href={sectionHref(key)}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm transition",
+                    "flex min-h-11 items-center gap-2.5 rounded-lg px-3 text-sm transition",
                     active ? "bg-white font-semibold text-primary-dark shadow-sm" : "text-ink-muted hover:bg-white/60 hover:text-ink",
                   )}
                 >

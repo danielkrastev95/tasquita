@@ -13,6 +13,7 @@ import type { SectionValues } from "@/lib/validations/settings";
 import { normalizeWhatsappPhone, whatsappLink } from "@/lib/whatsapp";
 import { ClosuresEditor, type ClosureDraft } from "./ClosuresEditor";
 import { SectionForm, TextRow, useSectionForm } from "./SectionForm";
+import { StringListEditor, fromEntries, toEntries, type ListEntry } from "./StringListEditor";
 
 /* Secciones de Contenido añadidas para el día a día del bar. */
 
@@ -52,6 +53,61 @@ export function CierresForm({ initial, today }: { initial: SectionValues<"cierre
           {upcoming.length === 1 ? "1 cierre por venir" : `${upcoming.length} cierres por venir`}. Al guardar se ordenan por fecha.
         </p>
       )}
+    </SectionForm>
+  );
+}
+
+/* ─────────────────────────── Notas de la carta ─────────────────────────── */
+
+const NOTE_IDEAS = ["IVA incluido.", "Porción de pan: 1 €.", "Suplemento del 10 % en terraza.", "Consulta los alérgenos a nuestro personal."];
+
+export function NotasForm({ initial }: { initial: SectionValues<"notas"> }) {
+  const toState = (v: SectionValues<"notas">) => ({ menuNotes: toEntries(v.menuNotes, "n") });
+  const form = useSectionForm<"notas", { menuNotes: ListEntry[] }>("notas", toState(initial), {
+    toPayload: (v) => ({ menuNotes: fromEntries(v.menuNotes) }),
+    fromSaved: toState,
+  });
+  const notes = form.values.menuNotes;
+  const present = new Set(notes.map((n) => n.text.trim().toLowerCase()));
+  const ideas = NOTE_IDEAS.filter((idea) => !present.has(idea.toLowerCase()));
+
+  return (
+    <SectionForm form={form}>
+      <Card>
+        <CardTitle description="Salen al final de la carta, en letra pequeña. Una idea por nota; el orden de aquí es el de la web.">Notas al pie</CardTitle>
+        <StringListEditor
+          title="Notas"
+          hideHeader
+          items={notes}
+          onChange={(next) => form.set("menuNotes", next)}
+          max={8}
+          maxLength={200}
+          placeholder="Ej.: Porción de pan: 1 €."
+          itemLabel="nota"
+          inputId={(index) => form.fieldId(`menuNotes.${index}`)}
+          error={form.errorFor("menuNotes", true)}
+          emptyHint="Puedes pegar varias notas a la vez, una por línea."
+        />
+        {ideas.length > 0 && notes.length < 8 && (
+          <div className="mt-4">
+            <p className="mb-2 text-xs font-medium text-ink-muted">Ideas habituales</p>
+            <div className="flex flex-wrap gap-2">
+              {ideas.map((idea) => (
+                <button
+                  key={idea}
+                  type="button"
+                  onClick={() => form.set("menuNotes", [...notes, { key: `idea-${idea}`, text: idea }])}
+                  className="inline-flex min-h-11 items-center gap-1 rounded-full border border-cream-400 bg-white px-3 text-xs font-medium text-ink transition hover:border-primary hover:text-primary"
+                >
+                  <Plus className="size-3.5" aria-hidden />
+                  {idea}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        <p className="mt-4 text-right text-xs text-ink-muted tabular-nums">{notes.length}/8 notas</p>
+      </Card>
     </SectionForm>
   );
 }
@@ -232,7 +288,7 @@ export function LegalForm({ initial, businessAddress }: { initial: SectionValues
               <button
                 type="button"
                 onClick={() => form.set("legalAddress", businessAddress)}
-                className="inline-flex min-h-10 items-center rounded-lg px-1 text-xs font-semibold text-primary underline-offset-2 hover:underline"
+                className="inline-flex min-h-11 items-center rounded-lg px-1 text-left text-xs font-semibold text-primary underline-offset-2 hover:underline"
               >
                 Usar la dirección del bar ({businessAddress})
               </button>

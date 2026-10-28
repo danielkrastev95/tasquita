@@ -62,7 +62,7 @@ export function QrStudio({ url, svg, name, instagram }: Props) {
 
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-start md:gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-start md:gap-6">
         <Card>
           <CardTitle>El código</CardTitle>
           <div className="mx-auto w-full max-w-64 rounded-2xl border border-cream-400/70 bg-white p-4 shadow-sm">
@@ -70,7 +70,7 @@ export function QrStudio({ url, svg, name, instagram }: Props) {
           </div>
           <p className="mt-4 text-center text-sm text-ink-muted">
             Abre{" "}
-            <a href={url} target="_blank" rel="noopener" className="inline-flex items-center gap-1 font-semibold break-all text-primary underline-offset-2 hover:underline">
+            <a href={url} target="_blank" rel="noopener" className="-my-3 inline-flex items-center gap-1 py-3 font-semibold break-all text-primary underline-offset-2 hover:underline">
               {displayUrl}
               <ExternalLink className="size-3.5 shrink-0" aria-hidden />
             </a>
@@ -108,9 +108,9 @@ export function QrStudio({ url, svg, name, instagram }: Props) {
             ))}
           </div>
 
-          <div className="mt-5 flex justify-center rounded-2xl bg-cream-200/70 p-5">
-            {/* Vista previa a escala (el mismo diseño que se imprime) */}
-            <div style={{ fontSize: format === "a6" ? "10px" : "9px" }} className="shadow-lg">
+          <div className="@container mt-5 flex justify-center rounded-2xl bg-cream-200/70 p-4 sm:p-5">
+            {/* Vista previa a escala (el mismo diseño que se imprime); se encoge en pantallas estrechas */}
+            <div style={{ fontSize: `min(${format === "a6" ? 10 : 9}px, calc(100cqi / 26.25))` }} className="shadow-lg">
               <MenuCard svg={svg} name={name} instagram={instagram} displayUrl={displayUrl} />
             </div>
           </div>

@@ -26,6 +26,10 @@ function summary(section: SettingsSectionKey, s: SiteSettings): { text: string; 
       const next = upcomingClosures(s.specialClosures);
       return next.length ? { text: next.map((c) => describeClosure(c) + (c.note ? ` (${c.note})` : "")).join(" · ") } : { text: "Ninguno previsto", tone: "off" };
     }
+    case "notas":
+      return s.menuNotes.length
+        ? { text: s.menuNotes.length === 1 ? s.menuNotes[0] : `${s.menuNotes.length} notas · ${s.menuNotes[0]}` }
+        : { text: "Sin notas", tone: "off" };
     case "reservas":
       if (!s.whatsappEnabled) return { text: "WhatsApp desactivado", tone: "off" };
       return { text: s.reservationsEnabled ? `Reservas activas · ${s.whatsappPhone}` : `Solo botón de WhatsApp · ${s.whatsappPhone}`, tone: "on" };
