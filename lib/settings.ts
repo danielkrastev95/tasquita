@@ -15,18 +15,7 @@ export const timeRangeSchema = z.object({
 });
 export type TimeRange = z.infer<typeof timeRangeSchema>;
 
-export const WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
-export type Weekday = (typeof WEEKDAYS)[number];
-
-export const WEEKDAY_LABELS: Record<Weekday, string> = {
-  mon: "Lunes",
-  tue: "Martes",
-  wed: "Miércoles",
-  thu: "Jueves",
-  fri: "Viernes",
-  sat: "Sábado",
-  sun: "Domingo",
-};
+export { WEEKDAYS, WEEKDAY_LABELS, type Weekday } from "@/lib/weekdays";
 
 const day = z.array(timeRangeSchema).max(3);
 

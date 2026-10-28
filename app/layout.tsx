@@ -39,7 +39,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es" className={`${newsreader.variable} ${spaceGrotesk.variable}`}>
+    <html lang="es" data-scroll-behavior="smooth" className={`${newsreader.variable} ${spaceGrotesk.variable}`}>
       <body>{children}</body>
     </html>
   );

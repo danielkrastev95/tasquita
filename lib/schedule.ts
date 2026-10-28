@@ -1,4 +1,5 @@
-import { WEEKDAYS, WEEKDAY_LABELS, type OpeningHours, type TimeRange, type Weekday } from "@/lib/settings";
+import type { OpeningHours, TimeRange } from "@/lib/settings";
+import { WEEKDAYS, WEEKDAY_LABELS, type Weekday } from "@/lib/weekdays";
 
 export const TIME_ZONE = "Europe/Madrid";
 

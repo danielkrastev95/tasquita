@@ -1,81 +1,92 @@
-```markdown
-# Design System Strategy: Editorial Brutalism
+# Sistema de diseño — La Tasquita de Sara
 
-## 1. Overview & Creative North Star
-**Creative North Star: "The Raw Sommelier"**
+**Brutalismo editorial de barrio.** Una carta impresa de vanguardia: crema + teal + oro, titulares
+Newsreader enormes, etiquetas Space Grotesk en mayúsculas, esquinas a 0 px y rejillas con líneas
+de 1 px. Comida siempre **a color**. Móvil primero.
 
-This design system rejects the "templated" nature of modern hospitality apps in favor of a high-impact, editorial experience. It balances the aggressive, unapologetic structuralism of Brutalism with the refined sophistication of a boutique dining room. We achieve this through "The Raw Sommelier" approach: using stark, unyielding layouts (the "Raw") paired with exquisite typography and a high-fashion color palette (the "Sommelier").
-
-The experience must feel like a physical, printed avant-garde menu. We break the grid intentionally—allowing oversized typography to bleed off-canvas and using extreme contrast to guide the user’s eye. This is not just a digital tool; it is a digital manifestation of the restaurant’s physical atmosphere: edgy, intentional, and unforgettable.
-
----
-
-## 2. Colors: High-Contrast Vibrancy
-Our palette is anchored in the earth (Deep Terracotta) but electrified by the modern (Electric Orange), all set against a canvas of Stark Cream.
-
-*   **Primary (`#a73411`) & Secondary (`#a63b00`):** These represent the "heart" of the kitchen—fire, clay, and intensity. Use `primary` for high-action CTAs and `secondary` for secondary highlights or vibrant accents.
-*   **The Backdrop (`#fcf9f3`):** Never use pure white. The `surface` and `background` tokens provide a "stark cream" that feels organic and premium, like heavy-weight cardstock.
-*   **The "No-Line" Rule:** In this system, **1px solid borders are strictly prohibited.** To define sections, you must use background color shifts. For example, a menu category section should use `surface-container-low` to distinguish itself from the `surface` background. The eye should perceive boundaries through color blocks, not lines.
-*   **Surface Hierarchy:** Use the `surface-container` tiers to create "nested" depth.
-    *   *Hero sections:* `surface`
-    *   *Content blocks:* `surface-container-low`
-    *   *Interactive elements:* `surface-container-high`
-*   **Signature Textures:** For hero backgrounds or primary buttons, apply a subtle linear gradient from `primary` to `primary_container`. This adds a "soul" to the flat Brutalist aesthetic, preventing it from feeling sterile.
+La web pública vive en `app/(site)/` y `components/site/`; el panel (`/admin`) comparte tokens
+pero usa sus propios componentes (`components/ui`, `components/admin`).
 
 ---
 
-## 3. Typography: The Editorial Voice
-The typography is the architecture of this system. We mix the intellectual weight of a high-end serif with the technical precision of a monospaced font.
+## 1. Tokens (`app/globals.css`, bloque `@theme`)
 
-*   **Display & Headline (Newsreader):** Use these for the "story." These should be oversized. Do not be afraid to use `display-lg` for single words or short phrases. The oversized serifs convey heritage and luxury.
-*   **Body & Labels (Space Grotesk):** This monospaced-leaning sans-serif provides the "Brutalist" edge. It feels like a kitchen order ticket or a technical manual. Use `body-md` for descriptions and `label-md` for utility text.
-*   **Intentional Friction:** Use `headline-lg` for menu item names and immediately follow with `label-sm` in all-caps for pricing. This juxtaposition of scale creates an "ultra-creative" editorial feel.
+| Token | Valor | Uso |
+|---|---|---|
+| `cream` | `#fcf9f3` | Fondo de página. Nunca blanco puro. |
+| `cream-100…400` | `#f6f3ed` → `#e5e2dc` | Placeholders de imagen (`cream-300`), rellenos, hovers. |
+| `primary` | `#2f7780` | Teal de marca: titulares, botones, líneas de rejilla. |
+| `primary-dark` | `#1f5f67` | Hover, etiquetas de precio, barra de aviso. |
+| `primary-light` | `#e3efef` | Fondos suaves (panel). |
+| `gold` | `#c7af65` | **Solo decorativo o sobre oscuro**: reglas, puntos, números en el pie. |
+| `gold-deep` | `#8a6f22` | Oro **legible sobre crema** (AA) para texto pequeño: numeración, "N.º", contadores. |
+| `ink` | `#1c1c18` | Texto principal y secciones oscuras (pie). |
+| `ink-muted` | `#58413b` | Texto secundario sobre crema. |
+| `danger` / `success` | `#b42318` / `#1f7a4d` | Cerrado / abierto. |
 
----
+Contraste: nada de oro claro en texto pequeño sobre crema; sobre teal, texto blanco o crema.
+Glovo `#ffc244` y Uber Eats `#06c167` llevan texto oscuro (blanco no pasa AA).
 
-## 4. Elevation & Depth: Tonal Layering
-Because our **roundedness scale is strictly 0px**, we cannot rely on "bubbles" to show depth. We use "The Layering Principle."
+Variables de layout (también en `globals.css`): `--header-h` (60 px móvil, 72 px desde `lg`) y
+`--chips-h` (barra de categorías de la carta). `html:has([data-site])` aplica `scroll-padding-top`
+para que los anclajes no queden bajo la cabecera.
 
-*   **Tonal Layering:** Depth is achieved by stacking. Place a `surface-container-lowest` card on top of a `surface-container-low` background. The subtle shift in cream/beige creates a natural lift.
-*   **Ambient Shadows:** If an element must float (e.g., a mobile navigation bar), use an extra-diffused shadow.
-    *   *Shadow Color:* Use a 6% opacity version of `on-surface`.
-    *   *Blur:* 24px–48px. This mimics soft gallery lighting rather than a digital drop-shadow.
-*   **The "Ghost Border" Fallback:** If accessibility requires a border, use the `outline-variant` at 15% opacity. It should be felt, not seen.
-*   **Glassmorphism:** For overlays or "Sold Out" states, use `surface` with a 70% opacity and a `backdrop-filter: blur(12px)`. This allows the vibrant electric oranges to bleed through the "frosted glass," maintaining a sense of place.
+## 2. Tipografía
 
----
+- **Newsreader** (`font-serif`, 400–800, con cursiva): titulares, nombres de plato, precios grandes,
+  cifras. Siempre `uppercase`, `font-extrabold`, tracking negativo (`-0.025em` a `-0.045em`).
+  - Display (hero, "Carta", "Eventos"): `text-[clamp(…vw…)]`, `leading-[0.78–0.86]`.
+  - Secciones oscuras ("Cocina de barrio", "Visítanos"): cursiva, blanco.
+  - Si el titular puede llevar tildes en la 2.ª línea, `leading ≥ 0.92` para que no choquen.
+- **Space Grotesk** (`font-sans`, por defecto): texto, datos y etiquetas.
+  - Etiqueta: `text-xs font-bold uppercase tracking-[0.16em–0.2em]`. **Mínimo 12 px** (11 px solo
+    en micro-etiquetas sobre fondo sólido de alto contraste).
+  - Cuerpo: 15–18 px, `leading-relaxed`, `text-pretty`.
+- Titulares largos: `text-balance`; tamaños con `clamp()` probados a 320/390/768/1440
+  (p. ej. "DE CARNE VA LA COSA", "HAMBURGUESAS").
 
-## 5. Components: Raw & Functional
+## 3. Composición
 
-*   **Buttons:** 
-    *   **Primary:** Sharp 0px corners, `primary` background, `on-primary` text. Use `title-sm` for button labels.
-    *   **Tertiary:** No background. Use `title-sm` with an underline that is 2px thick, using the `secondary` color.
-*   **Cards (The Menu Item):** 
-    *   No borders. No dividers.
-    *   Use `surface-container-low` for the card background.
-    *   Image should be 100% width, flush to the top and sides (0px radius).
-*   **Input Fields:**
-    *   Bottom-border only (2px `outline`).
-    *   Labels must use `label-md` in `primary` color to stand out against the cream background.
-*   **Chips:** 
-    *   Rectangular (0px).
-    *   Use `secondary_container` for "Chef's Special" tags to provide a pop of "Electric Orange."
-*   **Lists:** 
-    *   **Forbid Divider Lines.** Use `spacing-6` (2rem) of vertical white space to separate list items. The lack of lines forces the user to engage with the typography as the primary navigational tool.
-*   **Signature Component - "The Ticket":** Use for reservation summaries. A `surface-container-highest` vertical block with `body-sm` (Space Grotesk) text, mimicking a thermal printer receipt from the kitchen.
+- **Contenedor**: `mx-auto max-w-[100rem] px-5 md:px-10 lg:px-14`.
+- **Rejillas con líneas**: contenedor `grid gap-px border border-primary bg-primary` y celdas
+  `bg-cream`. Para no dejar un bloque teal en la última fila usa `<GridFillers count cols />`
+  (celdas rayadas `bg-hatch`). No animes la opacidad de celdas sueltas dentro de estas rejillas
+  (se vería el teal): anima la rejilla entera.
+- **Numeración** 01/02/03 en `gold-deep`; números decorativos grandes con `glyph-outline`
+  (contorno). Ojo: no uses clases `text-*` para utilidades propias, `tailwind-merge` las borra.
+- **Reglas**: borde superior oro de 6–8 px para abrir secciones; 3 px bajo cabeceras de página.
+- **Bandas oscuras**: `bg-ink` + foto al 35–50 % de opacidad + degradado + `bg-grain`, titular
+  gigante en cursiva abajo a la izquierda.
+- **Esquinas**: 0 px siempre. Sombras solo en elementos flotantes (cabecera al hacer scroll,
+  etiqueta de evento).
 
----
+## 4. Componentes de la web (`components/site`)
 
-## 6. Do's and Don'ts
+| Pieza | Notas |
+|---|---|
+| `SiteHeader` + `MobileMenu` | Cabecera sticky. Menú móvil a pantalla completa: Esc, foco atrapado y devuelto, scroll bloqueado, horario real y estado abierto/cerrado. |
+| `OpenStatus`, `OpeningHoursList` | Calculados **en cliente** (la página es estática) con `useMinute()`; refresco cada minuto. Resaltan HOY. |
+| `home/Hero` | Móvil: titular → fotos → acciones en la primera pantalla. Escritorio: 2 columnas. Marquesina de fondo, rejilla `bg-grid` y `HeroGrid` (canvas solo con ratón y sin "reducir movimiento"). |
+| `carta/CategoryNav` | Chips sticky bajo la cabecera, scrollspy con IntersectionObserver. Sin JS son anclas normales. |
+| `carta/MenuItemCard` | Con foto: etiqueta de precio sobre la imagen. Sin foto: tarjeta tipográfica (N.º, precio grande, número en contorno); en secciones con fotos, "cartel" teal del tamaño de la foto para cuadrar filas. Insignias: premio (oro), Más pedido (teal), Hecho en casa (tinta). Alérgenos con abreviatura + nombre accesible. |
+| `events/EventCard` | Fecha tipo entrada (día gigante + mes/día/hora), categoría como etiqueta, foto o bloque tipográfico. |
+| `home/MapFacade` | Fachada del mapa (plano abstracto + dirección): no se pide nada a Google hasta pulsar "Ver mapa interactivo"; el iframe se monta en el mismo hueco. |
+| `DeliveryLinks` / `DeliveryInline` | Botones de marca o versión discreta en línea. |
+| `SmartImage` | `getImageProps` en servidor (sin JS): Cloudinary → su loader; Unsplash/Uber → optimizador; otros dominios → `unoptimized`. Fondo `cream-300` como placeholder. |
 
-### Do:
-*   **Embrace the Edge:** Let images and text touch the edge of the screen occasionally for a "full-bleed" editorial look.
-*   **Exaggerate Scale:** Make headers much larger than you think they should be.
-*   **Use Mono for Data:** Use Space Grotesk for anything numerical (prices, times, dates). It looks authoritative and raw.
-*   **Utilize Asymmetry:** Offset images or text blocks by using different spacing values (e.g., `spacing-4` on the left, `spacing-8` on the right).
+Fotos: primero las reales (ajustes y carta, ver `photos.ts`); Unsplash solo como último recurso.
 
-### Don't:
-*   **Never Use Border Radius:** Every corner must be a sharp 90-degree angle (0px).
-*   **Avoid Softness:** Do not use pastels or soft blurs. Every color choice should be deliberate and high-contrast.
-*   **No Standard Grids:** Avoid the "3-column card row" whenever possible. Try a 2-column staggered layout to maintain the boutique, custom feel.
-*   **No Dividers:** If you feel the need for a line, use a background color change or more white space instead. Lines are the enemy of this system's raw aesthetic.
+## 5. Movimiento
+
+- Entrada del hero con CSS (`animate-rise`, `animate-settle`); el titular **no** depende de
+  ninguna animación.
+- Aparición al hacer scroll con `.reveal` (scroll-driven animations, sin JS). Si el navegador no
+  lo soporta o el usuario pide menos movimiento, el contenido simplemente está.
+- `motion/react` solo para piezas con estado (menú móvil), con `LazyMotion` + `MotionConfig
+  reducedMotion="user"` en `MotionProvider`.
+- Curva de marca: `ease-out-expo`. Hovers: 200–300 ms; imágenes: zoom 1.03–1.04.
+
+## 6. Accesibilidad (mínimos)
+
+Skip-link, landmarks, `aria-current`, objetivos táctiles ≥ 44 px, foco visible teal, contraste AA,
+`alt` real en fotos de contenido y `alt=""` en fondos decorativos, enlaces externos anunciados.
