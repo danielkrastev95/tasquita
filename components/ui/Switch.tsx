@@ -29,7 +29,11 @@ export function Switch({ checked, onCheckedChange, label, description, disabled,
         aria-checked={checked}
         disabled={disabled}
         onClick={() => onCheckedChange(!checked)}
-        className={cn("relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors", checked ? "bg-primary" : "bg-cream-400")}
+        // before: amplía la zona táctil a 44px sin cambiar el tamaño visual
+        className={cn(
+          "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors before:absolute before:-inset-2 before:content-['']",
+          checked ? "bg-primary" : "bg-cream-400",
+        )}
       >
         <span className={cn("inline-block size-5 rounded-full bg-white shadow transition-transform", checked ? "translate-x-6" : "translate-x-1")} />
       </button>
