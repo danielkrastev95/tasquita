@@ -1,52 +1,89 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* ──────────────────────────────────────────────────────────────────────────
+ * Design tokens — "Editorial de barrio"
+ * Teal + oro sobre crema. Newsreader (titulares) + Space Grotesk (texto/datos).
+ * Úsalos como utilidades: bg-cream, text-primary, font-serif, etc.
+ * ────────────────────────────────────────────────────────────────────────── */
+@theme {
+  --color-primary: #2f7780;
+  --color-primary-dark: #1f5f67;
+  --color-primary-light: #e3efef;
+  --color-gold: #c7af65;
+  /* Oro con contraste AA sobre crema para texto pequeño */
+  --color-gold-deep: #8a6f22;
+  --color-cream: #fcf9f3;
+  --color-cream-100: #f6f3ed;
+  --color-cream-200: #f0eee8;
+  --color-cream-300: #ebe8e2;
+  --color-cream-400: #e5e2dc;
+  --color-ink: #1c1c18;
+  --color-ink-muted: #58413b;
+  --color-danger: #b42318;
+  --color-success: #1f7a4d;
+
+  --font-serif: var(--font-newsreader), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-marquee: marquee 32s linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: var(--font-montserrat);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-montserrat);
-}
-
-@keyframes marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.marquee-scroll {
-  display: inline-block;
-  white-space: nowrap;
-  animation: marquee 24s linear infinite;
-}
-
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .scrollbar-hide::-webkit-scrollbar {
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    @apply bg-primary text-white;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
     display: none;
   }
+}
 
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
+@utility text-balance {
+  text-wrap: balance;
+}
+
+@utility text-pretty {
+  text-wrap: pretty;
 }

@@ -1,16 +1,24 @@
-import { auth } from "@/lib/auth";
+import { getSessionCookie } from "better-auth/cookies";
+import { NextResponse, type NextRequest } from "next/server";
 
-export default auth;
+/**
+ * Primera barrera (optimista, sin BD): sin cookie de sesión no se entra al panel.
+ * La verificación real (sesión válida + 2FA activo) se hace en servidor con requireAdmin().
+ */
+export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const isPublicAdminRoute = pathname === "/admin/login";
+
+  if (!isPublicAdminRoute && !getSessionCookie(request)) {
+    const url = new URL("/admin/login", request.url);
+    return NextResponse.redirect(url);
+  }
+
+  const response = NextResponse.next();
+  response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  return response;
+}
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/auth (NextAuth handles this)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/admin/:path*"],
 };

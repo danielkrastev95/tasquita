@@ -1,93 +1,84 @@
-import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
+import "server-only";
 import bcrypt from "bcryptjs";
-import { rateLimit } from "@/lib/rate-limit";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
+import { twoFactor } from "better-auth/plugins";
+import { db, schema } from "@/lib/db";
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/admin/login",
+export const SITE_NAME = "La Tasquita de Sara";
+
+function resolveBaseURL() {
+  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
+  if (process.env.VERCEL_ENV === "production" && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000";
+}
+
+const trustedOrigins = [
+  resolveBaseURL(),
+  process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`,
+  process.env.VERCEL_BRANCH_URL && `https://${process.env.VERCEL_BRANCH_URL}`,
+  process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`,
+].filter((origin): origin is string => Boolean(origin));
+
+export const auth = betterAuth({
+  appName: SITE_NAME,
+  baseURL: resolveBaseURL(),
+  secret: process.env.BETTER_AUTH_SECRET,
+  trustedOrigins,
+  database: drizzleAdapter(db, {
+    provider: "pg",
+    schema: {
+      user: schema.users,
+      session: schema.sessions,
+      account: schema.accounts,
+      verification: schema.verifications,
+      twoFactor: schema.twoFactors,
+      rateLimit: schema.rateLimits,
+    },
+  }),
+  emailAndPassword: {
+    enabled: true,
+    // Panel privado: no hay registro público. La cuenta se crea con scripts/.
+    disableSignUp: true,
+    minPasswordLength: 10,
+    maxPasswordLength: 128,
+    // bcrypt para mantener compatibles las contraseñas existentes del panel anterior.
+    password: {
+      hash: (password) => bcrypt.hash(password, 12),
+      verify: ({ hash, password }) => bcrypt.compare(password, hash),
+    },
   },
-  callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const isOnAdmin = nextUrl.pathname.startsWith("/admin");
-      const isOnAdminLogin = nextUrl.pathname.startsWith("/admin/login");
-      const isOnApiAdmin = nextUrl.pathname.startsWith("/api/admin");
-
-      // Block API routes without auth
-      if (isOnApiAdmin && !isLoggedIn) {
-        return false;
-      }
-
-      // Redirect admin pages to login if not authenticated
-      if (isOnAdmin && !isOnAdminLogin && !isLoggedIn) {
-        return Response.redirect(new URL("/admin/login", nextUrl));
-      }
-
-      // Redirect to dashboard if already logged in and trying to access login
-      if (isOnAdminLogin && isLoggedIn) {
-        return Response.redirect(new URL("/admin", nextUrl));
-      }
-
-      return true; // Allow all other routes
-    },
-    async jwt({ token, user }) {
-      if (user) {
-        token.role = user.role;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.role = (token.role as string) || "";
-        session.user.id = (token.sub as string) || "";
-      }
-      return session;
+  session: {
+    expiresIn: 60 * 60 * 24 * 14, // 14 días
+    updateAge: 60 * 60 * 24, // renueva una vez al día
+  },
+  rateLimit: {
+    enabled: process.env.NODE_ENV === "production",
+    storage: "database",
+    window: 60,
+    max: 100,
+    customRules: {
+      "/sign-in/email": { window: 60 * 5, max: 5 },
+      "/two-factor/verify-totp": { window: 60 * 5, max: 6 },
+      "/two-factor/verify-backup-code": { window: 60 * 5, max: 5 },
+      "/change-password": { window: 60 * 5, max: 5 },
     },
   },
-  providers: [
-    Credentials({
-      credentials: {
-        email: { type: "email" },
-        password: { type: "password" },
-      },
-      async authorize(credentials, request) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
-        // Rate limit login attempts by IP
-        const forwarded = request?.headers?.get?.("x-forwarded-for");
-        const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
-        const { success } = rateLimit(`login:${ip}`, 5, 15 * 60 * 1000);
-        if (!success) return null;
-
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-        });
-
-        if (!user) {
-          return null;
-        }
-
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
-          user.passwordHash
-        );
-
-        if (!isValid) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        };
-      },
+  advanced: {
+    ipAddress: { ipAddressHeaders: ["x-forwarded-for", "x-real-ip"] },
+  },
+  plugins: [
+    twoFactor({
+      issuer: SITE_NAME,
+      trustDeviceMaxAge: 60 * 60 * 24 * 30, // "Recordar este dispositivo" 30 días
+      accountLockout: { enabled: true, maxFailedAttempts: 8, durationSeconds: 60 * 15 },
     }),
+    nextCookies(), // debe ser el último plugin
   ],
 });
+
+export type Session = typeof auth.$Infer.Session;

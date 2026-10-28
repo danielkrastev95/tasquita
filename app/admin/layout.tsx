@@ -1,16 +1,16 @@
-import { Suspense } from "react";
-import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
+import type { Metadata } from "next";
+import { Toaster } from "sonner";
 
-export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: { default: "Panel", template: "%s · Panel · La Tasquita" },
+  robots: { index: false, follow: false },
+};
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <AdminLayoutClient>
-      <Suspense>{children}</Suspense>
-    </AdminLayoutClient>
+    <div className="min-h-dvh bg-cream-100 text-ink">
+      {children}
+      <Toaster position="top-center" richColors closeButton toastOptions={{ className: "font-sans" }} />
+    </div>
   );
 }

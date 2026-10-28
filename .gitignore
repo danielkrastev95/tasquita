@@ -1,34 +1,31 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# dependencias
 /node_modules
 /.pnp
 .pnp.js
 
-# testing
+# tests
 /coverage
+/test-results
+/playwright-report
 
 # next.js
 /.next/
+/.next-*/
 /out/
-
-# production
 /build
 
-# misc
+# varios
 .DS_Store
 *.pem
+nul
 
-# debug
+# logs
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# local env files
+# variables de entorno (solo se versiona .env.example)
 .env
-.env.develop
-.env.production
-.env*.local
+.env.*
+!.env.example
 
 # vercel
 .vercel
@@ -37,17 +34,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# database
-prisma/dev.db
-prisma/dev.db-journal
-
-# Windows reserved names
-nul
-
 # Neon CLI
 .neon
 
-# Claude settings
+# Claude
 .claude/settings.local.json
+.claude/worktrees/
 .agents/
 skills-lock.json
