@@ -6,21 +6,41 @@ import { useState } from "react";
 import { Card, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Switch } from "@/components/ui/Switch";
-import { WEEKDAYS, type Weekday } from "@/lib/settings";
+import { WEEKDAYS, type Weekday } from "@/lib/weekdays";
 import { cn } from "@/lib/utils";
 import { normalizeInstagramHandle, type SectionValues, type SettingsSectionKey } from "@/lib/validations/settings";
 import { ImageField } from "../ImageField";
 import { HoursEditor } from "./HoursEditor";
 import { SectionForm, TextRow, useSectionForm, type SectionFormApi } from "./SectionForm";
+import { DailyMenuEditor } from "./DailyMenuEditor";
+import { CierresForm, LegalForm, ResenasForm, ReservasForm } from "./extra-sections";
 import { ValuesEditor } from "./ValuesEditor";
 
-export type SectionExtra = { featuredEventTitle: string | null; upcomingEvents: number };
+export type SectionExtra = {
+  featuredEventTitle: string | null;
+  upcomingEvents: number;
+  /** Hoy en Madrid */
+  todayDate: string;
+  todayWeekday: Weekday;
+  /** Dirección del bar (para rellenar el domicilio fiscal) */
+  businessAddress: string;
+};
 
 type EditorProps = { [S in SettingsSectionKey]: { section: S; initial: SectionValues<S> } }[SettingsSectionKey];
 
 /** Formulario de cada sección de /admin/contenido. */
 export function SectionEditor(props: EditorProps & { extra: SectionExtra }) {
   switch (props.section) {
+    case "menu":
+      return <DailyMenuEditor initial={props.initial} today={props.extra.todayWeekday} />;
+    case "cierres":
+      return <CierresForm initial={props.initial} today={props.extra.todayDate} />;
+    case "reservas":
+      return <ReservasForm initial={props.initial} />;
+    case "resenas":
+      return <ResenasForm initial={props.initial} />;
+    case "legal":
+      return <LegalForm initial={props.initial} businessAddress={props.extra.businessAddress} />;
     case "aviso":
       return <AvisoForm initial={props.initial} />;
     case "portada":
@@ -400,7 +420,12 @@ function HorarioForm({ initial }: { initial: SectionValues<"horario"> }) {
   return (
     <SectionForm form={form}>
       <p className="text-sm leading-relaxed text-ink-muted">
-        Activa los días que abrís y pon las horas. Si cerráis de madrugada (p. ej. de 20:00 a 02:00), ponlo tal cual: se entiende que es el día siguiente.
+        Activa los días que abrís y pon las horas. Si cerráis de madrugada (p. ej. de 20:00 a 02:00), ponlo tal cual: se entiende que es el día siguiente. ¿Vacaciones o
+        un festivo?{" "}
+        <Link href="/admin/contenido/cierres" className="font-semibold text-primary underline underline-offset-2">
+          Añádelo en Cierres y festivos
+        </Link>{" "}
+        sin tocar el horario.
       </p>
       {!anyOpen && (
         <p role="status" className="rounded-xl bg-gold/10 px-4 py-3 text-sm text-gold-deep">

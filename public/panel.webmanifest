@@ -1,0 +1,24 @@
+{
+  "id": "/admin",
+  "name": "Panel · La Tasquita",
+  "short_name": "Panel Tasquita",
+  "description": "Gestiona la carta, el menú del día, los eventos y la web de La Tasquita de Sara.",
+  "lang": "es-ES",
+  "dir": "ltr",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "background_color": "#f6f3ed",
+  "theme_color": "#f6f3ed",
+  "categories": ["business", "food"],
+  "icons": [
+    { "src": "/icon/192", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon/512", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon/512", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Menú del día", "url": "/admin/menu-del-dia", "icons": [{ "src": "/icon/192", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Agotados hoy", "url": "/admin/carta?modo=agotados", "icons": [{ "src": "/icon/192", "sizes": "192x192", "type": "image/png" }] },
+    { "name": "Añadir plato", "url": "/admin/carta/platos/nuevo", "icons": [{ "src": "/icon/192", "sizes": "192x192", "type": "image/png" }] }
+  ]
+}

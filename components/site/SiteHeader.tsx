@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useRef, useState, useSyncExternalStore } from "react";
-import type { OpeningHours } from "@/lib/settings";
 import { cn } from "@/lib/utils";
+import { MobileActionBar } from "./MobileActionBar";
 import { MobileMenu, type MenuContact } from "./MobileMenu";
-import { OpenStatus } from "./OpenStatus";
-import type { NavLink } from "./utils";
+import type { NavLink, Schedule, SiteActions } from "./utils";
 
-/* Cabecera sticky. Escritorio: logotipo + enlaces. Móvil: logotipo + botón de menú. */
+/* Cabecera sticky. Escritorio: logotipo + enlaces + "Reservar". Móvil: logotipo + botón de menú + barra de acciones fija. */
 
 function subscribeScroll(onChange: () => void) {
   window.addEventListener("scroll", onChange, { passive: true });
@@ -22,14 +21,16 @@ export function SiteHeader({
   name,
   links,
   hasUpcomingEvents,
-  hours,
+  schedule,
   contact,
+  actions,
 }: {
   name: string;
   links: NavLink[];
   hasUpcomingEvents: boolean;
-  hours: OpeningHours;
+  schedule: Schedule;
   contact: MenuContact;
+  actions: SiteActions;
 }) {
   const pathname = usePathname();
   const scrolled = useSyncExternalStore(subscribeScroll, getScrolled, getServerScrolled);
@@ -42,9 +43,7 @@ export function SiteHeader({
       <header
         className={cn(
           "sticky top-0 z-50 h-(--header-h) border-b transition-[background-color,border-color,box-shadow] duration-300",
-          scrolled
-            ? "border-primary/15 bg-cream/90 shadow-[0_10px_30px_-20px_rgb(28_28_24/0.35)] backdrop-blur-md"
-            : "border-transparent bg-cream",
+          scrolled ? "border-primary/15 bg-cream shadow-[0_10px_30px_-22px_rgb(28_28_24/0.4)]" : "border-transparent bg-cream",
         )}
       >
         <div className="mx-auto flex h-full max-w-[100rem] items-center justify-between gap-6 px-5 md:px-10 lg:px-14">
@@ -81,10 +80,21 @@ export function SiteHeader({
                 );
               })}
             </ul>
-            <span aria-hidden className="hidden h-6 w-px bg-primary/20 xl:block" />
-            <Link href="/#contacto" title="Horario y contacto" className="hidden text-ink-muted transition-colors hover:text-primary xl:block">
-              <OpenStatus hours={hours} className="text-xs tracking-[0.04em]" />
-            </Link>
+            {actions.reserveHref ? (
+              <Link
+                href={actions.reserveHref}
+                className="inline-flex h-11 items-center bg-primary px-5 text-xs font-bold tracking-[0.18em] text-white uppercase transition-colors hover:bg-primary-dark active:translate-y-px"
+              >
+                Reservar
+              </Link>
+            ) : (
+              <a
+                href={actions.telHref}
+                className="inline-flex h-11 items-center bg-primary px-5 text-xs font-bold tracking-[0.18em] text-white uppercase transition-colors hover:bg-primary-dark active:translate-y-px"
+              >
+                Llamar
+              </a>
+            )}
           </nav>
 
           {/* Móvil */}
@@ -114,9 +124,11 @@ export function SiteHeader({
         name={name}
         links={links}
         pathname={pathname}
-        hours={hours}
+        schedule={schedule}
         contact={contact}
+        actions={actions}
       />
+      <MobileActionBar actions={actions} hidden={open} />
     </>
   );
 }

@@ -1,9 +1,12 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import { Phone } from "lucide-react";
 import { getMenu, getSiteSettings, type PublicMenuCategory } from "@/lib/data/public";
+import { describeDays } from "@/lib/schedule";
+import type { SiteSettings } from "@/lib/settings";
 import { AllergenInfo } from "@/components/site/carta/AllergenInfo";
 import { CategoryNav } from "@/components/site/carta/CategoryNav";
 import { MenuItemCard } from "@/components/site/carta/MenuItemCard";
+import { DailyMenuBoard, hasDailyMenu } from "@/components/site/daily-menu/DailyMenuBoard";
 import { DeliveryInline, DeliveryLinks, hasDelivery } from "@/components/site/DeliveryLinks";
 import { GridFillers } from "@/components/site/GridFillers";
 import { JsonLd } from "@/components/site/JsonLd";
@@ -23,26 +26,47 @@ export async function generateMetadata(_: unknown, parent: ResolvingMetadata): P
   });
 }
 
-function menuJsonLd(name: string, menu: PublicMenuCategory[]) {
+const euros = (cents: number) => (cents / 100).toFixed(2);
+
+function menuJsonLd(s: SiteSettings, menu: PublicMenuCategory[]) {
+  const daily = hasDailyMenu(s.dailyMenu) ? s.dailyMenu : null;
   return {
     "@context": "https://schema.org",
     "@type": "Menu",
-    name: `Carta de ${name}`,
+    name: `Carta de ${s.name}`,
     url: `${siteUrl}/carta`,
     inLanguage: "es",
-    hasMenuSection: menu.map((c) => ({
-      "@type": "MenuSection",
-      name: c.name,
-      hasMenuItem: c.items.map((i) => ({
-        "@type": "MenuItem",
-        name: i.name,
-        ...(i.description && { description: i.description }),
-        ...(i.imageUrl && { image: i.imageUrl }),
-        ...(i.priceCents != null && {
-          offers: { "@type": "Offer", price: (i.priceCents / 100).toFixed(2), priceCurrency: "EUR" },
+    hasMenuSection: [
+      ...(daily
+        ? [
+            {
+              "@type": "MenuSection",
+              name: daily.title,
+              description: [describeDays(daily.days), daily.hours, daily.includes && `Incluye ${daily.includes}`].filter(Boolean).join(" · "),
+              ...(daily.priceCents != null && { offers: { "@type": "Offer", price: euros(daily.priceCents), priceCurrency: "EUR" } }),
+              hasMenuItem: [...daily.starters, ...daily.mains, ...daily.desserts].map((dish) => ({ "@type": "MenuItem", name: dish })),
+            },
+          ]
+        : []),
+      ...menu.map((c) => ({
+        "@type": "MenuSection",
+        name: c.name,
+        hasMenuItem: c.items.map((i) => {
+          const availability = i.soldOut ? "https://schema.org/SoldOut" : "https://schema.org/InStock";
+          const offers = [
+            ...(i.priceCents != null ? [{ "@type": "Offer", price: euros(i.priceCents), priceCurrency: "EUR", availability }] : []),
+            ...i.priceVariants.map((v) => ({ "@type": "Offer", name: v.label, price: euros(v.priceCents), priceCurrency: "EUR", availability })),
+          ];
+          return {
+            "@type": "MenuItem",
+            name: i.name,
+            ...(i.description && { description: i.description }),
+            ...(i.imageUrl && { image: i.imageUrl }),
+            ...(offers.length > 0 && { offers: offers.length === 1 ? offers[0] : offers }),
+          };
         }),
       })),
-    })),
+    ],
   };
 }
 
@@ -50,6 +74,7 @@ export default async function CartaPage() {
   const [settings, menu] = await Promise.all([getSiteSettings(), getMenu()]);
   const total = menu.reduce((n, c) => n + c.items.length, 0);
   const anyAllergens = menu.some((c) => c.items.some((i) => i.allergens.length > 0));
+  const daily = hasDailyMenu(settings.dailyMenu);
   // Numeración corrida de platos (N.º 01…): editorial, como una carta impresa
   const firstNumber = menu.reduce<number[]>((acc, c, i) => [...acc, i === 0 ? 1 : acc[i - 1] + menu[i - 1].items.length], []);
 
@@ -86,9 +111,22 @@ export default async function CartaPage() {
 
       {menu.length > 0 ? (
         <>
-          <CategoryNav categories={menu.map((c) => ({ slug: c.slug, name: c.name }))} />
+          <CategoryNav
+            categories={[
+              ...(daily ? [{ slug: "menu-del-dia", name: settings.dailyMenu.title, special: true }] : []),
+              ...menu.map((c) => ({ slug: c.slug, name: c.name })),
+            ]}
+          />
 
           <div className="mx-auto max-w-[100rem] px-5 pb-16 md:px-10 md:pb-24 lg:px-14">
+            {daily && (
+              <DailyMenuBoard
+                id="menu-del-dia"
+                menu={settings.dailyMenu}
+                closures={settings.specialClosures}
+                className="mt-12 scroll-mt-[calc(var(--chips-h)+1.25rem)] md:mt-20"
+              />
+            )}
             {menu.map((category, ci) => (
               <section
                 key={category.id}
@@ -161,7 +199,7 @@ export default async function CartaPage() {
         </div>
       )}
 
-      {menu.length > 0 && <JsonLd data={menuJsonLd(settings.name, menu)} />}
+      {menu.length > 0 && <JsonLd data={menuJsonLd(settings, menu)} />}
     </>
   );
 }

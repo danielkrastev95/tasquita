@@ -15,23 +15,28 @@ import type { AllergenCode } from "@/lib/allergens";
 import type { CategoryOption } from "@/lib/data/admin";
 import { centsToInput, parsePriceToCents } from "@/lib/format";
 import type { FieldErrors } from "@/lib/validations/common";
+import { PRICE_PATTERN } from "@/lib/validations/menu";
 import { ConfirmDialog } from "../Dialog";
 import { FormActionBar } from "../FormActionBar";
 import { ImageField } from "../ImageField";
 import { useLeaveGuard } from "../useLeaveGuard";
 import { AllergenPicker } from "./AllergenPicker";
+import { PriceVariantsEditor } from "./PriceVariantsEditor";
+import type { VariantDraft } from "./variant-drafts";
 
 export type MenuItemFormValues = {
   categoryId: string;
   name: string;
   description: string;
   price: string;
+  variants: VariantDraft[];
   imageUrl: string | null;
   isPopular: boolean;
   isHomemade: boolean;
   award: string;
   allergens: AllergenCode[];
   isActive: boolean;
+  soldOutToday: boolean;
 };
 
 type Props = {
@@ -43,13 +48,12 @@ type Props = {
   duplicateOf?: string;
 };
 
-const PRICE_PATTERN = /^\d{1,5}([.,]\d{1,2})?\s*€?$/;
-const ERROR_ORDER = ["name", "categoryId", "price", "description", "imageUrl", "award", "allergens"] as const;
+const ERROR_ORDER = ["name", "categoryId", "price", "priceVariants", "description", "imageUrl", "award", "allergens"] as const;
 
 export function MenuItemForm({ mode, itemId, initial, categories, duplicateOf }: Props) {
   const router = useRouter();
   const formId = useId();
-  const fid = (key: string) => `${formId}-${key}`;
+  const fid = (key: string) => `${formId}-${key.replace(/\./g, "-")}`;
   const [values, setValues] = useState(initial);
   const [baseline, setBaseline] = useState(initial);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -68,18 +72,24 @@ export function MenuItemForm({ mode, itemId, initial, categories, duplicateOf }:
 
   const set = <K extends keyof MenuItemFormValues>(key: K, value: MenuItemFormValues[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }));
-    if (errors[key]) setErrors((prev) => omitKey(prev, key));
+    const prefix = key === "variants" ? "priceVariants" : key;
+    if (Object.keys(errors).some((k) => k === prefix || k.startsWith(`${prefix}.`))) {
+      setErrors((prev) => Object.fromEntries(Object.entries(prev).filter(([k]) => k !== prefix && !k.startsWith(`${prefix}.`))));
+    }
   };
 
   const focusFirstError = (fieldErrors: FieldErrors | undefined) => {
-    const key = ERROR_ORDER.find((k) => fieldErrors?.[k]);
-    if (key) document.getElementById(fid(key))?.focus();
+    const keys = Object.keys(fieldErrors ?? {});
+    const first = ERROR_ORDER.map((k) => keys.find((key) => key === k || key.startsWith(`${k}.`))).find(Boolean);
+    if (first) document.getElementById(fid(first))?.focus();
   };
 
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
+    const { variants, ...rest } = values;
+    const payload = { ...rest, priceVariants: variants.map(({ label, price }) => ({ label, price })) };
     startTransition(async () => {
-      const result = mode === "create" || !itemId ? await createMenuItem(values) : await updateMenuItem(itemId, values);
+      const result = mode === "create" || !itemId ? await createMenuItem(payload) : await updateMenuItem(itemId, payload);
       if (!result.ok) {
         setErrors(result.fieldErrors ?? {});
         toast.error(result.error);
@@ -108,6 +118,7 @@ export function MenuItemForm({ mode, itemId, initial, categories, duplicateOf }:
   };
 
   const selectedCategory = categories.find((c) => c.id === values.categoryId);
+  const hasVariants = values.variants.length > 0;
 
   return (
     <>
@@ -158,7 +169,7 @@ export function MenuItemForm({ mode, itemId, initial, categories, duplicateOf }:
                   </Select>
                 </Field>
 
-                <Field label="Precio" htmlFor={fid("price")} error={errors.price} optional>
+                <Field label={hasVariants ? "Precio principal" : "Precio"} htmlFor={fid("price")} error={errors.price} optional={!hasVariants}>
                   <div className="relative">
                     <Input
                       id={fid("price")}
@@ -190,6 +201,14 @@ export function MenuItemForm({ mode, itemId, initial, categories, duplicateOf }:
               {selectedCategory && !selectedCategory.isActive && (
                 <p className="-mt-2 text-xs text-gold-deep">Ojo: la categoría «{selectedCategory.name}» está oculta, así que este plato no se verá en la web.</p>
               )}
+
+              <PriceVariantsEditor
+                value={values.variants}
+                onChange={(next) => set("variants", next)}
+                errors={errors}
+                fieldId={(key) => fid(key)}
+                hasMainPrice={Boolean(values.price.trim())}
+              />
 
               <Field
                 label="Descripción"
@@ -243,6 +262,13 @@ export function MenuItemForm({ mode, itemId, initial, categories, duplicateOf }:
                 label="Visible en la web"
                 description={values.isActive ? "Los clientes lo ven en la carta." : "Oculto: guardado, pero no aparece."}
                 className="pb-3"
+              />
+              <Switch
+                checked={values.soldOutToday}
+                onCheckedChange={(v) => set("soldOutToday", v)}
+                label="Agotado hoy"
+                description={values.soldOutToday ? "Sale como agotado. Mañana vuelve a estar disponible solo." : "Si se acaba durante el día, márcalo aquí o desde la carta."}
+                className="py-3"
               />
               <Switch
                 checked={values.isPopular}
@@ -305,16 +331,10 @@ export function MenuItemForm({ mode, itemId, initial, categories, duplicateOf }:
         onCancel={() => setConfirmDelete(false)}
         onConfirm={remove}
         title={`¿Borrar «${initial.name}»?`}
-        description="Desaparecerá de la carta y no se puede deshacer. Si solo no lo tienes hoy, mejor desactiva «Visible en la web»."
+        description="Desaparecerá de la carta y no se puede deshacer. Si solo no lo tienes hoy, mejor márcalo como «Agotado hoy»."
         confirmLabel="Borrar plato"
       />
       {leaveGuard}
     </>
   );
-}
-
-function omitKey(errors: FieldErrors, key: string): FieldErrors {
-  const next = { ...errors };
-  delete next[key];
-  return next;
 }

@@ -1,5 +1,6 @@
+import { Analytics } from "@vercel/analytics/next";
 import { getSiteSettings, getUpcomingEvents } from "@/lib/data/public";
-import { toSchemaOrgHours } from "@/lib/schedule";
+import { toSchemaOrgClosures, toSchemaOrgHours, upcomingClosures } from "@/lib/schedule";
 import type { SiteSettings } from "@/lib/settings";
 import { AnnouncementBar } from "@/components/site/AnnouncementBar";
 import { JsonLd } from "@/components/site/JsonLd";
@@ -7,7 +8,7 @@ import { MotionProvider } from "@/components/site/MotionProvider";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { siteUrl } from "@/components/site/seo";
-import { directionsUrl, getNavLinks, instagramUrl, phoneE164, splitCity, telHref } from "@/components/site/utils";
+import { canReserve, directionsUrl, getNavLinks, getSchedule, getSiteActions, instagramUrl, phoneE164, splitCity } from "@/components/site/utils";
 
 /* Estructura común de la web pública: aviso, cabecera, contenido, pie y datos estructurados. */
 
@@ -37,6 +38,10 @@ function restaurantJsonLd(s: SiteSettings) {
     servesCuisine: ["Tapas", "Hamburguesas", "Cocina española"],
     priceRange: "€€",
     openingHoursSpecification: toSchemaOrgHours(s.openingHours),
+    ...(upcomingClosures(s.specialClosures).length > 0 && {
+      specialOpeningHoursSpecification: toSchemaOrgClosures(upcomingClosures(s.specialClosures)),
+    }),
+    acceptsReservations: canReserve(s),
     hasMenu: `${siteUrl}/carta`,
     ...(s.instagramHandle && { sameAs: [instagramUrl(s.instagramHandle)] }),
   };
@@ -60,13 +65,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           name={settings.name}
           links={links}
           hasUpcomingEvents={settings.eventsEnabled && events.length > 0}
-          hours={settings.openingHours}
+          schedule={getSchedule(settings)}
+          actions={getSiteActions(settings)}
           contact={{
             addressStreet: settings.addressStreet,
             addressCity: settings.addressCity,
-            phone: settings.phone,
-            telHref: telHref(settings.phone),
-            directionsUrl: directionsUrl(settings.latitude, settings.longitude),
             glovoUrl: settings.glovoUrl,
             uberEatsUrl: settings.uberEatsUrl,
             deliveryLabel: settings.heroDeliveryLabel,
@@ -78,6 +81,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <SiteFooter settings={settings} links={links} />
       </div>
       <JsonLd data={restaurantJsonLd(settings)} />
+      <Analytics />
     </MotionProvider>
   );
 }

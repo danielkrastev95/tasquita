@@ -4,7 +4,7 @@ import type { PublicEvent } from "@/lib/data/public";
 import type { SiteSettings } from "@/lib/settings";
 import { EventCard } from "../events/EventCard";
 import { OrganizeCta } from "../events/OrganizeCta";
-import { pad2 } from "../utils";
+import { getEventActionsContext, pad2 } from "../utils";
 
 const MAX_ON_HOME = 3;
 
@@ -29,7 +29,7 @@ export function EventsSection({ settings, events }: { settings: SiteSettings; ev
 
       <div className="grid gap-px border border-primary bg-primary">
         {shown.map((event, i) => (
-          <EventCard key={event.id} event={event} reversed={i % 2 === 1} />
+          <EventCard key={event.id} event={event} reversed={i % 2 === 1} actions={getEventActionsContext(settings)} />
         ))}
       </div>
 

@@ -1,7 +1,7 @@
 import "server-only";
 import { asc, desc, eq, gte, lt, and } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { events, menuCategories, menuItems, siteSettings, type EventCategory } from "@/lib/db/schema";
+import { events, menuCategories, menuItems, siteSettings, type EventCategory, type PriceVariant } from "@/lib/db/schema";
 import { todayInMadrid } from "@/lib/format";
 import { parseSettings, type SiteSettings } from "@/lib/settings";
 import { idSchema } from "@/lib/validations/common";
@@ -17,6 +17,10 @@ export type AdminMenuItem = {
   name: string;
   description: string | null;
   priceCents: number | null;
+  /** Medidas extra (Tapa / Media / Ración…) */
+  priceVariants: PriceVariant[];
+  /** Fecha (Madrid) en la que se marcó agotado; solo cuenta si es hoy. */
+  soldOutOn: string | null;
   imageUrl: string | null;
   isPopular: boolean;
   isHomemade: boolean;
@@ -44,6 +48,8 @@ const itemColumns = {
   name: menuItems.name,
   description: menuItems.description,
   priceCents: menuItems.priceCents,
+  priceVariants: menuItems.priceVariants,
+  soldOutOn: menuItems.soldOutOn,
   imageUrl: menuItems.imageUrl,
   isPopular: menuItems.isPopular,
   isHomemade: menuItems.isHomemade,
@@ -139,13 +145,20 @@ export type DashboardData = {
   settings: SiteSettings;
   stats: { visibleItems: number; hiddenItems: number; categories: number; hiddenCategories: number; upcomingEvents: number };
   nextEvents: AdminEvent[];
+  /** Platos marcados como agotados hoy */
+  soldOut: { id: string; name: string }[];
+  today: string;
 };
 
 export async function getDashboardData(): Promise<DashboardData> {
   const today = todayInMadrid();
   const [settings, items, categories, upcoming] = await Promise.all([
     getAdminSettings(),
-    db.select({ isActive: menuItems.isActive, categoryActive: menuCategories.isActive }).from(menuItems).innerJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id)),
+    db
+      .select({ id: menuItems.id, name: menuItems.name, isActive: menuItems.isActive, soldOutOn: menuItems.soldOutOn, categoryActive: menuCategories.isActive })
+      .from(menuItems)
+      .innerJoin(menuCategories, eq(menuItems.categoryId, menuCategories.id))
+      .orderBy(asc(menuCategories.sortOrder), asc(menuItems.sortOrder)),
     db.select({ isActive: menuCategories.isActive }).from(menuCategories),
     db
       .select(eventColumns)
@@ -165,5 +178,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       upcomingEvents: upcoming.length,
     },
     nextEvents: upcoming.slice(0, 3),
+    soldOut: items.filter((i) => i.soldOutOn === today).map(({ id, name }) => ({ id, name })),
+    today,
   };
 }

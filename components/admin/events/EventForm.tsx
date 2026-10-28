@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy, CopyPlus, Music, Sparkles, Trash2, UtensilsCrossed } from "lucide-react";
+import { Copy, CopyPlus, Music, Sparkles, Trash2, Trophy, UtensilsCrossed, Wand2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
@@ -35,7 +35,13 @@ export type EventFormValues = {
 const CATEGORY_ICONS: Record<EventCategory, React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>> = {
   musica: Music,
   gastronomia: UtensilsCrossed,
+  deporte: Trophy,
   especial: Sparkles,
+};
+
+const MATCH_TEMPLATE = {
+  title: "Partido: Local vs Visitante · pantalla grande",
+  description: "Lo vemos en pantalla grande y con buen ambiente.\nVen con tiempo, que se llena: puedes reservar mesa por WhatsApp.",
 };
 
 const ERROR_ORDER = ["title", "date", "time", "category", "description", "imageUrl"] as const;
@@ -79,6 +85,23 @@ export function EventForm({ mode, eventId, initial, today, otherFeatured, duplic
         return next;
       });
     }
+  };
+
+  /** Plantilla de partido: rellena y deja seleccionado «Local» para escribir encima. */
+  const applyMatchTemplate = () => {
+    setValues((prev) => ({
+      ...prev,
+      title: MATCH_TEMPLATE.title,
+      description: prev.description.trim() ? prev.description : MATCH_TEMPLATE.description,
+      time: prev.time || "21:00",
+    }));
+    requestAnimationFrame(() => {
+      const input = titleRef.current;
+      if (!input) return;
+      input.focus();
+      const start = MATCH_TEMPLATE.title.indexOf("Local");
+      input.setSelectionRange(start, start + "Local".length);
+    });
   };
 
   const submit = (event: React.FormEvent) => {
@@ -176,7 +199,7 @@ export function EventForm({ mode, eventId, initial, today, otherFeatured, duplic
 
               <fieldset>
                 <legend className="mb-1.5 text-sm font-medium text-ink">Tipo de evento</legend>
-                <div id={fid("category")} className="grid grid-cols-3 gap-2">
+                <div id={fid("category")} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {EVENT_CATEGORY_OPTIONS.map((option) => {
                     const Icon = CATEGORY_ICONS[option];
                     const checked = values.category === option;
@@ -184,7 +207,7 @@ export function EventForm({ mode, eventId, initial, today, otherFeatured, duplic
                       <label
                         key={option}
                         className={cn(
-                          "flex min-h-20 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border px-2 py-3 text-center text-xs leading-tight font-semibold transition has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-primary/20",
+                          "flex min-h-16 cursor-pointer flex-row items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-center text-sm leading-tight font-semibold transition has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-primary/20 sm:min-h-20 sm:flex-col sm:gap-1.5 sm:text-xs",
                           checked ? "border-primary bg-primary-light text-primary-dark" : "border-cream-400 bg-white text-ink-muted hover:border-primary/50",
                         )}
                       >
@@ -196,6 +219,15 @@ export function EventForm({ mode, eventId, initial, today, otherFeatured, duplic
                   })}
                 </div>
                 {errors.category && <p className="mt-1.5 text-sm text-danger">{errors.category[0]}</p>}
+                {values.category === "deporte" && (
+                  <div className="mt-3 flex items-center gap-3 rounded-xl bg-primary-light/60 p-3">
+                    <Wand2 className="size-5 shrink-0 text-primary" aria-hidden />
+                    <p className="flex-1 text-sm text-ink">¿Es un partido? Rellena título y texto con una plantilla y cambia solo los equipos.</p>
+                    <Button size="sm" variant="secondary" onClick={applyMatchTemplate}>
+                      Plantilla
+                    </Button>
+                  </div>
+                )}
               </fieldset>
 
               <Field label="Descripción" htmlFor={fid("description")} optional error={errors.description} hint="Quién toca, qué incluye, si hay que reservar… Puedes usar saltos de línea.">

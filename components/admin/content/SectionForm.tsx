@@ -45,10 +45,10 @@ export function useSectionForm<S extends SettingsSectionKey, V extends object>(s
 
   const set = <K extends keyof V>(key: K, value: V[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }));
-    const prefix = String(key);
-    if (Object.keys(errors).some((k) => k === prefix || k.startsWith(`${prefix}.`))) {
-      setErrors((prev) => Object.fromEntries(Object.entries(prev).filter(([k]) => k !== prefix && !k.startsWith(`${prefix}.`))));
-    }
+    // Quita los errores de ese campo y de sus subcampos (también anidados: "dailyMenu.days" para "days")
+    const segments = (k: string) => k.split(".");
+    const affected = (k: string) => segments(k).includes(String(key));
+    if (Object.keys(errors).some(affected)) setErrors((prev) => Object.fromEntries(Object.entries(prev).filter(([k]) => !affected(k))));
   };
 
   const errorFor = (key: string, nested = false) => {

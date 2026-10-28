@@ -195,3 +195,78 @@ html:has([data-site]) {
 @utility bg-grain {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
 }
+
+/* Web pública — fase 2 */
+@theme {
+  /* Acento de "Deporte en directo" (rojo marcador); solo para esa categoría */
+  --color-sport: #a8381e;
+  --animate-bar-in: bar-in 0.45s var(--ease-out-expo) both;
+
+  @keyframes bar-in {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+}
+
+/* Foco visible también sobre fondos oscuros (teal/tinta) */
+.on-dark :focus-visible {
+  outline-color: var(--color-gold);
+}
+
+/* Contenido legal: tipografía de lectura */
+@utility prose-legal {
+  & h2 {
+    margin-top: 2.75rem;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    line-height: 1.05;
+    font-weight: 800;
+    font-style: italic;
+    text-transform: uppercase;
+    color: var(--color-primary);
+  }
+  & h3 {
+    margin-top: 1.75rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+  & p,
+  & li {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-ink-muted);
+  }
+  & p + p {
+    margin-top: 0.85rem;
+  }
+  & ul {
+    margin-top: 0.75rem;
+    padding-left: 1.25rem;
+    list-style: square;
+  }
+  & li + li {
+    margin-top: 0.35rem;
+  }
+  & li::marker {
+    color: var(--color-gold-deep);
+  }
+  & a {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--color-primary) 35%, transparent);
+    text-underline-offset: 3px;
+  }
+  & a:hover {
+    text-decoration-color: currentColor;
+  }
+  & strong {
+    color: var(--color-ink);
+  }
+}

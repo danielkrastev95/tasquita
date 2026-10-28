@@ -147,6 +147,9 @@ export const siteSettingsSchema = z.object({
   /* Menú del día */
   dailyMenu: dailyMenuSchema.default(dailyMenuSchema.parse({})),
 
+  /** Notas al pie de la carta (suplementos, pan, etc.) */
+  menuNotes: z.array(z.string().trim().min(1).max(200)).max(8).default([]),
+
   /* Reservas (por WhatsApp, sin formularios ni bases de datos) */
   whatsappEnabled: z.boolean().default(true),
   /** Número con WhatsApp. Se aceptan espacios; si no lleva prefijo se asume España (+34). */

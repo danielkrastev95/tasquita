@@ -6,6 +6,7 @@ import { imageUrlSchema, multilineText } from "./common";
 export const EVENT_CATEGORY_LABELS = {
   musica: "Música en vivo",
   gastronomia: "Gastronomía",
+  deporte: "Deporte",
   especial: "Especial",
 } as const satisfies Record<EventCategory, string>;
 

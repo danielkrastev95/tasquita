@@ -4,6 +4,7 @@ import Link from "next/link";
 import { BackLink } from "@/components/admin/BackLink";
 import { EmptyState } from "@/components/admin/EmptyState";
 import { MenuItemForm, type MenuItemFormValues } from "@/components/admin/menu/MenuItemForm";
+import { toVariantDrafts } from "@/components/admin/menu/variant-drafts";
 import { buttonClasses } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/Card";
 import type { AllergenCode } from "@/lib/allergens";
@@ -49,24 +50,28 @@ export default async function NewMenuItemPage({ searchParams }: { searchParams: 
         name: `${source.name} (copia)`.slice(0, 120),
         description: source.description ?? "",
         price: centsToInput(source.priceCents),
+        variants: toVariantDrafts(source.priceVariants),
         imageUrl: source.imageUrl,
         isPopular: source.isPopular,
         isHomemade: source.isHomemade,
         award: source.award ?? "",
         allergens: source.allergens as AllergenCode[],
         isActive: source.isActive,
+        soldOutToday: false,
       }
     : {
         categoryId: fallbackCategory,
         name: "",
         description: "",
         price: "",
+        variants: [],
         imageUrl: null,
         isPopular: false,
         isHomemade: false,
         award: "",
         allergens: [],
         isActive: true,
+        soldOutToday: false,
       };
 
   return (

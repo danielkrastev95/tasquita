@@ -1,9 +1,10 @@
 "use server";
 
-import { and, eq, like, or, sql } from "drizzle-orm";
+import { and, eq, isNotNull, like, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { menuCategories, menuItems } from "@/lib/db/schema";
+import { todayInMadrid } from "@/lib/format";
 import { requireAdmin } from "@/lib/session";
 import { esErrorMap, idSchema, slugify, validationFailure, type ActionResult } from "@/lib/validations/common";
 import { categoryInputSchema, menuItemInputSchema, reorderSchema } from "@/lib/validations/menu";
@@ -137,12 +138,12 @@ export async function createMenuItem(input: unknown): Promise<ActionResult<{ id:
   await requireAdmin();
   const parsed = menuItemInputSchema.safeParse(input, { error: esErrorMap });
   if (!parsed.success) return validationFailure(parsed.error);
-  const { price, ...data } = parsed.data;
+  const { price, soldOutToday, ...data } = parsed.data;
 
   try {
     const [row] = await db
       .insert(menuItems)
-      .values({ ...data, priceCents: price, sortOrder: nextItemOrder(data.categoryId) })
+      .values({ ...data, priceCents: price, soldOutOn: soldOutToday ? todayInMadrid() : null, sortOrder: nextItemOrder(data.categoryId) })
       .returning({ id: menuItems.id });
     revalidateSite();
     return { ok: true, data: { id: row.id } };
@@ -159,7 +160,7 @@ export async function updateMenuItem(id: unknown, input: unknown): Promise<Actio
   if (!parsedId.success) return fail("Plato no válido");
   const parsed = menuItemInputSchema.safeParse(input, { error: esErrorMap });
   if (!parsed.success) return validationFailure(parsed.error);
-  const { price, ...data } = parsed.data;
+  const { price, soldOutToday, ...data } = parsed.data;
 
   try {
     const [current] = await db.select({ categoryId: menuItems.categoryId }).from(menuItems).where(eq(menuItems.id, parsedId.data)).limit(1);
@@ -170,6 +171,7 @@ export async function updateMenuItem(id: unknown, input: unknown): Promise<Actio
       .set({
         ...data,
         priceCents: price,
+        soldOutOn: soldOutToday ? todayInMadrid() : null,
         // Si cambia de categoría, pasa al final de la nueva.
         ...(movedCategory ? { sortOrder: nextItemOrder(data.categoryId) } : {}),
       })
@@ -198,6 +200,39 @@ export async function setMenuItemActive(id: unknown, isActive: unknown): Promise
     return { ok: true, data: null };
   } catch (error) {
     logActionError("setMenuItemActive", error);
+    return fail(SAVE_ERROR);
+  }
+}
+
+/** «Agotado hoy»: guarda la fecha de hoy (Madrid). Mañana deja de contar solo, sin tocar nada. */
+export async function setMenuItemSoldOut(id: unknown, soldOut: unknown): Promise<ActionResult> {
+  await requireAdmin();
+  const parsed = z.object({ id: idSchema, soldOut: z.boolean() }).safeParse({ id, soldOut });
+  if (!parsed.success) return fail("Datos no válidos");
+  try {
+    const updated = await db
+      .update(menuItems)
+      .set({ soldOutOn: parsed.data.soldOut ? todayInMadrid() : null })
+      .where(eq(menuItems.id, parsed.data.id))
+      .returning({ id: menuItems.id });
+    if (updated.length === 0) return fail("Este plato ya no existe. Recarga la página.");
+    revalidateSite();
+    return { ok: true, data: null };
+  } catch (error) {
+    logActionError("setMenuItemSoldOut", error);
+    return fail(SAVE_ERROR);
+  }
+}
+
+/** Vuelve a poner disponibles todos los platos agotados. Devuelve cuántos había. */
+export async function reactivateSoldOut(): Promise<ActionResult<{ count: number }>> {
+  await requireAdmin();
+  try {
+    const updated = await db.update(menuItems).set({ soldOutOn: null }).where(isNotNull(menuItems.soldOutOn)).returning({ id: menuItems.id });
+    revalidateSite();
+    return { ok: true, data: { count: updated.length } };
+  } catch (error) {
+    logActionError("reactivateSoldOut", error);
     return fail(SAVE_ERROR);
   }
 }

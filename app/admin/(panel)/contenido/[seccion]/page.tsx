@@ -1,16 +1,17 @@
 import { ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { BackLink } from "@/components/admin/BackLink";
 import { SectionEditor } from "@/components/admin/content/SectionEditor";
 import { SECTION_ICONS, SECTION_ORDER } from "@/components/admin/content/section-meta";
 import { buttonClasses } from "@/components/ui/Button";
 import { PageHeader } from "@/components/ui/Card";
 import { getAdminEvents, getAdminSettings } from "@/lib/data/admin";
+import { madridNow } from "@/lib/schedule";
 import { requireAdmin } from "@/lib/session";
 import { cn } from "@/lib/utils";
-import { SETTINGS_SECTIONS, isSettingsSection, pickSection } from "@/lib/validations/settings";
+import { SETTINGS_SECTIONS, isSettingsSection, pickSection, sectionHref } from "@/lib/validations/settings";
 
 type Params = Promise<{ seccion: string }>;
 
@@ -23,12 +24,20 @@ export default async function ContentSectionPage({ params }: { params: Params })
   await requireAdmin();
   const { seccion } = await params;
   if (!isSettingsSection(seccion)) notFound();
+  if (seccion === "menu") redirect("/admin/menu-del-dia");
 
   const meta = SETTINGS_SECTIONS[seccion];
   const needsEvents = seccion === "portada" || seccion === "eventos";
   const [settings, events] = await Promise.all([getAdminSettings(), needsEvents ? getAdminEvents() : null]);
   const upcoming = events?.upcoming.filter((e) => e.isActive) ?? [];
-  const extra = { featuredEventTitle: upcoming.find((e) => e.isFeatured)?.title ?? null, upcomingEvents: upcoming.length };
+  const now = madridNow();
+  const extra = {
+    featuredEventTitle: upcoming.find((e) => e.isFeatured)?.title ?? null,
+    upcomingEvents: upcoming.length,
+    todayDate: now.date,
+    todayWeekday: now.weekday,
+    businessAddress: [settings.addressStreet, [settings.addressPostalCode, settings.addressCity].filter(Boolean).join(" ")].filter(Boolean).join(", "),
+  };
   // pickSection devuelve justo los campos de esta sección (no se envía al navegador nada más).
   const editorProps = { section: seccion, initial: pickSection(settings, seccion) } as Parameters<typeof SectionEditor>[0];
 
@@ -43,7 +52,7 @@ export default async function ContentSectionPage({ params }: { params: Params })
             return (
               <li key={key}>
                 <Link
-                  href={`/admin/contenido/${key}`}
+                  href={sectionHref(key)}
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm transition",

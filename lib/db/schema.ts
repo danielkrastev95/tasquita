@@ -60,6 +60,8 @@ export const menuItems = pgTable(
     imageUrl: text("image_url"),
     isPopular: boolean("is_popular").notNull().default(false),
     isHomemade: boolean("is_homemade").notNull().default(false),
+    /** Insignia "Nuevo" */
+    isNew: boolean("is_new").notNull().default(false),
     award: text("award"),
     /** Códigos de alérgenos (ver lib/allergens.ts). Reglamento UE 1169/2011. */
     allergens: text("allergens")

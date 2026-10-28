@@ -1,13 +1,27 @@
-import { ArrowRight, CalendarDays, CalendarPlus, Clock, ExternalLink, Plus, UtensilsCrossed } from "lucide-react";
+import { ArrowRight, CalendarDays, CalendarOff, CalendarPlus, ChevronRight, Clock, ExternalLink, Landmark, Plus, QrCode } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/admin/Badge";
+import { DailyMenuCard } from "@/components/admin/DailyMenuCard";
 import { EmptyState } from "@/components/admin/EmptyState";
+import { InstallBanner } from "@/components/admin/InstallHelp";
 import { QuickAnnouncement } from "@/components/admin/QuickAnnouncement";
+import { SoldOutCard } from "@/components/admin/SoldOutCard";
 import { buttonClasses } from "@/components/ui/Button";
 import { getDashboardData } from "@/lib/data/admin";
 import { formatEventDate } from "@/lib/format";
-import { TIME_ZONE, describeOpenStatus, formatDayHours, formatTime, getOpenStatus, madridNow } from "@/lib/schedule";
+import {
+  TIME_ZONE,
+  addDays,
+  closureOn,
+  describeClosure,
+  describeOpenStatus,
+  formatDayHours,
+  formatTime,
+  getOpenStatus,
+  madridNow,
+  upcomingClosures,
+} from "@/lib/schedule";
 import { requireAdmin } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { EVENT_CATEGORY_LABELS } from "@/lib/validations/events";
@@ -16,13 +30,17 @@ export const metadata: Metadata = { title: "Inicio" };
 
 export default async function DashboardPage() {
   const session = await requireAdmin();
-  const { settings, stats, nextEvents } = await getDashboardData();
+  const { settings, stats, nextEvents, soldOut } = await getDashboardData();
 
   const now = new Date();
-  const status = getOpenStatus(settings.openingHours, now);
-  const today = madridNow(now).weekday;
+  const { weekday: today, date: todayDate } = madridNow(now);
+  const status = getOpenStatus(settings.openingHours, now, settings.specialClosures);
   const firstName = session.user.name.trim().split(/\s+/)[0] || "Sara";
   const todayLabel = new Intl.DateTimeFormat("es-ES", { timeZone: TIME_ZONE, weekday: "long", day: "numeric", month: "long" }).format(now);
+
+  const closedToday = closureOn(todayDate, settings.specialClosures);
+  const nextClosure = upcomingClosures(settings.specialClosures, now).find((c) => c.from > todayDate && c.from <= addDays(todayDate, 21));
+  const legalMissing = !settings.legalName || !settings.legalTaxId || !settings.legalAddress;
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -31,14 +49,38 @@ export default async function DashboardPage() {
         <h1 className="font-serif text-4xl font-bold tracking-tight text-ink italic md:text-5xl">Hola, {firstName}</h1>
       </header>
 
+      {(closedToday || nextClosure || legalMissing) && (
+        <div className="space-y-2">
+          {(closedToday ?? nextClosure) && (
+            <Notice href="/admin/contenido/cierres" icon={CalendarOff} tone={closedToday ? "danger" : "gold"} action="Ver cierres">
+              {closedToday ? (
+                <>
+                  <strong>Hoy está cerrado</strong>
+                  {closedToday.note ? ` (${closedToday.note})` : ""}. La web ya lo indica.
+                </>
+              ) : (
+                nextClosure && (
+                  <>
+                    <strong>Próximo cierre:</strong> {describeClosure(nextClosure).replace(/^E/, "e").replace(/^D/, "d")}
+                    {nextClosure.note ? ` · ${nextClosure.note}` : ""}.
+                  </>
+                )
+              )}
+            </Notice>
+          )}
+          {legalMissing && (
+            <Notice href="/admin/contenido/legal" icon={Landmark} tone="gold" action="Completar">
+              <strong>Faltan tus datos legales.</strong> Son obligatorios en el aviso legal de la web.
+            </Notice>
+          )}
+        </div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2 md:items-start md:gap-6">
         {/* Estado del local ahora mismo */}
         <section
           aria-label="Estado del local"
-          className={cn(
-            "relative min-w-0 overflow-hidden rounded-2xl p-5 text-white shadow-sm md:p-6",
-            status.open ? "bg-primary" : "bg-ink",
-          )}
+          className={cn("relative min-w-0 overflow-hidden rounded-2xl p-5 text-white shadow-sm md:p-6", status.open ? "bg-primary" : "bg-ink")}
         >
           <div aria-hidden className="pointer-events-none absolute -top-10 -right-10 size-40 rounded-full bg-white/10" />
           <p className="flex items-center gap-2 text-xs font-semibold tracking-[0.14em] uppercase opacity-80">
@@ -52,18 +94,15 @@ export default async function DashboardPage() {
             {status.open
               ? `Cierra a las ${formatTime(status.closesAt)}`
               : status.opensAt
-                ? describeOpenStatus(status, now).replace(/^Cerrado · a/, "A")
+                ? describeOpenStatus(status, now).replace(/^Cerrado(?: \([^)]*\))? · a/, "A")
                 : "No hay horas de apertura en el horario"}
           </p>
           <div className="mt-5 flex items-end justify-between gap-3 border-t border-white/15 pt-4">
             <p className="text-sm">
               <span className="block text-xs opacity-70">Horario de hoy</span>
-              <span className="font-medium">{formatDayHours(settings.openingHours[today])}</span>
+              <span className="font-medium">{closedToday ? "Cerrado por cierre puntual" : formatDayHours(settings.openingHours[today])}</span>
             </p>
-            <Link
-              href="/admin/contenido/horario"
-              className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-white/15 px-3.5 text-sm font-semibold transition hover:bg-white/25"
-            >
+            <Link href="/admin/contenido/horario" className="inline-flex min-h-11 items-center gap-1.5 rounded-xl bg-white/15 px-3.5 text-sm font-semibold transition hover:bg-white/25">
               <Clock className="size-4" aria-hidden />
               Cambiar
             </Link>
@@ -71,7 +110,12 @@ export default async function DashboardPage() {
           {settings.hoursNote && <p className="mt-3 text-xs opacity-80">{settings.hoursNote}</p>}
         </section>
 
+        <DailyMenuCard menu={settings.dailyMenu} today={today} />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 md:items-start md:gap-6">
         <QuickAnnouncement initialEnabled={settings.announcementEnabled} initialText={settings.announcementText} />
+        <SoldOutCard items={soldOut} />
       </div>
 
       {/* Accesos rápidos */}
@@ -82,7 +126,7 @@ export default async function DashboardPage() {
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <QuickAction href="/admin/carta/platos/nuevo" icon={Plus} label="Añadir plato" />
           <QuickAction href="/admin/eventos/nuevo" icon={CalendarPlus} label="Crear evento" />
-          <QuickAction href="/admin/contenido/horario" icon={Clock} label="Cambiar horario" />
+          <QuickAction href="/admin/carta/qr" icon={QrCode} label="QR de la carta" />
           <QuickAction href="/" icon={ExternalLink} label="Ver la web" external />
         </ul>
       </section>
@@ -156,11 +200,37 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      <p className="flex items-center justify-center gap-2 pt-2 text-xs text-ink-muted">
-        <UtensilsCrossed className="size-3.5" aria-hidden />
-        Los cambios que guardas aquí se ven en la web al momento.
-      </p>
+      <InstallBanner />
     </div>
+  );
+}
+
+const noticeTones = {
+  gold: "border-gold/50 bg-gold/10 [&_svg]:text-gold-deep",
+  danger: "border-danger/25 bg-danger/5 [&_svg]:text-danger",
+} as const;
+
+function Notice({
+  href,
+  icon: Icon,
+  tone,
+  action,
+  children,
+}: {
+  href: string;
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  tone: keyof typeof noticeTones;
+  action: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link href={href} className={cn("flex items-center gap-3 rounded-2xl border p-4 text-sm leading-snug text-ink transition hover:brightness-[0.98]", noticeTones[tone])}>
+      <Icon className="size-5 shrink-0" aria-hidden />
+      <span className="min-w-0 flex-1">{children}</span>
+      <span className="hidden shrink-0 font-semibold whitespace-nowrap text-primary sm:inline">{action} →</span>
+      <ChevronRight className="size-5 shrink-0 !text-primary sm:hidden" aria-hidden />
+      <span className="sr-only sm:hidden">{action}</span>
+    </Link>
   );
 }
 

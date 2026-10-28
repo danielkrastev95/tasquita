@@ -7,7 +7,7 @@ import { OrganizeCta } from "@/components/site/events/OrganizeCta";
 import { InstagramIcon } from "@/components/site/icons";
 import { JsonLd } from "@/components/site/JsonLd";
 import { pageMetadata, siteUrl } from "@/components/site/seo";
-import { instagramUrl, pad2, splitCity } from "@/components/site/utils";
+import { getEventActionsContext, instagramUrl, pad2, splitCity } from "@/components/site/utils";
 
 export const revalidate = 3600;
 
@@ -91,7 +91,7 @@ export default async function EventosPage() {
         {events.length > 0 ? (
           <div className="grid gap-px border border-primary bg-primary">
             {events.map((event, i) => (
-              <EventCard key={event.id} event={event} reversed={i % 2 === 1} headingLevel="h2" />
+              <EventCard key={event.id} event={event} reversed={i % 2 === 1} headingLevel="h2" actions={getEventActionsContext(settings)} />
             ))}
           </div>
         ) : (

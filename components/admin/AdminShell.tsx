@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, ChevronRight, Ellipsis, ExternalLink, House, LogOut, PenLine, ShieldCheck, UtensilsCrossed } from "lucide-react";
+import { CalendarDays, ChevronRight, Ellipsis, ExternalLink, House, LogOut, PenLine, QrCode, ShieldCheck, Smartphone, Soup, UtensilsCrossed } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Dialog } from "./Dialog";
+import { InstallDialog, useShowInstallOption } from "./InstallHelp";
 
 type Icon = React.ComponentType<{ className?: string; "aria-hidden"?: boolean; strokeWidth?: number }>;
 type NavItem = { href: string; label: string; icon: Icon; match: (path: string) => boolean };
@@ -21,16 +22,22 @@ const MAIN_NAV: NavItem[] = [
   { href: "/admin/contenido", label: "Contenido", icon: PenLine, match: startsWith("/admin/contenido") },
 ];
 const SECURITY: NavItem = { href: "/admin/seguridad", label: "Seguridad", icon: ShieldCheck, match: startsWith("/admin/seguridad") };
+/** En escritorio, el menú del día tiene entrada propia (en móvil se llega desde Inicio). */
+const DAILY_MENU: NavItem = { href: "/admin/menu-del-dia", label: "Menú del día", icon: Soup, match: startsWith("/admin/menu-del-dia") };
+const SIDEBAR_NAV: NavItem[] = [MAIN_NAV[0], MAIN_NAV[1], DAILY_MENU, ...MAIN_NAV.slice(2)];
 
 /** Fichas de edición: en móvil se oculta la barra de pestañas y manda la barra de Guardar. */
-const DETAIL_ROUTE = /^\/admin\/(carta\/platos\/|eventos\/[^/]+|contenido\/[^/]+)/;
+const DETAIL_ROUTE = /^\/admin\/(carta\/platos\/|eventos\/[^/]+|contenido\/[^/]+|menu-del-dia)/;
 
 type ShellUser = { name: string; email: string };
 
 export function AdminShell({ user, children }: { user: ShellUser; children: React.ReactNode }) {
   const pathname = usePathname();
   const isDetail = DETAIL_ROUTE.test(pathname);
+  const moreActive = SECURITY.match(pathname);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [installOpen, setInstallOpen] = useState(false);
+  const showInstall = useShowInstallOption();
   const signOut = useSignOut();
 
   return (
@@ -48,7 +55,7 @@ export function AdminShell({ user, children }: { user: ShellUser; children: Reac
           <Brand />
         </div>
         <nav aria-label="Secciones del panel" className="flex-1 space-y-1 overflow-y-auto px-3">
-          {MAIN_NAV.map((item) => (
+          {SIDEBAR_NAV.map((item) => (
             <SidebarLink key={item.href} item={item} active={item.match(pathname)} />
           ))}
           <div className="my-3 h-px bg-cream-300" aria-hidden />
@@ -124,9 +131,9 @@ export function AdminShell({ user, children }: { user: ShellUser; children: Reac
                 type="button"
                 onClick={() => setMoreOpen(true)}
                 aria-haspopup="dialog"
-                className={tabClasses(SECURITY.match(pathname))}
+                className={tabClasses(moreActive)}
               >
-                <TabIcon icon={Ellipsis} active={SECURITY.match(pathname)} />
+                <TabIcon icon={Ellipsis} active={moreActive} />
                 Más
               </button>
             </li>
@@ -154,6 +161,35 @@ export function AdminShell({ user, children }: { user: ShellUser; children: Reac
             </Link>
           </li>
           <li>
+            <Link href="/admin/carta/qr" onClick={() => setMoreOpen(false)} className={sheetRowClasses}>
+              <QrCode className="size-5 text-primary" aria-hidden />
+              <span className="flex-1">
+                <span className="block font-semibold">QR de la carta</span>
+                <span className="block text-xs text-ink-muted">Descárgalo o imprime tarjetas para las mesas</span>
+              </span>
+              <ChevronRight className="size-4 text-ink-muted" aria-hidden />
+            </Link>
+          </li>
+          {showInstall && (
+            <li>
+              <button
+                type="button"
+                onClick={() => {
+                  setMoreOpen(false);
+                  setInstallOpen(true);
+                }}
+                className={cn(sheetRowClasses, "w-full text-left")}
+              >
+                <Smartphone className="size-5 text-primary" aria-hidden />
+                <span className="flex-1">
+                  <span className="block font-semibold">Instalar en el móvil</span>
+                  <span className="block text-xs text-ink-muted">Ábrelo como una app desde la pantalla de inicio</span>
+                </span>
+                <ChevronRight className="size-4 text-ink-muted" aria-hidden />
+              </button>
+            </li>
+          )}
+          <li>
             <a href="/" target="_blank" rel="noopener" className={sheetRowClasses}>
               <ExternalLink className="size-5 text-primary" aria-hidden />
               <span className="flex-1 font-semibold">Ver la web</span>
@@ -168,6 +204,7 @@ export function AdminShell({ user, children }: { user: ShellUser; children: Reac
           </li>
         </ul>
       </Dialog>
+      <InstallDialog open={installOpen} onClose={() => setInstallOpen(false)} />
     </div>
   );
 }

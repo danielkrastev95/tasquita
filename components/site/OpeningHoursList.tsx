@@ -1,31 +1,35 @@
 "use client";
 
-import { groupOpeningHours, madridNow } from "@/lib/schedule";
-import type { OpeningHours } from "@/lib/settings";
+import { closureOn, groupOpeningHours, madridNow } from "@/lib/schedule";
 import { cn } from "@/lib/utils";
 import { useMinute } from "./use-madrid-clock";
+import type { Schedule } from "./utils";
 
-/** Horario agrupado por días iguales; resalta el grupo de HOY (calculado en el cliente). */
+/**
+ * Horario agrupado por días iguales; resalta el grupo de HOY (calculado en el cliente).
+ * Si hoy hay un cierre puntual, la fila de hoy lo indica.
+ */
 export function OpeningHoursList({
-  hours,
+  schedule,
   tone = "light",
   compact = false,
   className,
 }: {
-  hours: OpeningHours;
+  schedule: Schedule;
   tone?: "light" | "dark";
   compact?: boolean;
   className?: string;
 }) {
   const minute = useMinute();
-  const today = minute === null ? null : madridNow(new Date(minute * 60_000)).weekday;
-  const groups = groupOpeningHours(hours);
+  const now = minute === null ? null : madridNow(new Date(minute * 60_000));
+  const closedToday = now ? closureOn(now.date, schedule.closures) : null;
+  const groups = groupOpeningHours(schedule.hours);
   const dark = tone === "dark";
 
   return (
     <dl className={cn("divide-y", dark ? "divide-white/10" : "divide-primary/15", className)}>
       {groups.map((g) => {
-        const isToday = today !== null && g.days.includes(today);
+        const isToday = now !== null && g.days.includes(now.weekday);
         return (
           <div
             key={g.label}
@@ -58,7 +62,11 @@ export function OpeningHoursList({
                 isToday && "font-semibold",
               )}
             >
-              {g.hours}
+              {isToday && closedToday ? (
+                <span className={dark ? "text-gold" : "text-danger"}>Hoy cerrado{closedToday.note ? ` · ${closedToday.note}` : ""}</span>
+              ) : (
+                g.hours
+              )}
             </dd>
           </div>
         );

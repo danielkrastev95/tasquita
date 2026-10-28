@@ -6,22 +6,30 @@ import { formatTime } from "@/lib/schedule";
 import { cn } from "@/lib/utils";
 import { SmartImage } from "../SmartImage";
 import { capitalize } from "../utils";
+import { EventActions } from "./EventActions";
 
-export const EVENT_CATEGORY: Record<EventCategory, { label: string; className: string }> = {
-  musica: { label: "Música en vivo", className: "bg-primary text-white" },
-  gastronomia: { label: "Gastronomía", className: "bg-gold text-ink" },
-  especial: { label: "Especial", className: "bg-ink text-white" },
+/** Etiqueta de cada categoría y color del bloque cuando el evento no tiene foto. */
+export const EVENT_CATEGORY: Record<EventCategory, { label: string; className: string; panel: string }> = {
+  musica: { label: "Música en vivo", className: "bg-primary text-white", panel: "bg-primary-dark" },
+  gastronomia: { label: "Gastronomía", className: "bg-gold text-ink", panel: "bg-gold-deep" },
+  deporte: { label: "Deporte en directo", className: "bg-cream text-sport", panel: "bg-sport" },
+  especial: { label: "Especial", className: "bg-gold text-ink", panel: "bg-ink" },
 };
+
+/** Datos para las acciones de cada evento (reservar, calendario, compartir). */
+export type EventActionsContext = { siteName: string; reservePhone: string | null; telHref: string };
 
 /** Tarjeta de evento: foto (o bloque tipográfico) + fecha tipo "entrada" + texto. */
 export function EventCard({
   event,
   reversed = false,
   headingLevel: Heading = "h3",
+  actions,
 }: {
   event: PublicEvent;
   reversed?: boolean;
   headingLevel?: "h2" | "h3";
+  actions: EventActionsContext;
 }) {
   const d = formatEventDate(event.date);
   const category = EVENT_CATEGORY[event.category] ?? EVENT_CATEGORY.especial;
@@ -31,7 +39,13 @@ export function EventCard({
       id={`evento-${event.id}`}
       className="grid scroll-mt-[calc(var(--header-h)+1.5rem)] gap-px bg-primary lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]"
     >
-      <div className={cn("relative aspect-[16/10] overflow-hidden bg-primary-dark md:aspect-[16/8] lg:aspect-auto lg:min-h-[26rem]", reversed && "lg:order-2")}>
+      <div
+        className={cn(
+          "relative aspect-[16/10] overflow-hidden md:aspect-[16/8] lg:aspect-auto lg:min-h-[26rem]",
+          event.imageUrl ? "bg-primary-dark" : category.panel,
+          reversed && "lg:order-2",
+        )}
+      >
         {event.imageUrl ? (
           <SmartImage
             src={event.imageUrl}
@@ -42,7 +56,8 @@ export function EventCard({
           />
         ) : (
           <div aria-hidden className="absolute inset-0 flex items-end justify-end overflow-hidden p-4">
-            <span className="translate-x-[6%] translate-y-[18%] font-serif text-[clamp(12rem,40vw,22rem)] leading-none font-extrabold glyph-outline text-white/25 italic">
+            <span aria-hidden className="absolute inset-0 bg-grain opacity-10 mix-blend-overlay" />
+            <span className="translate-x-[6%] translate-y-[18%] font-serif text-[clamp(12rem,40vw,22rem)] leading-none font-extrabold glyph-outline text-white/30 italic">
               {d.day}
             </span>
           </div>
@@ -78,14 +93,22 @@ export function EventCard({
             {event.description}
           </p>
         )}
-        {event.isFeatured && (
-          <p className="mt-auto pt-6">
-            <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.16em] text-gold-deep uppercase">
+        <div className="mt-auto flex flex-col gap-5 pt-7">
+          {event.isFeatured && (
+            <p className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.16em] text-gold-deep uppercase">
               <span aria-hidden className="size-1.5 bg-gold" />
               Evento destacado
-            </span>
-          </p>
-        )}
+            </p>
+          )}
+          <EventActions
+            id={event.id}
+            title={event.title}
+            when={`${d.long} a las ${formatTime(event.time)}`}
+            siteName={actions.siteName}
+            reservePhone={actions.reservePhone}
+            telHref={actions.telHref}
+          />
+        </div>
       </div>
     </article>
   );

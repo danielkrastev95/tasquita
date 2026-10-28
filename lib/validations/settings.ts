@@ -5,6 +5,18 @@ import type { SiteSettings } from "@/lib/settings";
  * y se guarda por separado (la action solo acepta las claves de su sección).
  */
 export const SETTINGS_SECTIONS = {
+  menu: {
+    title: "Menú del día",
+    description: "Título, precio, días, horario y los platos de primero, segundo y postre.",
+    webPath: "/#menu-del-dia",
+    keys: ["dailyMenu"],
+  },
+  cierres: {
+    title: "Cierres y festivos",
+    description: "Vacaciones, festivos o días sueltos sin abrir. La web dirá «Cerrado» esos días sin tocar el horario.",
+    webPath: "/#contacto",
+    keys: ["specialClosures"],
+  },
   aviso: {
     title: "Aviso superior",
     description: "Una franja arriba del todo de la web para avisos puntuales: vacaciones, cierres, novedades.",
@@ -73,6 +85,18 @@ export const SETTINGS_SECTIONS = {
     webPath: "/#contacto",
     keys: ["openingHours", "hoursNote"],
   },
+  reservas: {
+    title: "Reservas por WhatsApp",
+    description: "El botón de WhatsApp de la web y las reservas, que te llegan como mensaje con día, hora y personas.",
+    webPath: "/#reservar",
+    keys: ["whatsappEnabled", "whatsappPhone", "reservationsEnabled", "reservationsNote", "reservationMaxGuests"],
+  },
+  resenas: {
+    title: "Reseñas de Google",
+    description: "El enlace para que los clientes os dejen una reseña en Google.",
+    webPath: "/",
+    keys: ["googleReviewsUrl"],
+  },
   domicilio: {
     title: "Pedidos a domicilio",
     description: "Enlaces a Glovo y Uber Eats que aparecen en la portada.",
@@ -97,6 +121,12 @@ export const SETTINGS_SECTIONS = {
     webPath: "/",
     keys: ["name", "seoDescription"],
   },
+  legal: {
+    title: "Datos legales",
+    description: "Titular, NIF/CIF, domicilio y correo que aparecen en el Aviso legal y la Política de privacidad.",
+    webPath: "/aviso-legal",
+    keys: ["legalName", "legalTaxId", "legalAddress", "legalEmail"],
+  },
 } as const satisfies Record<string, { title: string; description: string; webPath: string; keys: readonly (keyof SiteSettings)[] }>;
 
 export type SettingsSectionKey = keyof typeof SETTINGS_SECTIONS;
@@ -109,6 +139,9 @@ export type SectionValues<S extends SettingsSectionKey> = Pick<SiteSettings, Sec
 type CoveredKey = { [S in SettingsSectionKey]: SectionFieldKey<S> }[SettingsSectionKey];
 type MissingKeys = Exclude<keyof SiteSettings, CoveredKey>;
 export const ALL_SETTINGS_COVERED: MissingKeys extends never ? true : MissingKeys = true;
+
+/** Página de edición de cada sección (el menú del día tiene ruta propia, de uso diario). */
+export const sectionHref = (section: SettingsSectionKey) => (section === "menu" ? "/admin/menu-del-dia" : `/admin/contenido/${section}`);
 
 export const isSettingsSection = (value: string): value is SettingsSectionKey => value in SETTINGS_SECTIONS;
 

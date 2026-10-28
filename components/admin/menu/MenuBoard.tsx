@@ -1,12 +1,37 @@
 "use client";
 
-import { ArrowUpDown, Award, ChefHat, ExternalLink, EyeOff, Flame, FolderPlus, Pencil, Plus, Search, SearchX, UtensilsCrossed, X } from "lucide-react";
+import {
+  ArrowUpDown,
+  Award,
+  Ban,
+  ChefHat,
+  ExternalLink,
+  EyeOff,
+  Flame,
+  FolderPlus,
+  Pencil,
+  Plus,
+  QrCode,
+  RotateCcw,
+  Search,
+  SearchX,
+  UtensilsCrossed,
+  X,
+} from "lucide-react";
 import { motion } from "motion/react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useOptimistic, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Button, buttonClasses } from "@/components/ui/Button";
-import { deleteCategory, reorderCategories, reorderMenuItems, setCategoryActive, setMenuItemActive } from "@/lib/actions/menu";
+import {
+  deleteCategory,
+  reactivateSoldOut,
+  reorderCategories,
+  reorderMenuItems,
+  setCategoryActive,
+  setMenuItemActive,
+  setMenuItemSoldOut,
+} from "@/lib/actions/menu";
 import type { AdminMenuCategory, AdminMenuItem } from "@/lib/data/admin";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -19,16 +44,25 @@ import { ToggleSwitch } from "../ToggleSwitch";
 import { CategoryDialog, type CategoryDraft } from "./CategoryDialog";
 import { CategoryOrderDialog } from "./CategoryOrderDialog";
 
+export type BoardMode = "carta" | "agotados";
+
 type BoardAction =
   | { type: "itemActive"; id: string; isActive: boolean }
+  | { type: "itemSoldOut"; id: string; soldOutOn: string | null }
+  | { type: "clearSoldOut" }
   | { type: "categoryActive"; id: string; isActive: boolean }
   | { type: "reorderItems"; categoryId: string; ids: string[] }
   | { type: "reorderCategories"; ids: string[] };
 
 function reducer(state: AdminMenuCategory[], action: BoardAction): AdminMenuCategory[] {
+  const mapItems = (fn: (i: AdminMenuItem) => AdminMenuItem) => state.map((c) => ({ ...c, items: c.items.map(fn) }));
   switch (action.type) {
     case "itemActive":
-      return state.map((c) => ({ ...c, items: c.items.map((i) => (i.id === action.id ? { ...i, isActive: action.isActive } : i)) }));
+      return mapItems((i) => (i.id === action.id ? { ...i, isActive: action.isActive } : i));
+    case "itemSoldOut":
+      return mapItems((i) => (i.id === action.id ? { ...i, soldOutOn: action.soldOutOn } : i));
+    case "clearSoldOut":
+      return mapItems((i) => (i.soldOutOn ? { ...i, soldOutOn: null } : i));
     case "categoryActive":
       return state.map((c) => (c.id === action.id ? { ...c, isActive: action.isActive } : c));
     case "reorderItems":
@@ -53,17 +87,29 @@ const normalize = (value: string) =>
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-export function MenuBoard({ categories, highlightId }: { categories: AdminMenuCategory[]; highlightId?: string }) {
+type Props = {
+  categories: AdminMenuCategory[];
+  /** Hoy en Madrid (YYYY-MM-DD): un plato está agotado si soldOutOn === today. */
+  today: string;
+  initialMode?: BoardMode;
+  highlightId?: string;
+};
+
+export function MenuBoard({ categories, today, initialMode = "carta", highlightId }: Props) {
   const [board, apply] = useOptimistic(categories, reducer);
   const [, startTransition] = useTransition();
+  const [mode, setMode] = useState<BoardMode>(initialMode);
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<CategoryDraft | null>(null);
   const [deleting, setDeleting] = useState<CategoryDraft | null>(null);
   const [ordering, setOrdering] = useState(false);
   const scrollToRef = useRef<string | null>(highlightId ?? null);
 
+  const isSoldOut = useCallback((item: AdminMenuItem) => item.soldOutOn === today, [today]);
   const totalItems = board.reduce((sum, c) => sum + c.items.length, 0);
+  const soldOutCount = board.reduce((sum, c) => sum + c.items.filter(isSoldOut).length, 0);
   const searching = normalize(query).length > 0;
+  const service = mode === "agotados";
 
   const filtered = useMemo(() => {
     const q = normalize(query);
@@ -83,6 +129,11 @@ export function MenuBoard({ categories, highlightId }: { categories: AdminMenuCa
     if (highlightId) window.history.replaceState(null, "", "/admin/carta");
   }, [board, highlightId]);
 
+  const changeMode = (next: BoardMode) => {
+    setMode(next);
+    window.history.replaceState(null, "", next === "agotados" ? "/admin/carta?modo=agotados" : "/admin/carta");
+  };
+
   const run = (action: BoardAction, request: () => Promise<{ ok: boolean; error?: string }>, success?: string) => {
     startTransition(async () => {
       apply(action);
@@ -94,6 +145,21 @@ export function MenuBoard({ categories, highlightId }: { categories: AdminMenuCa
 
   const toggleItem = (item: AdminMenuItem, isActive: boolean) =>
     run({ type: "itemActive", id: item.id, isActive }, () => setMenuItemActive(item.id, isActive), isActive ? `«${item.name}» ya se ve en la carta` : `«${item.name}» oculto en la carta`);
+
+  const toggleSoldOut = (item: AdminMenuItem) => {
+    const soldOut = !isSoldOut(item);
+    run(
+      { type: "itemSoldOut", id: item.id, soldOutOn: soldOut ? today : null },
+      () => setMenuItemSoldOut(item.id, soldOut),
+      soldOut ? `«${item.name}» agotado hasta mañana` : `«${item.name}» vuelve a estar disponible`,
+    );
+  };
+
+  const reactivateAll = () =>
+    run({ type: "clearSoldOut" }, async () => {
+      const result = await reactivateSoldOut();
+      return result.ok ? { ok: true } : result;
+    }, "Todo vuelve a estar disponible");
 
   const toggleCategory = (category: AdminMenuCategory, isActive: boolean) =>
     run(
@@ -119,6 +185,7 @@ export function MenuBoard({ categories, highlightId }: { categories: AdminMenuCa
   };
 
   const draftOf = (c: AdminMenuCategory): CategoryDraft => ({ id: c.id, name: c.name, description: c.description, isActive: c.isActive, itemCount: c.items.length });
+  const newCategory = () => setEditing({ id: "", name: "", description: null, isActive: true, itemCount: 0 });
 
   return (
     <>
@@ -127,29 +194,65 @@ export function MenuBoard({ categories, highlightId }: { categories: AdminMenuCa
           <div className="space-y-1.5">
             <h1 className="font-serif text-3xl font-bold tracking-tight text-ink italic md:text-4xl">Carta</h1>
             <p className="text-sm leading-relaxed text-ink-muted">
-              {plural(totalItems, "plato", "platos")} en {plural(board.length, "categoría", "categorías")}. Toca un plato para editarlo.{" "}
-              <a href="/carta" target="_blank" rel="noopener" className="inline-flex items-center gap-1 font-semibold whitespace-nowrap text-primary underline-offset-2 hover:underline">
+              {plural(totalItems, "plato", "platos")} en {plural(board.length, "categoría", "categorías")}.{" "}
+              <a href="/carta" target="_blank" rel="noopener" className="-my-3 inline-flex items-center gap-1 py-3 font-semibold whitespace-nowrap text-primary underline-offset-2 hover:underline">
                 Ver en la web
                 <ExternalLink className="size-3.5" aria-hidden />
                 <span className="sr-only">(se abre en otra pestaña)</span>
               </a>
+              <span aria-hidden className="mx-1.5 text-cream-400">
+                ·
+              </span>
+              <Link href="/admin/carta/qr" className="-my-3 inline-flex items-center gap-1 py-3 font-semibold whitespace-nowrap text-primary underline-offset-2 hover:underline">
+                <QrCode className="size-3.5" aria-hidden />
+                Código QR
+              </Link>
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-2 md:flex">
-            <Link
-              href="/admin/carta/platos/nuevo"
-              aria-disabled={board.length === 0 || undefined}
-              className={buttonClasses("primary", "md", cn(board.length === 0 && "pointer-events-none opacity-50"))}
-            >
-              <Plus className="size-4" aria-hidden />
-              Añadir plato
-            </Link>
-            <Button variant="secondary" className="px-3" onClick={() => setEditing({ id: "", name: "", description: null, isActive: true, itemCount: 0 })}>
-              <FolderPlus className="hidden size-4 sm:block" aria-hidden />
-              Nueva categoría
-            </Button>
-          </div>
+          {!service && (
+            <div className="grid grid-cols-2 gap-2 md:flex">
+              <Link
+                href="/admin/carta/platos/nuevo"
+                aria-disabled={board.length === 0 || undefined}
+                className={buttonClasses("primary", "md", cn(board.length === 0 && "pointer-events-none opacity-50"))}
+              >
+                <Plus className="size-4" aria-hidden />
+                Añadir plato
+              </Link>
+              <Button variant="secondary" className="px-3" onClick={newCategory}>
+                <FolderPlus className="hidden size-4 sm:block" aria-hidden />
+                Nueva categoría
+              </Button>
+            </div>
+          )}
         </div>
+
+        {board.length > 0 && (
+          <div role="group" aria-label="Qué quieres hacer en la carta" className="grid grid-cols-2 rounded-2xl bg-cream-300/70 p-1 md:inline-grid md:w-auto">
+            {(
+              [
+                ["carta", "Editar carta"],
+                ["agotados", "Agotados hoy"],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={mode === key}
+                onClick={() => changeMode(key)}
+                className={cn(
+                  "flex min-h-11 items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold transition",
+                  mode === key ? "bg-white text-ink shadow-sm" : "text-ink-muted hover:text-ink",
+                )}
+              >
+                {label}
+                {key === "agotados" && soldOutCount > 0 && (
+                  <span className="rounded-full bg-danger px-1.5 text-xs leading-5 font-bold text-white tabular-nums">{soldOutCount}</span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </header>
 
       {board.length === 0 ? (
@@ -157,7 +260,7 @@ export function MenuBoard({ categories, highlightId }: { categories: AdminMenuCa
           icon={UtensilsCrossed}
           title="Tu carta está vacía"
           action={
-            <Button onClick={() => setEditing({ id: "", name: "", description: null, isActive: true, itemCount: 0 })}>
+            <Button onClick={newCategory}>
               <FolderPlus className="size-4" aria-hidden /> Crear la primera categoría
             </Button>
           }
@@ -166,6 +269,21 @@ export function MenuBoard({ categories, highlightId }: { categories: AdminMenuCa
         </EmptyState>
       ) : (
         <>
+          {service && (
+            <div className="mb-4 flex flex-col gap-3 rounded-2xl border border-danger/20 bg-danger/5 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm leading-relaxed text-ink">
+                Toca <strong>«Marcar agotado»</strong> en lo que se haya terminado: en la web saldrá como agotado.{" "}
+                <span className="text-ink-muted">Mañana vuelve a estar disponible solo.</span>
+              </p>
+              {soldOutCount > 0 && (
+                <Button variant="secondary" size="sm" onClick={reactivateAll} className="shrink-0">
+                  <RotateCcw className="size-4" aria-hidden />
+                  Reactivar todos ({soldOutCount})
+                </Button>
+              )}
+            </div>
+          )}
+
           {/* Buscador + saltos a categoría (fijos al hacer scroll) */}
           <div className="sticky top-[calc(3.5rem+env(safe-area-inset-top))] z-20 -mx-4 mb-4 border-b border-cream-400/50 bg-cream-100/92 px-4 pt-1 pb-3 backdrop-blur-md md:top-0 md:-mx-8 md:px-8 md:pt-4">
             <div className="flex gap-2">
@@ -195,9 +313,11 @@ export function MenuBoard({ categories, highlightId }: { categories: AdminMenuCa
                   </button>
                 )}
               </div>
-              <Button variant="secondary" size="icon" className="size-12" onClick={() => setOrdering(true)} aria-label="Ordenar categorías" title="Ordenar categorías">
-                <ArrowUpDown className="size-5" aria-hidden />
-              </Button>
+              {!service && (
+                <Button variant="secondary" size="icon" className="size-12" onClick={() => setOrdering(true)} aria-label="Ordenar categorías" title="Ordenar categorías">
+                  <ArrowUpDown className="size-5" aria-hidden />
+                </Button>
+              )}
             </div>
             {!searching && (
               <nav aria-label="Ir a una categoría" className="scrollbar-hide -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 md:mx-0 md:flex-wrap md:px-0">
@@ -237,11 +357,14 @@ export function MenuBoard({ categories, highlightId }: { categories: AdminMenuCa
                 <CategoryBlock
                   key={category.id}
                   category={category}
+                  mode={mode}
                   searching={searching}
                   highlightId={highlightId}
+                  isSoldOut={isSoldOut}
                   onToggle={(value) => toggleCategory(category, value)}
                   onEdit={() => setEditing(draftOf(category))}
                   onToggleItem={toggleItem}
+                  onToggleSoldOut={toggleSoldOut}
                   onReorder={(ids) => reorderItems(category.id, ids)}
                 />
               ))}
@@ -293,24 +416,32 @@ export function MenuBoard({ categories, highlightId }: { categories: AdminMenuCa
 
 function CategoryBlock({
   category,
+  mode,
   searching,
   highlightId,
+  isSoldOut,
   onToggle,
   onEdit,
   onToggleItem,
+  onToggleSoldOut,
   onReorder,
 }: {
   category: AdminMenuCategory;
+  mode: BoardMode;
   searching: boolean;
   highlightId?: string;
+  isSoldOut: (item: AdminMenuItem) => boolean;
   onToggle: (value: boolean) => void;
   onEdit: () => void;
   onToggleItem: (item: AdminMenuItem, value: boolean) => void;
+  onToggleSoldOut: (item: AdminMenuItem) => void;
   onReorder: (ids: string[]) => void;
 }) {
   const ids = category.items.map((i) => i.id);
   const getLabel = useCallback((id: string) => category.items.find((i) => i.id === id)?.name ?? "plato", [category.items]);
   const headingId = `titulo-${category.id}`;
+  const service = mode === "agotados";
+  const editable = !searching && !service;
 
   return (
     <section id={`categoria-${category.id}`} aria-labelledby={headingId} className="scroll-mt-44 md:scroll-mt-36">
@@ -328,7 +459,7 @@ function CategoryBlock({
             )}
           </p>
         </div>
-        {!searching && (
+        {editable && (
           <>
             <ToggleSwitch checked={category.isActive} onCheckedChange={onToggle} label={`Mostrar la categoría «${category.name}» en la web`} />
             <Button variant="ghost" size="icon" onClick={onEdit} aria-label={`Editar la categoría «${category.name}»`} title="Editar categoría">
@@ -337,12 +468,10 @@ function CategoryBlock({
           </>
         )}
       </div>
-      {category.description && !searching && <p className="mb-3 text-sm text-ink-muted">{category.description}</p>}
+      {category.description && editable && <p className="mb-3 text-sm text-ink-muted">{category.description}</p>}
 
       {category.items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-cream-400 bg-white/50 px-4 py-6 text-center text-sm text-ink-muted">
-          Aún no hay platos en esta categoría.
-        </div>
+        <div className="rounded-2xl border border-dashed border-cream-400 bg-white/50 px-4 py-6 text-center text-sm text-ink-muted">Aún no hay platos en esta categoría.</div>
       ) : (
         <SortableList ids={ids} getLabel={getLabel} onReorder={onReorder}>
           <ul className={cn("divide-y divide-cream-300 rounded-2xl border border-cream-400/70 bg-white", !category.isActive && "bg-white/60")}>
@@ -350,17 +479,20 @@ function CategoryBlock({
               <ItemRow
                 key={item.id}
                 item={item}
-                sortable={!searching && category.items.length > 1}
+                mode={mode}
+                sortable={editable && category.items.length > 1}
                 dimmed={!category.isActive}
+                soldOut={isSoldOut(item)}
                 highlighted={item.id === highlightId}
                 onToggle={(value) => onToggleItem(item, value)}
+                onToggleSoldOut={() => onToggleSoldOut(item)}
               />
             ))}
           </ul>
         </SortableList>
       )}
 
-      {!searching && (
+      {editable && (
         <Link
           href={`/admin/carta/platos/nuevo?categoria=${category.id}`}
           className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-xl px-2 text-sm font-semibold text-primary transition hover:bg-primary-light"
@@ -375,20 +507,81 @@ function CategoryBlock({
 
 function ItemRow({
   item,
+  mode,
   sortable,
   dimmed,
+  soldOut,
   highlighted,
   onToggle,
+  onToggleSoldOut,
 }: {
   item: AdminMenuItem;
+  mode: BoardMode;
   sortable: boolean;
   dimmed: boolean;
+  soldOut: boolean;
   highlighted: boolean;
   onToggle: (value: boolean) => void;
+  onToggleSoldOut: () => void;
 }) {
   const { rowRef, rowStyle, isDragging, handleProps } = useSortableRow(item.id, !sortable);
   const price = formatPrice(item.priceCents);
   const hidden = !item.isActive;
+  const service = mode === "agotados";
+  const muted = hidden || dimmed || (service && soldOut);
+
+  const info = (
+    <>
+      <span className={cn("relative size-14 shrink-0 overflow-hidden rounded-xl bg-cream-200", muted && "opacity-50 grayscale")}>
+        {item.imageUrl ? (
+          <RemoteImg src={item.imageUrl} width={112} aspectRatio="1:1" className="size-full" />
+        ) : (
+          <span className="flex size-full items-center justify-center text-ink-muted/40">
+            <UtensilsCrossed className="size-5" aria-hidden />
+          </span>
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className={cn("line-clamp-2 leading-snug font-semibold break-words", muted ? "text-ink-muted" : "text-ink", service && soldOut && "line-through decoration-danger/60")}>
+          {item.name}
+        </span>
+        <span className="mt-1 flex flex-wrap items-center gap-1.5">
+          <span className={cn("text-sm tabular-nums", price ? "font-medium text-ink" : "text-ink-muted italic")}>{price ?? (item.priceVariants.length ? "" : "Sin precio")}</span>
+          {item.priceVariants.length > 0 && (
+            <span className="text-xs text-ink-muted">
+              {price ? "+ " : ""}
+              {item.priceVariants.length === 1 ? `${item.priceVariants[0].label} ${formatPrice(item.priceVariants[0].priceCents)}` : `${item.priceVariants.length} medidas`}
+            </span>
+          )}
+          {soldOut && !service && (
+            <Badge icon={Ban} tone="danger">
+              Agotado hoy
+            </Badge>
+          )}
+          {hidden && (
+            <Badge icon={EyeOff} tone="muted">
+              Oculto
+            </Badge>
+          )}
+          {!service && item.isPopular && (
+            <Badge icon={Flame} tone="gold">
+              Popular
+            </Badge>
+          )}
+          {!service && item.isHomemade && (
+            <Badge icon={ChefHat} tone="primary">
+              Casero
+            </Badge>
+          )}
+          {!service && item.award && (
+            <Badge icon={Award} tone="gold" className="max-w-36">
+              {item.award}
+            </Badge>
+          )}
+        </span>
+      </span>
+    </>
+  );
 
   return (
     <li
@@ -411,44 +604,30 @@ function ItemRow({
         />
       )}
       {sortable && <DragHandle label={`«${item.name}»`} handleProps={handleProps} />}
-      <Link href={`/admin/carta/platos/${item.id}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl py-3 pr-1 outline-offset-0">
-        <span className={cn("relative size-14 shrink-0 overflow-hidden rounded-xl bg-cream-200", (hidden || dimmed) && "opacity-50 grayscale")}>
-          {item.imageUrl ? (
-            <RemoteImg src={item.imageUrl} width={112} aspectRatio="1:1" className="size-full" />
-          ) : (
-            <span className="flex size-full items-center justify-center text-ink-muted/40">
-              <UtensilsCrossed className="size-5" aria-hidden />
-            </span>
+      {service ? (
+        <div className="flex min-w-0 flex-1 items-center gap-3 py-3 pr-1">{info}</div>
+      ) : (
+        <Link href={`/admin/carta/platos/${item.id}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl py-3 pr-1 outline-offset-0">
+          {info}
+        </Link>
+      )}
+      {service ? (
+        <button
+          type="button"
+          aria-pressed={soldOut}
+          aria-label={`${soldOut ? "Agotado" : "Marcar agotado"}: «${item.name}»`}
+          onClick={onToggleSoldOut}
+          className={cn(
+            "mr-1 inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-xs font-semibold whitespace-nowrap transition active:scale-[0.97]",
+            soldOut ? "bg-danger text-white shadow-sm hover:bg-danger/90" : "border border-cream-400 bg-white text-ink hover:border-danger/50 hover:text-danger",
           )}
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className={cn("line-clamp-2 leading-snug font-semibold break-words", hidden || dimmed ? "text-ink-muted" : "text-ink")}>{item.name}</span>
-          <span className="mt-1 flex flex-wrap items-center gap-1.5">
-            <span className={cn("text-sm tabular-nums", price ? "font-medium text-ink" : "text-ink-muted italic")}>{price ?? "Sin precio"}</span>
-            {hidden && (
-              <Badge icon={EyeOff} tone="muted">
-                Oculto
-              </Badge>
-            )}
-            {item.isPopular && (
-              <Badge icon={Flame} tone="gold">
-                Popular
-              </Badge>
-            )}
-            {item.isHomemade && (
-              <Badge icon={ChefHat} tone="primary">
-                Casero
-              </Badge>
-            )}
-            {item.award && (
-              <Badge icon={Award} tone="gold" className="max-w-36">
-                {item.award}
-              </Badge>
-            )}
-          </span>
-        </span>
-      </Link>
-      <ToggleSwitch checked={item.isActive} onCheckedChange={onToggle} label={`Mostrar «${item.name}» en la carta`} />
+        >
+          <Ban className="size-3.5" aria-hidden />
+          {soldOut ? "Agotado" : "Marcar agotado"}
+        </button>
+      ) : (
+        <ToggleSwitch checked={item.isActive} onCheckedChange={onToggle} label={`Mostrar «${item.name}» en la carta`} />
+      )}
     </li>
   );
 }

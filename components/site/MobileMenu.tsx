@@ -1,22 +1,18 @@
 "use client";
 
-import { MapPin, Phone, X } from "lucide-react";
+import { ArrowRight, MapPin, Phone, X } from "lucide-react";
 import { AnimatePresence, m } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, type RefObject } from "react";
-import type { OpeningHours } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 import { DeliveryLinks } from "./DeliveryLinks";
 import { OpenStatus } from "./OpenStatus";
 import { OpeningHoursList } from "./OpeningHoursList";
-import { pad2, type NavLink } from "./utils";
+import { pad2, type NavLink, type Schedule, type SiteActions } from "./utils";
 
 export type MenuContact = {
   addressStreet: string;
   addressCity: string;
-  phone: string;
-  telHref: string;
-  directionsUrl: string;
   glovoUrl: string | null;
   uberEatsUrl: string | null;
   deliveryLabel: string;
@@ -33,8 +29,9 @@ export function MobileMenu({
   name,
   links,
   pathname,
-  hours,
+  schedule,
   contact,
+  actions,
 }: {
   open: boolean;
   onClose: () => void;
@@ -42,8 +39,9 @@ export function MobileMenu({
   name: string;
   links: NavLink[];
   pathname: string;
-  hours: OpeningHours;
+  schedule: Schedule;
   contact: MenuContact;
+  actions: SiteActions;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -151,6 +149,22 @@ export function MobileMenu({
                 );
               })}
             </ol>
+            {actions.reserveHref && (
+              <m.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.06 + links.length * 0.05, duration: 0.6, ease: EASE }}
+              >
+                <Link
+                  href={actions.reserveHref}
+                  onClick={onClose}
+                  className="group mt-6 flex h-14 items-center justify-between bg-primary px-6 text-sm font-bold tracking-[0.2em] text-white uppercase transition-colors hover:bg-primary-dark active:bg-primary-dark"
+                >
+                  Reservar mesa
+                  <ArrowRight aria-hidden className="size-5 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </m.div>
+            )}
           </nav>
 
           <m.div
@@ -162,21 +176,21 @@ export function MobileMenu({
             <section aria-label="Horario" className="bg-cream px-5 py-5 md:px-10">
               <div className="mb-2 flex items-center justify-between gap-3">
                 <h2 className="text-xs font-bold tracking-[0.16em] text-primary uppercase">Horario</h2>
-                <OpenStatus hours={hours} className="text-xs text-ink" />
+                <OpenStatus schedule={schedule} className="text-xs text-ink" />
               </div>
-              <OpeningHoursList hours={hours} compact className="pl-3" />
+              <OpeningHoursList schedule={schedule} compact className="pl-3" />
             </section>
 
             <div className="grid grid-cols-2 gap-px">
-              <a href={contact.telHref} className="flex min-h-16 items-center gap-3 bg-primary px-5 py-4 text-white transition-colors hover:bg-primary-dark md:px-10">
-                <Phone aria-hidden className="size-5 shrink-0" />
+              <a href={actions.telHref} className="flex min-h-16 items-center gap-3 bg-ink px-5 py-4 text-white transition-colors hover:bg-ink/90 focus-visible:outline-gold md:px-10">
+                <Phone aria-hidden className="size-5 shrink-0 text-gold" />
                 <span className="min-w-0">
                   <span className="block text-[0.6875rem] font-bold tracking-[0.16em] text-white/75 uppercase">Llamar</span>
-                  <span className="block truncate font-semibold tabular-nums">{contact.phone}</span>
+                  <span className="block truncate font-semibold tabular-nums">{actions.phone}</span>
                 </span>
               </a>
               <a
-                href={contact.directionsUrl}
+                href={actions.directionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex min-h-16 items-center gap-3 bg-cream px-5 py-4 text-ink transition-colors hover:bg-cream-200 md:px-10"

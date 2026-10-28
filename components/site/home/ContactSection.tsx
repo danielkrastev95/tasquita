@@ -1,11 +1,12 @@
 import { ArrowRight, ArrowUpRight, Mail, MapPin } from "lucide-react";
+import { describeClosure, upcomingClosures } from "@/lib/schedule";
 import type { SiteSettings } from "@/lib/settings";
 import { cn } from "@/lib/utils";
 import { EmailText, InstagramIcon } from "../icons";
 import { OpeningHoursList } from "../OpeningHoursList";
 import { OpenStatus } from "../OpenStatus";
 import { SmartImage } from "../SmartImage";
-import { directionsUrl, instagramUrl, mapEmbedUrl, mapsUrl, telHref } from "../utils";
+import { directionsUrl, getSchedule, instagramUrl, mapEmbedUrl, mapsUrl, telHref } from "../utils";
 import { MapFacade } from "./MapFacade";
 
 const cell = "bg-cream px-5 py-10 md:px-10 md:py-12 lg:px-14";
@@ -13,10 +14,13 @@ const number = "text-xs font-bold tracking-[0.16em] text-primary tabular-nums";
 const cellTitle = "mt-5 border-t border-primary/20 pt-6 font-serif text-[1.85rem] leading-none font-extrabold text-ink uppercase italic md:text-[2.25rem]";
 
 export function ContactSection({ settings: s }: { settings: SiteSettings }) {
+  const schedule = getSchedule(s);
+  const closures = upcomingClosures(s.specialClosures);
+
   return (
     <section id="contacto" aria-labelledby="contacto-title">
       {/* Banda oscura con titular gigante */}
-      <div className="relative isolate overflow-hidden bg-ink text-white">
+      <div className="on-dark relative isolate overflow-hidden bg-ink text-white">
         {s.contactImage && <SmartImage src={s.contactImage} alt="" fill sizes="100vw" className="-z-20 object-cover opacity-40" />}
         <div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-t from-ink/90 via-ink/50 to-ink/30" />
         <div aria-hidden className="absolute inset-0 -z-10 bg-grain opacity-[0.07] mix-blend-overlay" />
@@ -61,12 +65,28 @@ export function ContactSection({ settings: s }: { settings: SiteSettings }) {
           <div className={cell}>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className={number}>02</p>
-              <OpenStatus hours={s.openingHours} className="text-ink" />
+              <OpenStatus schedule={schedule} className="text-ink" />
             </div>
             <h3 className={cellTitle}>Horario</h3>
-            <OpeningHoursList hours={s.openingHours} className="mt-4 pl-3" />
+            <OpeningHoursList schedule={schedule} className="mt-4 pl-3" />
             {s.hoursNote && (
               <p className="mt-5 border-l-2 border-gold pl-4 text-sm leading-relaxed text-ink-muted text-pretty">{s.hoursNote}</p>
+            )}
+            {closures.length > 0 && (
+              <div className="mt-7 border border-danger/30 bg-danger/[0.04] px-4 py-4">
+                <h4 className="text-xs font-bold tracking-[0.16em] text-danger uppercase">Próximos cierres</h4>
+                <ul className="mt-2 space-y-1.5">
+                  {closures.map((c) => (
+                    <li key={`${c.from}-${c.to}`} className="flex items-baseline gap-2.5 text-sm text-ink">
+                      <span aria-hidden className="size-1.5 shrink-0 -translate-y-px bg-danger" />
+                      <span>
+                        <span className="font-semibold">{describeClosure(c)}</span>
+                        {c.note && <span className="text-ink-muted"> — {c.note}</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
           </div>
         </div>

@@ -4,17 +4,35 @@ import Link from "next/link";
 import { SECTION_GROUPS, SECTION_ICONS } from "@/components/admin/content/section-meta";
 import { PageHeader } from "@/components/ui/Card";
 import { getAdminSettings } from "@/lib/data/admin";
-import { groupOpeningHours } from "@/lib/schedule";
+import { describeClosure, describeDays, groupOpeningHours, upcomingClosures } from "@/lib/schedule";
 import { requireAdmin } from "@/lib/session";
 import type { SiteSettings } from "@/lib/settings";
 import { cn } from "@/lib/utils";
-import { SETTINGS_SECTIONS, type SettingsSectionKey } from "@/lib/validations/settings";
+import { formatPrice } from "@/lib/format";
+import { SETTINGS_SECTIONS, sectionHref, type SettingsSectionKey } from "@/lib/validations/settings";
 
 export const metadata: Metadata = { title: "Contenido" };
 
 /** Resumen del valor actual de cada sección, para verlo de un vistazo. */
-function summary(section: SettingsSectionKey, s: SiteSettings): { text: string; tone?: "on" | "off" } {
+function summary(section: SettingsSectionKey, s: SiteSettings): { text: string; tone?: "on" | "off" | "warn" } {
   switch (section) {
+    case "menu": {
+      const m = s.dailyMenu;
+      const dishes = m.starters.length + m.mains.length + m.desserts.length;
+      if (!m.enabled) return { text: dishes ? `Desactivado · ${dishes} platos guardados` : "Desactivado", tone: "off" };
+      return { text: [describeDays(m.days), formatPrice(m.priceCents)].filter(Boolean).join(" · "), tone: "on" };
+    }
+    case "cierres": {
+      const next = upcomingClosures(s.specialClosures);
+      return next.length ? { text: next.map((c) => describeClosure(c) + (c.note ? ` (${c.note})` : "")).join(" · ") } : { text: "Ninguno previsto", tone: "off" };
+    }
+    case "reservas":
+      if (!s.whatsappEnabled) return { text: "WhatsApp desactivado", tone: "off" };
+      return { text: s.reservationsEnabled ? `Reservas activas · ${s.whatsappPhone}` : `Solo botón de WhatsApp · ${s.whatsappPhone}`, tone: "on" };
+    case "resenas":
+      return s.googleReviewsUrl ? { text: "Enlace configurado", tone: "on" } : { text: "Sin enlace", tone: "off" };
+    case "legal":
+      return s.legalName && s.legalTaxId ? { text: `${s.legalName} · ${s.legalTaxId}` } : { text: "Faltan datos: complétalos", tone: "warn" };
     case "aviso":
       return s.announcementEnabled ? { text: `Activo: «${s.announcementText}»`, tone: "on" } : { text: "Desactivado", tone: "off" };
     case "portada":
@@ -64,7 +82,7 @@ export default async function ContentIndexPage() {
                 const { text, tone } = summary(key, settings);
                 return (
                   <li key={key} className="bg-white">
-                    <Link href={`/admin/contenido/${key}`} className="flex h-full items-center gap-4 p-4 transition hover:bg-cream-100 md:p-5">
+                    <Link href={sectionHref(key)} className="flex h-full items-center gap-4 p-4 transition hover:bg-cream-100 md:p-5">
                       <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary">
                         <Icon className="size-5" aria-hidden />
                       </span>
@@ -73,7 +91,7 @@ export default async function ContentIndexPage() {
                         <span
                           className={cn(
                             "mt-0.5 line-clamp-2 text-sm leading-snug",
-                            tone === "on" ? "font-medium text-success" : tone === "off" ? "text-ink-muted italic" : "text-ink-muted",
+                            tone === "on" ? "font-medium text-success" : tone === "off" ? "text-ink-muted italic" : tone === "warn" ? "font-medium text-gold-deep" : "text-ink-muted",
                           )}
                         >
                           {text}

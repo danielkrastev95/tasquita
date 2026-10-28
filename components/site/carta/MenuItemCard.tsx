@@ -1,4 +1,4 @@
-import { Heart, House, Star } from "lucide-react";
+import { Ban, Heart, House, Star } from "lucide-react";
 import { getAllergen } from "@/lib/allergens";
 import type { PublicMenuItem } from "@/lib/data/public";
 import { formatPrice } from "@/lib/format";
@@ -13,6 +13,7 @@ const badge = "inline-flex items-center gap-1.5 px-2 py-1 text-xs leading-none f
  * (número, precio grande y nombre protagonista) para que no parezca un hueco vacío.
  * `poster`: en secciones con fotos, a partir de sm el plato sin foto lleva un "cartel"
  * del mismo tamaño que las fotos para que las filas de la rejilla no queden descompensadas.
+ * Medidas (Tapa/Media/Ración) bajo el nombre; "Agotado hoy" atenúa la tarjeta pero la deja visible.
  */
 export function MenuItemCard({ item, number, poster = false }: { item: PublicMenuItem; number: number; poster?: boolean }) {
   const price = formatPrice(item.priceCents);
@@ -20,7 +21,7 @@ export function MenuItemCard({ item, number, poster = false }: { item: PublicMen
   const showPoster = !item.imageUrl && poster;
 
   return (
-    <article className={cn("group relative flex h-full flex-col bg-cream", !item.imageUrl && "overflow-hidden")}>
+    <article className={cn("group relative flex h-full flex-col bg-cream", !item.imageUrl && "overflow-hidden", item.soldOut && "bg-cream-100")}>
       {item.imageUrl ? (
         <div className="relative aspect-[4/3] overflow-hidden bg-cream-300">
           <SmartImage
@@ -28,8 +29,12 @@ export function MenuItemCard({ item, number, poster = false }: { item: PublicMen
             alt={item.name}
             fill
             sizes="(min-width: 1024px) 31vw, (min-width: 640px) 46vw, 100vw"
-            className="object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]"
+            className={cn(
+              "object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]",
+              item.soldOut && "opacity-55 grayscale-[70%]",
+            )}
           />
+          {item.soldOut && <SoldOutStamp />}
           {price && (
             <p className="absolute right-0 bottom-0 bg-primary-dark px-3.5 py-2 text-base font-bold text-white tabular-nums">{price}</p>
           )}
@@ -37,7 +42,8 @@ export function MenuItemCard({ item, number, poster = false }: { item: PublicMen
       ) : (
         <>
           {showPoster && (
-            <div className="relative hidden aspect-[4/3] items-center justify-center overflow-hidden bg-primary sm:flex">
+            <div className={cn("relative hidden aspect-[4/3] items-center justify-center overflow-hidden bg-primary sm:flex", item.soldOut && "bg-primary/60")}>
+              {item.soldOut && <SoldOutStamp />}
               <span aria-hidden className="absolute inset-0 bg-grain opacity-10 mix-blend-overlay" />
               <span aria-hidden className="absolute top-4 left-5 text-xs font-bold tracking-[0.16em] text-gold">
                 N.º {pad2(number)}
@@ -62,18 +68,47 @@ export function MenuItemCard({ item, number, poster = false }: { item: PublicMen
           </span>
           <div className={cn("flex items-baseline justify-between gap-4 px-5 pt-5 md:px-7 md:pt-7", showPoster && "sm:hidden")}>
             <span className="text-xs font-bold tracking-[0.16em] text-gold-deep tabular-nums">N.º {pad2(number)}</span>
-            {price && <p className="font-serif text-[1.75rem] leading-none font-bold text-primary tabular-nums italic">{price}</p>}
+            {price && (
+              <p className={cn("font-serif text-[1.75rem] leading-none font-bold tabular-nums italic", item.soldOut ? "text-primary/45" : "text-primary")}>{price}</p>
+            )}
           </div>
         </>
       )}
 
       <div className={cn("relative flex flex-1 flex-col px-5 pb-6 md:px-7 md:pb-8", item.imageUrl ? "pt-5 md:pt-6" : "pt-4", showPoster && "sm:pt-5 md:pt-6")}>
-        <h3 className="font-serif text-[1.6rem] leading-[0.98] font-extrabold tracking-[-0.01em] text-balance text-ink uppercase md:text-[1.8rem]">
+        <h3
+          className={cn(
+            "font-serif text-[1.6rem] leading-[0.98] font-extrabold tracking-[-0.01em] text-balance uppercase md:text-[1.8rem]",
+            item.soldOut ? "text-ink/55" : "text-ink",
+          )}
+        >
           {item.name}
         </h3>
 
-        {(item.award || item.isPopular || item.isHomemade) && (
+        {item.priceVariants.length > 0 && (
+          <ul aria-label="Medidas" className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
+            {item.priceVariants.map((v, i) => (
+              <li key={`${v.label}-${i}`} className="flex items-baseline gap-2">
+                {i > 0 && (
+                  <span aria-hidden className="text-gold-deep">
+                    ·
+                  </span>
+                )}
+                <span className="text-xs font-bold tracking-[0.12em] text-ink-muted uppercase">{v.label}</span>
+                <span className="font-semibold text-primary tabular-nums">{formatPrice(v.priceCents)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {(item.soldOut || item.award || item.isPopular || item.isHomemade) && (
           <ul className="mt-3.5 flex flex-wrap gap-1.5" aria-label="Distintivos">
+            {item.soldOut && (
+              <li className={cn(badge, "bg-danger text-white")}>
+                <Ban aria-hidden className="size-3" />
+                Agotado hoy
+              </li>
+            )}
             {item.award && (
               <li className={cn(badge, "bg-gold text-ink")}>
                 <Star aria-hidden className="size-3 fill-current" />
@@ -96,7 +131,9 @@ export function MenuItemCard({ item, number, poster = false }: { item: PublicMen
         )}
 
         {item.description && (
-          <p className="mt-3.5 max-w-prose text-[0.9375rem] leading-relaxed whitespace-pre-line text-ink-muted text-pretty">{item.description}</p>
+          <p className={cn("mt-3.5 max-w-prose text-[0.9375rem] leading-relaxed whitespace-pre-line text-ink-muted text-pretty", item.soldOut && "opacity-70")}>
+            {item.description}
+          </p>
         )}
 
         {allergens.length > 0 && (
@@ -115,5 +152,17 @@ export function MenuItemCard({ item, number, poster = false }: { item: PublicMen
         )}
       </div>
     </article>
+  );
+}
+
+/** Sello "Agotado hoy" sobre la foto o el cartel. */
+function SoldOutStamp() {
+  return (
+    <span
+      aria-hidden
+      className="absolute top-1/2 left-1/2 z-10 -translate-x-1/2 -translate-y-1/2 -rotate-6 border-[3px] border-danger bg-cream/95 px-4 py-1.5 text-sm font-extrabold tracking-[0.22em] whitespace-nowrap text-danger uppercase shadow-[0_10px_30px_-12px_rgb(28_28_24/0.5)]"
+    >
+      Agotado hoy
+    </span>
   );
 }

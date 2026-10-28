@@ -4,7 +4,8 @@ import { ArrowDownToLine, CalendarCheck, CalendarRange, Copy, Moon, Plus, X } fr
 import { useRef, useState } from "react";
 import { Switch } from "@/components/ui/Switch";
 import { formatDayHours, groupOpeningHours } from "@/lib/schedule";
-import { WEEKDAYS, WEEKDAY_LABELS, type OpeningHours, type TimeRange, type Weekday } from "@/lib/settings";
+import type { OpeningHours, TimeRange } from "@/lib/settings";
+import { WEEKDAYS, WEEKDAY_LABELS, type Weekday } from "@/lib/weekdays";
 import { cn } from "@/lib/utils";
 import { Dialog } from "../Dialog";
 

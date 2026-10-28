@@ -19,6 +19,7 @@ pero usa sus propios componentes (`components/ui`, `components/admin`).
 | `primary-dark` | `#1f5f67` | Hover, etiquetas de precio, barra de aviso. |
 | `primary-light` | `#e3efef` | Fondos suaves (panel). |
 | `gold` | `#c7af65` | **Solo decorativo o sobre oscuro**: reglas, puntos, números en el pie. |
+| `sport` | `#a8381e` | Solo para la categoría "Deporte en directo". |
 | `gold-deep` | `#8a6f22` | Oro **legible sobre crema** (AA) para texto pequeño: numeración, "N.º", contadores. |
 | `ink` | `#1c1c18` | Texto principal y secciones oscuras (pie). |
 | `ink-muted` | `#58413b` | Texto secundario sobre crema. |
@@ -70,11 +71,22 @@ para que los anclajes no queden bajo la cabecera.
 | `carta/CategoryNav` | Chips sticky bajo la cabecera, scrollspy con IntersectionObserver. Sin JS son anclas normales. |
 | `carta/MenuItemCard` | Con foto: etiqueta de precio sobre la imagen. Sin foto: tarjeta tipográfica (N.º, precio grande, número en contorno); en secciones con fotos, "cartel" teal del tamaño de la foto para cuadrar filas. Insignias: premio (oro), Más pedido (teal), Hecho en casa (tinta). Alérgenos con abreviatura + nombre accesible. |
 | `events/EventCard` | Fecha tipo entrada (día gigante + mes/día/hora), categoría como etiqueta, foto o bloque tipográfico. |
+| `daily-menu/DailyMenuBoard` | "La pizarra": bloque teal oscuro con grano y doble marco, precio grande en oro, pases numerados 01/02/03 y "Hoy sí/no se sirve" calculado en cliente. Portada (tras el hero) y arriba de `/carta` (chip ◆ sin número). |
+| `reservations/ReservationForm` | Reserva por WhatsApp sin servidor: nombre, personas (stepper hasta el máximo; más → "llámanos"), día (chips de 14 días con cerrados tachados + selector de otra fecha), hora (franjas de 30 min dentro de los tramos; madrugada marcada), comentarios. Abre `wa.me` con el mensaje formateado. Franjas en `reservations/slots.ts`. |
+| `MobileActionBar` | Barra fija en móvil (Llamar · Reservar · Cómo llegar) que aparece al pasar el hero (`[data-hero]`), respeta `safe-area` y se oculta (inert) con el menú abierto. El pie reserva su altura. |
+| `events/EventActions` + `events/ics.ts` | Reservar para el evento (WhatsApp prellenado), añadir al calendario (`/eventos/[id]/evento.ics`, RFC 5545, `TZID=Europe/Madrid`, 2 h, aviso 2 h antes) y compartir (`navigator.share` → WhatsApp). |
+| `legal/LegalPage` | Plantilla de `/aviso-legal`, `/privacidad`, `/cookies`: índice lateral, ficha del titular sin filas vacías, `prose-legal`. |
 | `home/MapFacade` | Fachada del mapa (plano abstracto + dirección): no se pide nada a Google hasta pulsar "Ver mapa interactivo"; el iframe se monta en el mismo hueco. |
 | `DeliveryLinks` / `DeliveryInline` | Botones de marca o versión discreta en línea. |
 | `SmartImage` | `getImageProps` en servidor (sin JS): Cloudinary → su loader; Unsplash/Uber → optimizador; otros dominios → `unoptimized`. Fondo `cream-300` como placeholder. |
 
 Fotos: primero las reales (ajustes y carta, ver `photos.ts`); Unsplash solo como último recurso.
+
+### Recorrido de la portada
+
+Hero → Menú del día (si está activo) → Nosotros → Eventos (si hay) → Reservar (si WhatsApp y reservas están activos) → Contacto.
+Todo lo que depende de "ahora" (abierto/cerrado, hoy, menú de hoy, días reservables) se calcula en el cliente con
+`useMinute()` y respeta los cierres puntuales (`specialClosures`).
 
 ## 5. Movimiento
 

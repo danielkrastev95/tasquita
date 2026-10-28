@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { pad2 } from "../utils";
 
-type NavCategory = { slug: string; name: string };
+/** `special`: sección destacada (menú del día) sin número de orden. */
+type NavCategory = { slug: string; name: string; special?: boolean };
 
 /**
  * Barra de categorías fija bajo la cabecera. Marca la sección visible (IntersectionObserver),
@@ -99,7 +100,8 @@ export function CategoryNav({ categories }: { categories: NavCategory[] }) {
         ref={listRef}
         className="scrollbar-hide mx-auto flex h-(--chips-h) max-w-[100rem] items-center gap-2 overflow-x-auto scroll-smooth px-5 [mask-image:linear-gradient(to_right,transparent,black_1.25rem,black_calc(100%-2.5rem),transparent)] md:px-10 lg:px-14"
       >
-        {categories.map((c, i) => {
+        {categories.map((c) => {
+          const number = categories.filter((x) => !x.special).indexOf(c) + 1;
           const isActive = c.slug === active;
           return (
             <li key={c.slug} data-slug={c.slug} className="shrink-0">
@@ -113,7 +115,7 @@ export function CategoryNav({ categories }: { categories: NavCategory[] }) {
                 )}
               >
                 <span aria-hidden className={cn("tabular-nums", isActive ? "text-white/70" : "text-gold-deep")}>
-                  {pad2(i + 1)}
+                  {c.special ? "◆" : pad2(number)}
                 </span>
                 {c.name}
               </a>

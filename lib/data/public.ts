@@ -31,6 +31,7 @@ export type PublicMenuItem = {
   soldOut: boolean;
   isPopular: boolean;
   isHomemade: boolean;
+  isNew: boolean;
   award: string | null;
   allergens: string[];
 };
@@ -63,6 +64,7 @@ export const getMenu = cache(async (): Promise<PublicMenuCategory[]> => {
           imageUrl: menuItems.imageUrl,
           isPopular: menuItems.isPopular,
           isHomemade: menuItems.isHomemade,
+          isNew: menuItems.isNew,
           award: menuItems.award,
           allergens: menuItems.allergens,
         },

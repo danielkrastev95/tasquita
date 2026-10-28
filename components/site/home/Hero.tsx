@@ -1,13 +1,15 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CalendarCheck, Phone } from "lucide-react";
 import Link from "next/link";
 import type { PublicEvent } from "@/lib/data/public";
-import { formatEventDate } from "@/lib/format";
-import { formatTime } from "@/lib/schedule";
+import { formatEventDate, formatPrice } from "@/lib/format";
+import { describeDays, formatTime } from "@/lib/schedule";
 import type { SiteSettings } from "@/lib/settings";
 import { DeliveryLinks, hasDelivery } from "../DeliveryLinks";
 import type { Photo } from "../photos";
 import { SmartImage } from "../SmartImage";
-import { capitalize } from "../utils";
+import { hasDailyMenu } from "../daily-menu/DailyMenuBoard";
+import { OpenStatus } from "../OpenStatus";
+import { canReserve, capitalize, getSchedule, splitCity, telHref } from "../utils";
 import { HeroGrid } from "./HeroGrid";
 
 /**
@@ -25,9 +27,11 @@ export function Hero({
   featuredEvent: PublicEvent | null;
 }) {
   const marquee = s.heroMarquee.trim();
+  const reserveHref = canReserve(s) ? "#reservar" : null;
+  const dailyMenuPrice = hasDailyMenu(s.dailyMenu) ? formatPrice(s.dailyMenu.priceCents) : null;
 
   return (
-    <section aria-labelledby="hero-title" className="relative isolate overflow-hidden">
+    <section data-hero aria-labelledby="hero-title" className="relative isolate overflow-hidden">
       {/* Fondo: rejilla, celdas interactivas y marquesina */}
       <div
         aria-hidden
@@ -108,21 +112,78 @@ export function Hero({
 
         {/* Acciones */}
         <div className="lg:col-start-1 lg:row-start-3 lg:mt-10">
-          <div className="flex flex-col gap-6 sm:flex-row sm:flex-wrap sm:items-end sm:gap-x-8">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
             <Link
               href="/carta"
-              className="group inline-flex h-14 w-full items-center justify-between gap-6 bg-primary px-6 text-sm font-bold tracking-[0.2em] text-white uppercase transition-colors hover:bg-primary-dark sm:w-auto sm:justify-start sm:px-8"
+              className="group inline-flex h-14 items-center justify-between gap-3 bg-primary px-4 text-sm font-bold tracking-[0.14em] text-white uppercase transition-colors hover:bg-primary-dark active:translate-y-px sm:justify-start sm:gap-6 sm:px-8 sm:tracking-[0.2em]"
             >
               {s.heroCtaText}
-              <ArrowRight aria-hidden className="size-5 transition-transform duration-300 group-hover:translate-x-1" />
+              <ArrowRight aria-hidden className="size-5 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
-            {hasDelivery(s) && (
-              <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 sm:block">
-                <p className="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase sm:mb-2">{s.heroDeliveryLabel}</p>
-                <DeliveryLinks glovoUrl={s.glovoUrl} uberEatsUrl={s.uberEatsUrl} />
-              </div>
+            {reserveHref ? (
+              <Link
+                href={reserveHref}
+                className="inline-flex h-14 items-center justify-center gap-2.5 border-2 border-primary px-4 text-sm font-bold tracking-[0.14em] text-primary uppercase transition-colors hover:bg-primary hover:text-white active:translate-y-px sm:px-7 sm:tracking-[0.2em]"
+              >
+                <CalendarCheck aria-hidden className="size-4 shrink-0" />
+                Reservar
+              </Link>
+            ) : (
+              <a
+                href={telHref(s.phone)}
+                className="inline-flex h-14 items-center justify-center gap-2.5 border-2 border-primary px-4 text-sm font-bold tracking-[0.14em] text-primary uppercase transition-colors hover:bg-primary hover:text-white active:translate-y-px sm:px-7 sm:tracking-[0.2em]"
+              >
+                <Phone aria-hidden className="size-4 shrink-0" />
+                Llamar
+              </a>
             )}
           </div>
+          {hasDelivery(s) && (
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 sm:justify-start">
+              <p className="text-xs font-bold tracking-[0.18em] text-ink-muted uppercase">{s.heroDeliveryLabel}</p>
+              <DeliveryLinks glovoUrl={s.glovoUrl} uberEatsUrl={s.uberEatsUrl} />
+            </div>
+          )}
+
+          {/* Ficha rápida (escritorio): rellena el pie de la columna con datos útiles */}
+          <dl className="mt-12 hidden grid-cols-3 gap-px border-y border-primary/20 bg-primary/20 lg:grid">
+            <div className="bg-cream py-4 pr-5">
+              <dt className="text-[0.6875rem] font-bold tracking-[0.18em] text-gold-deep uppercase">Hoy</dt>
+              <dd className="mt-1.5">
+                <OpenStatus schedule={getSchedule(s)} className="text-[0.8125rem] leading-snug text-ink" />
+              </dd>
+            </div>
+            <div className="bg-cream px-5 py-4">
+              <dt className="text-[0.6875rem] font-bold tracking-[0.18em] text-gold-deep uppercase">Dónde</dt>
+              <dd className="mt-1.5 text-[0.8125rem] leading-snug font-semibold text-ink">
+                {s.addressStreet}
+                <span className="block font-normal text-ink-muted">{splitCity(s.addressCity).locality}</span>
+              </dd>
+            </div>
+            <div className="bg-cream py-4 pl-5">
+              {dailyMenuPrice ? (
+                <>
+                  <dt className="text-[0.6875rem] font-bold tracking-[0.18em] text-gold-deep uppercase">{s.dailyMenu.title}</dt>
+                  <dd className="mt-1.5 text-[0.8125rem] leading-snug font-semibold text-ink">
+                    <Link href="/#menu-del-dia" className="underline decoration-primary/30 underline-offset-4 hover:text-primary hover:decoration-primary">
+                      {dailyMenuPrice}
+                    </Link>
+                    <span className="block font-normal text-ink-muted">{describeDays(s.dailyMenu.days)}</span>
+                  </dd>
+                </>
+              ) : (
+                <>
+                  <dt className="text-[0.6875rem] font-bold tracking-[0.18em] text-gold-deep uppercase">Teléfono</dt>
+                  <dd className="mt-1.5 text-[0.8125rem] leading-snug font-semibold text-ink">
+                    <a href={telHref(s.phone)} className="tabular-nums hover:text-primary">
+                      {s.phone}
+                    </a>
+                    <span className="block font-normal text-ink-muted">{reserveHref ? "Reservas por WhatsApp" : "Llámanos"}</span>
+                  </dd>
+                </>
+              )}
+            </div>
+          </dl>
         </div>
       </div>
     </section>
@@ -138,9 +199,9 @@ function HeroEventTag({ event }: { event: PublicEvent }) {
     >
       <span className="flex items-center gap-2 text-[0.6875rem] font-bold tracking-[0.16em] uppercase lg:text-xs">
         <span aria-hidden className="size-1.5 shrink-0 animate-pulse-dot bg-gold" />
-        Próximo evento
+        <span className="hidden lg:inline">Próximo evento</span>
         <span className="lg:hidden">
-          · {d.weekday.slice(0, 3)} {Number(d.day)} {d.monthShort}
+          Evento · {d.weekday.slice(0, 3)} {Number(d.day)} {d.monthShort}
         </span>
       </span>
       <span className="mt-1 flex items-center gap-2 font-serif text-[1.05rem] leading-[1.1] font-bold lg:mt-1.5 lg:block lg:text-xl lg:text-balance">
