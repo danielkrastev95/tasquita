@@ -1,382 +1,69 @@
-# La Tasquita de Sara - Web Oficial
+# La Tasquita de Sara
 
-Web moderna y minimalista para el restaurante La Tasquita de Sara ubicado en Valdemoro, Madrid.
+Web y panel privado de **La Tasquita de Sara**, bar de tapas en Valdemoro (Madrid).
 
-**🌐 En producción:** https://tasquita.vercel.app
+- **Web:** https://tasquita.vercel.app — portada, carta (`/carta`) y eventos (`/eventos`).
+- **Panel:** https://tasquita.vercel.app/admin — carta, eventos, textos, fotos y horario. Acceso con contraseña + app de autenticación (2FA obligatorio).
 
----
+## Stack
 
-## ✨ Características
+| Capa | Tecnología |
+| --- | --- |
+| Framework | Next.js 16 (App Router, Server Components, Server Actions), React 19, TypeScript |
+| Estilos | Tailwind CSS 4 (tokens en `app/globals.css`), motion |
+| Base de datos | Neon Postgres + Drizzle ORM (driver HTTP serverless) |
+| Autenticación | Better Auth (email + contraseña, TOTP obligatorio, códigos de respaldo, rate limiting) |
+| Imágenes | Cloudinary (subida desde el panel, optimización `f_auto,q_auto` en su CDN) |
+| Hosting | Vercel (deploy automático al hacer push a `main`) |
 
-### Frontend
-- **Next.js 16** con App Router y React 19
-- **TypeScript** para type safety completo
-- **Tailwind CSS** con diseño glass morphism
-- **Framer Motion** para animaciones suaves
-- **React Hook Form** con validación Zod
-- Diseño **responsive** mobile-first
-- **SEO optimizado** con metadata
-- Imágenes optimizadas con next/image y Cloudinary
-
-### Backend & Admin
-- **Panel de administración completo** (`/admin`)
-- **NextAuth v5** con JWT y bcrypt
-- **Prisma ORM** con Neon PostgreSQL
-- **API Routes** con validación Zod
-- **Cloudinary** para gestión de imágenes
-- Autenticación protegida con NextAuth proxy
-
----
-
-## 🎨 Paleta de Colores
-
-- **Verde azulado (Primary):** `#53A699`
-- **Dorado/Tostado (Gold):** `#C7AF65`
-- **Blanco:** `#FFFFFF`
-
----
-
-## 🚀 Inicio Rápido
-
-### 1. Clonar el repositorio
-
-```bash
-git clone https://github.com/danielkrastev95/tasquita.git
-cd tasquita
-```
-
-### 2. Instalar dependencias
+## Puesta en marcha local
 
 ```bash
 npm install
+cp .env.example .env.local   # rellena DATABASE_URL con la rama "dev" de Neon
+npm run db:migrate           # aplica las migraciones de drizzle/
+npm run dev                  # http://localhost:3000
 ```
 
-### 3. Configurar variables de entorno
+> ⚠️ En local usa **siempre** la rama `dev` de Neon (copia aislada de producción). La rama `production` solo la usa Vercel.
 
-Crea un archivo `.env` en la raíz del proyecto:
+## Scripts
 
-```env
-# Database - Neon PostgreSQL
-DATABASE_URL="postgresql://user:password@host/database?sslmode=require"
+| Comando | Qué hace |
+| --- | --- |
+| `npm run dev` / `build` / `start` | Next.js |
+| `npm run typecheck` / `lint` | Comprobaciones de TypeScript y ESLint |
+| `npm run db:generate` | Genera una migración SQL a partir de `lib/db/schema.ts` |
+| `npm run db:migrate` | Aplica las migraciones pendientes a la base de `DATABASE_URL` |
+| `npm run db:studio` | Drizzle Studio para ver/editar datos |
+| `npm run db:import-legacy` | Importa los datos del panel antiguo (Prisma). Idempotente |
+| `npm run admin:reset-password -- <email> "<contraseña>"` | Cambia (o crea) la contraseña del panel y cierra sus sesiones |
+| `npm run admin:reset-2fa -- <email>` | Quita el 2FA de una cuenta (móvil perdido); se pedirá configurarlo al entrar |
 
-# NextAuth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-here-generate-with-openssl-rand-base64-32"
+## Base de datos (Neon)
 
-# Cloudinary
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="your-cloudinary-cloud-name"
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET="your-upload-preset"
-```
+Proyecto Neon `jolly-glitter-32281018`:
 
-### 4. Ejecutar el servidor de desarrollo
+- `production` → la usa Vercel (Production).
+- `dev` → hija de `production`, para desarrollo local. Para refrescarla con datos reales: *Reset from parent* en la consola de Neon.
+- `archive-2026-03` → copia antigua de marzo de 2026 (solo histórico).
 
-```bash
-npm run dev
-```
+Cambiar el esquema: edita `lib/db/schema.ts` → `npm run db:generate` → revisa el SQL en `drizzle/` → `npm run db:migrate` en `dev` → pruébalo → aplica la migración en `production` antes de desplegar.
 
-Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
+Los textos editables de la web (`site_settings.data`) son un documento JSON validado con zod (`lib/settings.ts`): añadir un campo nuevo con valor por defecto **no** necesita migración.
 
-### 5. Acceder al panel de administración
+## Variables de entorno
 
-- **URL:** http://localhost:3000/admin/login
-- **Credenciales:** Configuradas en la base de datos inicial
+| Variable | Dónde | Descripción |
+| --- | --- | --- |
+| `DATABASE_URL` | Local, Vercel | Conexión a Neon |
+| `BETTER_AUTH_SECRET` | Local, Vercel | Secreto para firmar sesiones (32+ bytes aleatorios) |
+| `BETTER_AUTH_URL` | Local, Vercel (Production) | URL pública (`https://tasquita.vercel.app`) |
+| `NEXT_PUBLIC_SITE_URL` | Vercel (Production) | URL canónica para SEO/Open Graph |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Local, Vercel | Cloud de Cloudinary |
+| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Local, Vercel | Preset de subida sin firmar (solo se usa desde el servidor) |
 
----
+## Despliegue
 
-## 📁 Estructura del Proyecto
-
-```
-la-tasquita-de-sara/
-├── app/
-│   ├── layout.tsx              # Layout principal
-│   ├── page.tsx                # Página home
-│   ├── globals.css             # Estilos globales
-│   ├── admin/                  # Panel de administración
-│   │   ├── layout.tsx          # Layout con sidebar
-│   │   ├── page.tsx            # Dashboard
-│   │   ├── login/              # Login page
-│   │   ├── menu/               # Gestión de menú
-│   │   ├── events/             # Gestión de eventos
-│   │   └── settings/           # Configuración
-│   └── api/                    # API Routes
-│       ├── auth/               # NextAuth endpoints
-│       └── admin/              # CRUD APIs
-├── components/
-│   ├── Navbar.tsx              # Navegación principal
-│   ├── Hero.tsx                # Hero section
-│   ├── MenuSection.tsx         # Menú con categorías
-│   ├── AboutSection.tsx        # Sobre el restaurante
-│   ├── EventsSection.tsx       # Eventos destacados
-│   ├── ContactSection.tsx      # Contacto y mapa
-│   ├── Footer.tsx              # Footer
-│   ├── MobileMenu.tsx          # Menú móvil
-│   └── admin/                  # Componentes admin
-│       ├── AdminSidebar.tsx
-│       ├── ImageUpload.tsx     # Upload Cloudinary
-│       └── ...
-├── lib/
-│   ├── auth.ts                 # NextAuth config
-│   ├── prisma.ts               # Prisma client
-│   └── validations/            # Schemas Zod
-│       ├── settings.ts
-│       ├── events.ts
-│       └── menu.ts
-├── types/
-│   └── next-auth.d.ts          # Type definitions
-├── prisma/
-│   ├── schema.prisma           # Database schema
-│   └── seed.ts                 # Seed data
-├── proxy.ts                    # NextAuth proxy
-├── CLAUDE.md                   # Documentación técnica
-├── DEPLOYMENT.md               # Guía de deployment
-└── CHANGELOG_2026-03-07.md     # Changelog detallado
-```
-
----
-
-## 📝 Scripts Disponibles
-
-### Desarrollo
-
-```bash
-npm run dev          # Servidor desarrollo (puerto 3000)
-npm run build        # Build para producción
-npm start            # Servidor producción
-npm run lint         # Ejecutar linter
-```
-
-### Base de Datos
-
-```bash
-npm run db:push      # Aplicar cambios schema
-npm run db:studio    # Abrir Prisma Studio
-npm run db:seed      # Poblar base de datos
-```
-
----
-
-## 🎯 Funcionalidades
-
-### Frontend Público
-
-#### Navegación
-- Navbar fija con efecto glass morphism
-- Menú móvil con Portal pattern
-- Navegación suave entre secciones
-- Scroll to top button
-
-#### Hero
-- Imagen de fondo optimizada
-- Banner de evento destacado (toggle)
-- Botones delivery: Glovo y Uber Eats
-- CTA a contacto
-
-#### Menú
-- 8 categorías con 33 platos
-- Indicador "Más pedido"
-- Indicador "Casero"
-- Premios destacados
-- Imágenes optimizadas
-
-#### Eventos
-- Sistema de categorías (Música, Gastronomía, Especial)
-- Evento destacado en Hero
-- Toggle para mostrar/ocultar sección
-- Imágenes y descripciones
-
-#### Contacto
-- Dirección con Google Maps integrado
-- Horarios responsive
-- Enlaces a redes sociales
-- Teléfono y email
-
-### Panel de Administración
-
-#### Dashboard
-- Resumen de estadísticas
-- Acceso rápido a secciones
-- Sidebar navigation
-
-#### Gestión de Menú
-- CRUD completo de categorías
-- CRUD completo de platos
-- Upload de imágenes a Cloudinary
-- Reordenamiento drag & drop
-- Activar/desactivar items
-
-#### Gestión de Eventos
-- CRUD completo de eventos
-- Marcar como destacado (Hero)
-- Categorías: Música, Gastronomía, Especial
-- Upload de imágenes a Cloudinary
-- Activar/desactivar eventos
-
-#### Configuración General
-- Toggle Hero eventos
-- Toggle sección eventos
-- Información del restaurante
-- Editor de horarios dinámico
-- Redes sociales
-- Hero title & subtitle
-
----
-
-## 🛠️ Stack Tecnológico
-
-### Frontend
-- **Framework:** Next.js 16.1.6
-- **UI Library:** React 19.2.4
-- **Language:** TypeScript 5.6.3
-- **Styling:** Tailwind CSS 3.4.15
-- **Animations:** Framer Motion 11.11.11
-- **Forms:** React Hook Form 7.53.2
-- **Validation:** Zod 3.25.76
-
-### Backend
-- **API:** Next.js API Routes
-- **Auth:** NextAuth.js v5.0.0-beta.25
-- **ORM:** Prisma 6.1.0
-- **Database:** Neon PostgreSQL (Serverless)
-- **Password:** bcryptjs 2.4.3
-
-### Images & CDN
-- **CDN:** Cloudinary
-- **Optimization:** next/image
-- **Upload:** Cloudinary Widget
-
-### Deployment
-- **Hosting:** Vercel
-- **Database:** Neon (AWS us-west-2)
-- **Version Control:** GitHub
-
----
-
-## 🔒 Autenticación
-
-### Flujo de Autenticación
-
-1. **Proxy (`proxy.ts`):**
-   - NextAuth wrapper integrado
-   - Primera capa de protección
-   - Pathname headers para layout
-
-2. **NextAuth (`lib/auth.ts`):**
-   - Callback `authorized()` para redirects
-   - Callback `jwt()` para tokens
-   - Callback `session()` para sesión
-   - Provider: Credentials con bcrypt
-
-3. **Rutas Protegidas:**
-   - ✅ `/admin/*` (excepto `/admin/login`)
-   - ✅ `/api/admin/*`
-   - ❌ `/` (público)
-   - ❌ `/api/auth/*` (NextAuth)
-
----
-
-## 📦 Deploy a Producción
-
-### Deployment Automático (Vercel + GitHub)
-
-```bash
-# Push a develop
-git push origin develop
-
-# Mergear a main para deploy automático
-git checkout main
-git merge develop
-git push origin main
-```
-
-Vercel detecta el push a `main` y deploya automáticamente.
-
-### Variables de Entorno en Vercel
-
-Ver guía completa en [DEPLOYMENT.md](DEPLOYMENT.md)
-
-**Variables requeridas:**
-1. `DATABASE_URL`
-2. `NEXTAUTH_URL`
-3. `NEXTAUTH_SECRET`
-4. `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`
-5. `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`
-
-**Scripts automáticos:**
-- `vercel-env-setup.ps1` (Windows)
-- `vercel-env-setup.sh` (Linux/Mac)
-
----
-
-## 📚 Documentación
-
-- **[CLAUDE.md](CLAUDE.md)** - Documentación técnica completa
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Guía de deployment
-- **[CHANGELOG_2026-03-07.md](CHANGELOG_2026-03-07.md)** - Changelog detallado
-- **[GUIA_IMAGENES.md](GUIA_IMAGENES.md)** - Guía de imágenes
-- **[CLOUDINARY_INTEGRATION.md](CLOUDINARY_INTEGRATION.md)** - Integración Cloudinary
-
----
-
-## 🏪 Información del Restaurante
-
-**Nombre:** La Tasquita de Sara
-**Dirección:** C. Lili Álvarez, 66, Valdemoro, Madrid 28342
-**Coordenadas:** 40.201998253991874, -3.6892787099523385
-**Instagram:** [@latasquitadesara](https://instagram.com/latasquitadesara)
-**Tipo:** Bar de tapas moderno con hamburguesas gourmet, raciones y cocina de mercado
-
-### Horarios
-
-- **Lunes:** Cerrado
-- **Martes y Miércoles:** 9:00 - 15:45
-- **Jueves:** 9:00 - 15:45 y 20:00 - 23:00
-- **Viernes:** 9:00 - 15:45 y 20:00 - 23:20
-- **Sábado:** 10:00 - 15:45 y 20:00 - 23:20
-- **Domingo:** 10:00 - 15:45
-
----
-
-## 🔧 Troubleshooting
-
-### Error: Admin accesible sin login
-
-**Solución:** Verificar variables en Vercel:
-- `NEXTAUTH_URL` = `https://tasquita.vercel.app`
-- `NEXTAUTH_SECRET` configurado correctamente
-
-### Error: Imágenes no cargan
-
-**Solución:** Verificar variables de Cloudinary en Vercel.
-
-### Error: Database connection
-
-**Solución:** Verificar `DATABASE_URL` y que Neon database esté activo.
-
-Ver más en [DEPLOYMENT.md](DEPLOYMENT.md)
-
----
-
-## 🤝 Contribuir
-
-Este proyecto es privado y propiedad de La Tasquita de Sara.
-
----
-
-## 📄 Licencia
-
-© 2026 La Tasquita de Sara. Todos los derechos reservados.
-
----
-
-## 🔗 Links Útiles
-
-- **Producción:** https://tasquita.vercel.app
-- **Admin:** https://tasquita.vercel.app/admin/login
-- **GitHub:** https://github.com/danielkrastev95/tasquita
-- **Vercel Dashboard:** https://vercel.com/dashboard
-
----
-
-**Última actualización:** 7 de Marzo 2026
-**Versión:** 1.0.0 (Producción)
-**Estado:** ✅ En producción
+`git push origin main` → Vercel construye y publica. Si el build falla, producción sigue en la versión anterior.
+Antes de desplegar un cambio de esquema, aplica la migración a la rama `production` de Neon.

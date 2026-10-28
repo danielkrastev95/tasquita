@@ -9,8 +9,6 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // Permite varios `next dev` en paralelo en local: NEXT_DIST_DIR=.next-xyz next dev -p 3101
-  distDir: process.env.NEXT_DIST_DIR || ".next",
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
